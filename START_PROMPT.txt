@@ -1,0 +1,7 @@
+Open `CODEX_HANDOFF.md`, `AGENTS.md`, and `TASK.md` and treat them as the project specification.
+
+Continue this project end-to-end. Do not just review or propose a plan: inspect the current implementation, run it, fix it, test it, commit it, push it to `dimasdont-lab/voice-finance-free`, configure GitHub Pages, and give me the live HTTPS URL.
+
+Highest priority: make local multilingual voice recording/transcription robust on iPhone Safari while keeping the whole runtime free. Ukrainian + Polish + English can occur in the same utterance. Do not use paid AI/STT APIs or Lovable.
+
+If local Whisper on iPhone has a real technical limitation, measure/test it and choose the strongest practical free fallback without introducing a paid runtime dependency. Keep manual entry and typed phrase parsing working regardless of voice status.

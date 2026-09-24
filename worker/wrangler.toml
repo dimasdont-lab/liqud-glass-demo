@@ -1,0 +1,19 @@
+name = "voice-finance-banking"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "voice-finance"
+database_id = "REPLACE_AFTER_D1_CREATE"
+
+[vars]
+FRONTEND_ORIGIN = "https://dimasdont-lab.github.io"
+
+# Add with `wrangler secret put`, never commit values:
+# SESSION_SIGNING_SECRET
+# ENABLE_BANKING_APPLICATION_ID
+# ENABLE_BANKING_PRIVATE_KEY
+# MONOBANK_TOKEN_ENCRYPTION_KEY
+
+

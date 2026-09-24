@@ -1,0 +1,1315 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#050505" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="voice-finance-api" content="" />
+  <title>Voice Finance</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <style>
+    :root{
+      --bg:#050505;
+      --panel:#0c0c0e;
+      --panel-2:#101013;
+      --line:rgba(255,255,255,.105);
+      --line-strong:rgba(255,255,255,.16);
+      --text:#f5f5f7;
+      --muted:#9a9aa2;
+      --muted-2:#6f7078;
+      --accent:#ff7d83;
+      --accent-strong:#ff454f;
+      --accent-dim:rgba(255,125,131,.12);
+      --green:#66d896;
+      --shadow:0 20px 60px rgba(0,0,0,.48);
+      --r-xl:32px;
+      --r-lg:26px;
+      --r-md:20px;
+      --r-sm:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Inter,system-ui,sans-serif}
+    body{overflow-x:hidden}
+    button,input,select,textarea{font:inherit}
+    button{color:inherit}
+    .app{
+      max-width:480px;
+      margin:0 auto;
+      min-height:100dvh;
+      padding:calc(env(safe-area-inset-top) + 77px) 18px calc(190px + env(safe-area-inset-bottom));
+      background:#050505;transition:transform .46s cubic-bezier(.2,.8,.2,1),filter .46s ease;
+    }
+    .account-ticker{position:fixed;z-index:42;top:env(safe-area-inset-top);left:0;right:0;height:74px;overflow:hidden;background:rgba(5,5,5,.94);border-bottom:1px solid rgba(255,255,255,.06);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);touch-action:pan-y;cursor:grab}.account-ticker.dragging{cursor:grabbing}.account-ticker.dragging .ticker-item{pointer-events:none}
+    .ticker-track{height:100%;display:flex;width:max-content;align-items:center;will-change:transform;transform:translate3d(0,0,0)}.ticker-sequence{display:flex;align-items:center;flex:none}.ticker-item{position:relative;width:126px;height:62px;display:grid;grid-template-columns:38px 1fr;grid-template-rows:1fr 1fr;column-gap:7px;align-items:center;padding:7px 8px 13px;border:0;border-right:1px solid rgba(255,255,255,.07);background:transparent;text-align:left;color:inherit}.ticker-logo{grid-row:1/3;width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#24242a,#0b0b0d);border:1px solid var(--line);display:grid;place-items:center;font-weight:750;font-size:12px}.ticker-name{font-size:10px;line-height:1;color:#f5f5f7}.ticker-value{font-size:11px;font-weight:650;white-space:nowrap}.ticker-spark{position:absolute;left:53px;bottom:1px;width:38px;height:13px}.ticker-change{position:absolute;right:5px;bottom:2px;font-size:8px;white-space:nowrap}.trend-up{color:var(--green)}.trend-down{color:#ff5364}.trend-flat{color:var(--muted)}
+    @media (prefers-reduced-motion:reduce){.account-ticker{overflow-x:auto;-webkit-overflow-scrolling:touch}.ticker-track{animation:none!important}.ticker-sequence[aria-hidden="true"]{display:none}}
+    .topline{display:flex;justify-content:space-between;align-items:flex-start;margin:8px 4px 5px}
+    .eyebrow{font-size:15px;color:var(--muted);margin-bottom:2px}
+    h1{font-size:33px;line-height:1.05;margin:0;letter-spacing:-1.2px}
+    .sub{margin-top:6px;color:var(--muted);font-size:14px}
+    .icon-btn{
+      width:44px;height:44px;border-radius:50%;border:1px solid var(--line);
+      background:var(--panel);display:grid;place-items:center;padding:0
+    }
+    .screen{display:none}.screen.active{display:block}
+    .card{
+      background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.018));
+      border:1px solid var(--line);border-radius:var(--r-xl);box-shadow:var(--shadow);
+    }
+    .balance-card{padding:24px 22px;margin-bottom:11px}
+    .balance-row{display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:10px;align-items:center}.balance-copy{min-width:0;overflow:hidden}.balance-row .balance{margin:9px 0 6px}.balance-chart-btn{border:0;background:transparent;padding:0;height:78px;display:block;position:relative}.balance-chart-btn svg{width:100%;height:100%;overflow:visible}.balance-chart-btn path:not(.fill){fill:none;stroke:var(--green);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.balance-chart-btn .fill{fill:url(#balanceGradient);stroke:none}.balance-chart-btn::after{content:'›';position:absolute;right:-7px;top:22px;color:var(--muted);font-size:27px}.balance-change{font-size:14px;color:var(--green);margin:0 0 18px;min-width:0}.balance-change strong,.balance-change span{display:block;max-width:100%;white-space:nowrap;overflow:hidden}.balance-change span{margin-top:2px}
+    .label{color:var(--muted);font-size:15px}
+    .balance-main{display:grid;grid-template-columns:minmax(0,1fr) 108px;gap:10px;align-items:center;margin:7px 0 22px;min-width:0}.balance-main>*{min-width:0}.balance{width:100%;font-size:clamp(26px,7.8vw,34px);letter-spacing:-1.2px;line-height:1.05;font-weight:600;white-space:nowrap;overflow:hidden}.balance-chart{width:108px;height:52px;overflow:hidden}.balance-chart path{fill:none;stroke:var(--green);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.balance-chart .fill{fill:url(#balanceGradient);stroke:none}
+    .split{display:grid;grid-template-columns:1fr 1px 1fr;gap:18px;align-items:center}
+    .divider{height:50px;background:var(--line)}
+    .metric{display:flex;gap:10px;align-items:flex-start;border:0;background:transparent;padding:0;text-align:left;cursor:pointer;min-width:0;overflow:hidden}.metric>div:last-child{min-width:0;flex:1;overflow:hidden}
+    .metric .dot{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.055)}
+    .metric strong{display:block;width:100%;font-size:18px;margin-top:2px;white-space:nowrap;overflow:hidden}
+    .income strong,.income .dot{color:var(--green)}
+    .expense strong,.expense .dot{color:var(--accent-strong)}
+    .section{margin-top:20px}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin:0 4px 12px}
+    .section-head h2{font-size:20px;margin:0;letter-spacing:-.3px}
+    .section-head button{border:0;background:none;color:var(--muted);padding:5px}
+    .accounts-section{margin:4px 0 22px}.accounts-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px 8px;overflow:hidden;max-height:108px;transition:max-height .35s ease}.accounts-grid.expanded{max-height:360px}.account-tile{border:0;background:transparent;padding:0;min-width:0;text-align:center}.account-icon{width:58px;height:58px;border-radius:18px;margin:0 auto 7px;border:1px solid rgba(255,255,255,.13);background:linear-gradient(145deg,#27272d,#0d0d10);display:grid;place-items:center;font-size:18px;font-weight:750;box-shadow:inset 0 1px rgba(255,255,255,.08)}.account-icon.erste{background:#0874df}.account-icon.revolut{font-size:30px}.account-name{display:block;font-size:12px;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.account-balance{display:block;font-size:11px;color:var(--green);margin-top:3px;white-space:nowrap}.account-balance.negative{color:#ff5364}.add-icon{font-size:29px;color:var(--muted)}
+    .category-grid{display:block;border:1px solid var(--line);border-radius:var(--r-xl);overflow:hidden;background:var(--panel)}
+    .category{
+      min-height:46px;border:0;border-bottom:1px solid var(--line);border-radius:0;
+      background:transparent;padding:4px 12px;display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;
+      cursor:pointer;transition:.18s transform,.18s border-color;
+    }
+    .category:last-child{border-bottom:0}
+    .category:active{transform:scale(.98)}
+    .cat-top{display:contents}
+    .cat-icon{width:37px;height:37px;border-radius:13px;display:grid;place-items:center;font-size:18px;background:rgba(255,255,255,.06)}
+    .cat-arrow{display:none}.cat-copy{display:contents}.cat-name{font-size:16px;color:#d9d9de}.cat-sum{font-size:16px;margin:0;font-variant-numeric:tabular-nums}
+    .transactions{border:1px solid var(--line);border-radius:var(--r-xl);overflow:hidden;background:var(--panel)}
+    .tx{display:grid;grid-template-columns:46px 1fr auto;gap:12px;align-items:center;padding:14px 15px;border-bottom:1px solid var(--line);cursor:pointer}
+    .tx:last-child{border-bottom:0}
+    .tx-icon{width:42px;height:42px;border-radius:15px;background:rgba(255,255,255,.06);display:grid;place-items:center;font-size:19px}
+    .tx-title{font-size:16px}.tx-meta{font-size:13px;color:var(--muted);margin-top:3px}
+    .tx-amount{font-size:17px;font-variant-numeric:tabular-nums}.pos{color:var(--green)}.neg{color:#f0f0f4}
+    .empty{padding:28px;text-align:center;color:var(--muted)}
+    .bottom-zone{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(480px,100%);padding:8px 15px calc(11px + env(safe-area-inset-bottom));background:linear-gradient(0deg,#050505 0 48%,transparent);z-index:30;transition:transform .5s cubic-bezier(.22,.82,.22,1),bottom .22s ease}
+    .dock-layout{position:relative;height:128px;transition:height .364s cubic-bezier(.22,.72,.18,1)}
+    .quick-entry-shell{position:absolute;z-index:3;left:0;top:0;width:100%;height:42px;border:1px solid rgba(255,255,255,.16);border-radius:21px;background:rgba(31,31,33,.94);box-shadow:inset 0 1px rgba(255,255,255,.12);display:flex;align-items:center;padding:0 18px;transition:top .364s cubic-bezier(.65,0,.35,1),left .476s cubic-bezier(.65,0,.35,1) .252s,width .476s cubic-bezier(.65,0,.35,1) .252s,height .476s cubic-bezier(.65,0,.35,1) .252s,border-radius .476s cubic-bezier(.65,0,.35,1) .252s,padding .476s cubic-bezier(.65,0,.35,1) .252s,opacity .35s ease;overflow:hidden}
+    .quick-entry-shell>svg{width:22px;height:22px;flex:none;color:#f5f5f7}.quick-entry-shell.listening{border-color:rgba(255,64,96,.6)}.quick-entry-input{min-width:0;flex:1;height:100%;border:0;outline:0;background:transparent;color:#f5f5f7;padding:0 9px 0 11px;font-size:16px}.quick-entry-input::placeholder{color:#8d8d94}.quick-send{width:27px;height:27px;flex:none;border:0;border-radius:50%;background:#ff4060;color:#fff;display:grid;place-items:center;padding:0;transition:transform .18s ease,filter .18s ease}.quick-send:active{transform:scale(.9);filter:brightness(.82)}.quick-send svg{width:14px;height:14px}
+    .dock{position:absolute;left:0;top:50px;width:100%;height:78px;transition:top .784s cubic-bezier(.22,.72,.18,1),height .784s cubic-bezier(.22,.72,.18,1)}
+    .dock-group{position:relative;isolation:isolate;width:100%;height:78px;border:1px solid rgba(255,255,255,.16);border-radius:39px;background:rgba(31,31,33,.94);box-shadow:inset 0 1px rgba(255,255,255,.12);overflow:hidden;transition:height .784s cubic-bezier(.22,.72,.18,1),border-color .784s ease,background-color .784s ease,box-shadow .784s ease}.dock-group::before{content:"";position:absolute;z-index:0;right:0;top:7px;width:124px;height:64px;border-radius:32px;background:rgba(31,31,33,.96);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px rgba(255,255,255,.12);opacity:0;transform:scaleX(.7);transform-origin:right center;transition:opacity .45s ease,transform .784s cubic-bezier(.22,.72,.18,1)}
+    .profile-drawer::before{content:"";position:absolute;pointer-events:none;inset:1px;border-radius:inherit;background:linear-gradient(100deg,rgba(255,255,255,.07),transparent 18% 82%,rgba(255,255,255,.055));opacity:.5}
+    .dock-group::after{content:"";position:absolute;pointer-events:none;inset:0;border-radius:inherit;padding:12px;background:rgba(255,255,255,.001);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;backdrop-filter:blur(.75px) contrast(112%);backdrop-filter:url(#glassRefraction) blur(.75px) contrast(112%);-webkit-backdrop-filter:blur(.75px) contrast(112%);-webkit-backdrop-filter:url(#glassRefraction) blur(.75px) contrast(112%)}
+    .dock-indicator{position:absolute;z-index:0;left:6px;top:6px;width:calc((100% - 12px)/5);height:64px;border-radius:31px;transform:translateX(0);will-change:transform,width,height,left,top;transition:left .8s cubic-bezier(.65,0,.35,1),top .8s cubic-bezier(.65,0,.35,1),width .8s cubic-bezier(.65,0,.35,1),height .8s cubic-bezier(.65,0,.35,1),border-radius .8s cubic-bezier(.65,0,.35,1)}.dock-indicator::before{content:"";position:absolute;inset:0;border-radius:inherit;background:#09090a;transform-origin:center}
+    .dock-indicator.moving{animation:dockIndicatorMove .5s cubic-bezier(.65,0,.35,1) both}.dock-indicator.moving::before{animation:dockIndicatorSqueeze .5s ease-in-out both}@keyframes dockIndicatorMove{from{transform:translateX(var(--indicator-from))}to{transform:translateX(var(--indicator-to))}}@keyframes dockIndicatorSqueeze{0%,100%{transform:scaleY(1)}50%{transform:scaleY(var(--indicator-squeeze))}}
+    .dock button{border:0;color:#f1f1f3}.dock-group button{--i:0;position:absolute;z-index:1;left:6px;top:6px;width:calc((100% - 12px)/5);height:64px;border-radius:31px;background:transparent;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:5px 2px;transform:translateX(calc(var(--i) * 100%));transition:transform .8s cubic-bezier(.22,.72,.18,1),opacity .55s ease,color .35s ease,width .8s cubic-bezier(.22,.72,.18,1),height .8s cubic-bezier(.22,.72,.18,1),top .8s cubic-bezier(.22,.72,.18,1),left .8s cubic-bezier(.22,.72,.18,1)}.dock-group button:nth-of-type(2){--i:1}.dock-group button:nth-of-type(3){--i:2}.dock-group button:nth-of-type(4){--i:3}.dock-group button:nth-of-type(5){--i:4}.dock-group button.active{color:#ff4060}.dock-group button:active{filter:brightness(.82)}.dock svg{width:25px;height:25px}.dock-label{font-size:10px;line-height:1;white-space:nowrap;letter-spacing:-.1px;transition:opacity .35s ease}
+    .bottom-zone.compact .dock-layout{height:78px}.bottom-zone.compact .quick-entry-shell{left:68px;top:9px;width:calc(100% - 200px);height:60px;border-radius:30px;padding:0 9px 0 14px}.bottom-zone.compact.compact-home .quick-entry-shell{left:0;width:calc(100% - 132px)}.bottom-zone.compact .dock{top:0;height:78px}.bottom-zone.compact .dock-group{height:78px;border-color:transparent;background:transparent;box-shadow:none;overflow:visible}.bottom-zone.compact .dock-group::before{opacity:1;transform:scaleX(1)}.bottom-zone.compact .dock-group::after{opacity:0}.bottom-zone.compact .dock-indicator{left:0;top:7px;width:64px;height:64px;border-radius:50%;transform:translateX(0)!important;border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px rgba(255,255,255,.12)}.bottom-zone.compact.compact-home .dock-indicator{opacity:0}.bottom-zone.compact .dock-indicator::before{background:rgba(31,31,33,.96)}.bottom-zone.compact .dock-group button{left:0;top:7px;width:64px;height:64px;border-radius:50%;transform:translateX(0) scale(.72);opacity:0;pointer-events:none}.bottom-zone.compact .dock-group button.active:not([data-screen="home"]){transform:translateX(0) scale(1);opacity:1;pointer-events:auto}.bottom-zone.compact .dock-group button[data-screen="home"]{left:calc(100% - 124px);transform:translateX(0) scale(1);opacity:1;pointer-events:auto}.bottom-zone.compact .dock-group button[data-screen="home"].active{background:#09090a}.bottom-zone.compact .dock-group .more-btn{left:calc(100% - 62px);transform:translateX(0) scale(1);opacity:1;pointer-events:auto;background:transparent;border:0;box-shadow:none}.bottom-zone.compact .dock-label{opacity:0}.bottom-zone.compact .quick-entry-shell>svg{width:0;opacity:0}.bottom-zone.compact .quick-send{width:38px;height:38px}.bottom-zone.compact .quick-send svg{width:19px;height:19px}
+    .dock-indicator{transition-duration:.784s}.dock-group button{transition-duration:.784s,.546s,.35s,.784s,.784s,.784s,.784s}.dock-label{transition-duration:.35s}.bottom-zone.compact .dock-layout{transition:height .476s cubic-bezier(.22,.72,.18,1)}.bottom-zone.compact .quick-entry-shell{transition:top .476s cubic-bezier(.65,0,.35,1),left .476s cubic-bezier(.65,0,.35,1),width .476s cubic-bezier(.65,0,.35,1),height .476s cubic-bezier(.65,0,.35,1),border-radius .476s cubic-bezier(.65,0,.35,1),padding .476s cubic-bezier(.65,0,.35,1),opacity .35s ease}
+    .topline{padding-left:0}.page-search{height:41px;margin:0 0 18px;border:1px solid rgba(255,255,255,.1);border-radius:21px;background:#1c1c1e;display:flex;align-items:center;padding:0 16px}.page-search svg{width:20px;height:20px;flex:none}.page-search input{width:100%;height:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--text);padding:0 12px;font-size:17px}.page-search input::placeholder{color:#77777f}
+    .home-topline{min-height:72px;align-items:flex-start}.home-topline h1{font-size:31px;margin-bottom:7px}.home-topline .sub{margin:0;font-size:16px;text-transform:capitalize}
+    .profile-drawer-backdrop{position:fixed;inset:0;z-index:29;background:rgba(0,0,0,0);pointer-events:none;transition:background .46s ease}
+    .profile-drawer-backdrop.open{z-index:50;background:rgba(0,0,0,.38);pointer-events:auto}
+    .profile-drawer{position:absolute;isolation:isolate;z-index:2;right:0;top:0;bottom:0;width:min(76vw,360px);height:100%;padding:calc(env(safe-area-inset-top) + 28px) 16px calc(env(safe-area-inset-bottom) + 132px);background:linear-gradient(110deg,rgba(31,31,36,.48),rgba(12,12,15,.28) 48%,rgba(35,35,41,.34));border-left:1px solid rgba(255,255,255,.18);border-radius:30px 0 0 30px;box-shadow:-26px 0 70px rgba(0,0,0,.34),inset 8px 0 24px rgba(255,255,255,.025);backdrop-filter:blur(15px) saturate(145%);-webkit-backdrop-filter:blur(15px) saturate(145%);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;transform:translateX(104%);transition:transform .4s cubic-bezier(.22,.9,.28,1)}
+    .profile-drawer::before{position:fixed;inset:1px 0 1px 1px;border-radius:29px 0 0 29px;background:radial-gradient(ellipse at 12% 45%,rgba(255,255,255,.14),transparent 18%),linear-gradient(92deg,rgba(255,255,255,.1),transparent 9% 88%,rgba(255,255,255,.025));filter:saturate(130%);opacity:.58}
+    .profile-drawer-backdrop.open .profile-drawer{transform:translateX(0)}
+    body.drawer-open .bottom-zone{pointer-events:none}body.drawer-open .more-btn{pointer-events:auto}
+    body.drawer-open .app{transform:translateX(calc(-1 * min(22vw,105px)));filter:brightness(.72)}
+    body.drawer-open .bottom-zone{z-index:52}body.drawer-open .quick-entry-shell,body.drawer-open .dock-indicator,body.drawer-open .bottom-zone .dock-group button:not(.more-btn){opacity:0!important;pointer-events:none!important;transform:scale(.72)!important}body.drawer-open .dock-group{background:transparent;border-color:transparent;box-shadow:none}body.drawer-open .dock-group::before,body.drawer-open .dock-group::after{opacity:0!important;transform:scale(.7)!important}.more-btn .more-icon,.more-btn .back-icon{position:absolute;left:50%;top:13px;width:25px;height:25px;transform:translateX(-50%);transition:opacity .25s ease,transform .3s cubic-bezier(.65,0,.35,1)}.more-btn .back-icon{opacity:0;transform:translateX(-50%) scale(.65) rotate(-24deg)}.more-btn .dock-label{position:absolute;left:50%;bottom:8px;transform:translateX(-50%)}body.drawer-open .bottom-zone .dock-group .more-btn{left:calc(100% - 64px);top:7px;width:64px;height:64px;border-radius:50%;opacity:1;pointer-events:auto;transform:none;background:#1d1d20;border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px rgba(255,255,255,.1)}body.drawer-open .more-btn .more-icon{opacity:0;transform:translateX(-50%) scale(.65) rotate(24deg)}body.drawer-open .more-btn .back-icon{opacity:1;transform:translateX(-50%) scale(1) rotate(0)}body.drawer-open .more-btn .dock-label{font-size:0}body.drawer-open .more-btn .dock-label::after{content:"Назад";font-size:10px}.bottom-zone.compact .more-btn .more-icon,.bottom-zone.compact .more-btn .back-icon{top:16px}
+    .drawer-title{font-size:28px;margin:0 0 5px}.drawer-sub{color:var(--muted);font-size:13px;margin-bottom:22px}.drawer-section-head{display:flex;align-items:center;justify-content:space-between;margin:18px 3px 10px}.drawer-section-head h2{font-size:18px;margin:0}.drawer-section-head button{border:0;background:transparent;color:var(--muted);padding:5px}.drawer-settings{width:100%;margin-top:16px;border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.045);padding:15px;display:flex;justify-content:space-between;align-items:center;text-align:left}.profile-drawer .category-grid{border-radius:24px}.profile-drawer .category{grid-template-columns:39px minmax(0,1fr) auto;padding-inline:9px}.profile-drawer .cat-icon{width:34px;height:34px}.profile-drawer .cat-name,.profile-drawer .cat-sum{font-size:14px}
+    .person-status{font-size:12px;font-weight:650}.person-status.paid{color:var(--green)}.person-status.unpaid{color:var(--accent-strong)}.person-back{border:0;background:transparent;color:var(--muted);padding:5px 0 15px;font-size:15px}.person-summary{margin-bottom:14px}.person-list .tx{grid-template-columns:42px minmax(0,1fr) auto}.person-list .debt-amount{grid-row:1 / span 2;grid-column:3;align-self:center}
+    .market-picker{margin-top:18px}.market-search{height:48px;border:1px solid var(--line);border-radius:24px;background:rgba(255,255,255,.045);padding:0 15px;color:var(--text);width:100%;outline:0}.market-list{max-height:290px;overflow:auto;margin-top:10px;border:1px solid var(--line);border-radius:20px}.market-option{display:flex;align-items:center;gap:11px;padding:12px 14px;border-bottom:1px solid var(--line)}.market-option:last-child{border-bottom:0}.market-option input{accent-color:#ff4060}.market-option small{margin-left:auto;color:var(--muted)}.data-note{font-size:12px;color:var(--muted);line-height:1.45;margin-top:10px}.empty-chart{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);padding:28px}.detail-title{margin:2px 0 18px}.detail-title h1{font-size:30px}.account-picker{margin:0 0 14px}.account-picker select{width:100%;height:48px;border:1px solid var(--line);border-radius:18px;background:var(--panel);color:var(--text);padding:0 14px}
+    .sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:60;display:none;align-items:flex-end;justify-content:center;overflow:hidden;overscroll-behavior:none;touch-action:none}
+    .sheet-backdrop.open{display:flex}
+    .sheet{
+      position:relative;isolation:isolate;width:min(480px,100%);max-height:90dvh;overflow:auto;overscroll-behavior:contain;touch-action:pan-y;border-radius:34px 34px 0 0;
+      background:linear-gradient(145deg,rgba(35,35,41,.5),rgba(11,11,14,.3) 48%,rgba(33,33,39,.36));
+      border:1px solid rgba(255,255,255,.18);padding:12px 18px calc(24px + env(safe-area-inset-bottom));box-shadow:0 -22px 80px rgba(0,0,0,.46),inset 0 2px 12px rgba(255,255,255,.035);backdrop-filter:blur(15px) saturate(145%);-webkit-backdrop-filter:blur(15px) saturate(145%)
+    }
+    .sheet::before,.voice-popover::before{content:"";position:fixed;z-index:-1;pointer-events:none;inset:1px;border-radius:inherit;background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.16),transparent 28%),linear-gradient(100deg,rgba(255,255,255,.08),transparent 12% 87%,rgba(255,255,255,.055));opacity:.62}
+    .sheet::after,.voice-popover::after{content:"";position:fixed;z-index:-1;pointer-events:none;inset:4px;border-radius:inherit;border:1px solid rgba(255,255,255,.045);box-shadow:inset 7px 3px 16px rgba(255,255,255,.025),inset -8px -5px 18px rgba(0,0,0,.08)}
+    .handle{width:42px;height:5px;background:#44444a;border-radius:99px;margin:3px auto 18px}
+    .sheet h3{font-size:24px;margin:0 0 6px}.sheet p{color:var(--muted);margin:0 0 18px}
+    .field{margin:14px 0}.field label{display:block;color:var(--muted);font-size:13px;margin:0 0 7px 4px}
+    .field input,.field select,.field textarea{
+      width:100%;border:1px solid var(--line);background:#121215;color:var(--text);border-radius:18px;padding:15px 16px;outline:none
+    }
+    .field textarea{min-height:80px;resize:vertical}
+    .type-seg{display:grid;grid-template-columns:1fr 1fr;background:#121215;border:1px solid var(--line);padding:4px;border-radius:18px}
+    .type-seg button{border:0;background:transparent;border-radius:14px;padding:11px;color:var(--muted)}
+    .type-seg button.active{background:#1d1d21;color:var(--text)}
+    .primary{width:100%;border:0;border-radius:20px;background:var(--text);color:#080808;font-weight:650;padding:15px;margin-top:10px}
+    .danger{width:100%;border:1px solid rgba(255,69,79,.28);border-radius:20px;background:rgba(255,69,79,.08);color:var(--accent);padding:14px;margin-top:10px}
+    .voice-panel{text-align:center;padding:12px 8px 2px}
+    .voice-status{font-size:22px;margin:8px 0 5px}.voice-text{color:var(--muted);min-height:40px}
+    .voice-big{margin:16px auto;width:98px;height:98px;border-radius:50%;border:4px solid white;background:var(--accent-strong);display:grid;place-items:center}
+    .voice-big.pulse{animation:pulse 1.35s infinite}
+    @keyframes pulse{50%{box-shadow:0 0 0 16px rgba(255,69,79,.10)}}
+    .parse-card{margin-top:18px;text-align:left;border:1px solid var(--line);border-radius:26px;padding:16px;background:#111114}
+    .parse-amount{font-size:30px;font-weight:650}.parse-sub{color:var(--muted);margin-top:4px}
+    .toast{position:fixed;left:50%;bottom:190px;transform:translate(-50%,20px);background:#171719;border:1px solid var(--line);color:#fff;padding:12px 16px;border-radius:999px;opacity:0;pointer-events:none;transition:.22s;z-index:100;font-size:14px}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    .insight-card,.profile-card,.goal-card{padding:20px;border:1px solid var(--line);border-radius:var(--r-xl);background:var(--panel);margin-bottom:12px}
+    .big-stat{font-size:34px;font-weight:650;margin-top:5px}
+    .bar{height:10px;background:#17171a;border-radius:99px;overflow:hidden;margin-top:12px}.bar > div{height:100%;background:var(--accent);border-radius:99px}
+    .list-row{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}.list-row:last-child{border-bottom:0}
+    .muted{color:var(--muted)}
+    .profile-actions button{width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;padding:16px 0}.profile-actions button:last-child{border-bottom:0}
+    .tiny{font-size:12px;color:var(--muted)}
+    .provider-list{display:grid;gap:9px}.provider-button{width:100%;border:1px solid var(--line);background:#121215;border-radius:18px;padding:14px 15px;display:flex;align-items:center;justify-content:space-between;text-align:left}.provider-note{font-size:12px;color:var(--muted)}.analysis-head{margin-bottom:16px}.analysis-value{font-size:43px;font-weight:650;letter-spacing:-1.8px}.analysis-change{margin-top:6px;font-size:16px}.period-tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;background:#111114;border:1px solid var(--line);border-radius:17px;padding:4px;margin-bottom:14px}.period-tabs button{border:0;background:transparent;color:var(--muted);font-size:12px;padding:8px 2px;border-radius:13px}.period-tabs button.active{background:#29292e;color:white}.analysis-chart{height:260px;border-bottom:1px solid var(--line);position:relative;touch-action:none;margin-bottom:18px}.analysis-chart svg{width:100%;height:100%;overflow:visible}.chart-tooltip{position:absolute;top:10px;left:10px;background:rgba(20,20,23,.92);border:1px solid var(--line);border-radius:12px;padding:7px 9px;font-size:12px;pointer-events:none}.chart-crosshair{stroke:rgba(255,255,255,.35);stroke-width:1;stroke-dasharray:3 3}.metrics-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:24px;overflow:hidden;margin-bottom:18px}.metric-row{padding:13px;border-bottom:1px solid var(--line)}.metric-row:nth-child(odd){border-right:1px solid var(--line)}.metric-row:nth-last-child(-n+2){border-bottom:0}.metric-row small{display:block;color:var(--muted);margin-bottom:4px}.back-button{border:0;background:transparent;color:var(--muted);padding:4px 0 16px;font-size:15px}.market-detail-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}.market-detail-meta .card{padding:16px}.market-detail-meta small{display:block;color:var(--muted);margin-bottom:6px}.market-source{font-size:12px;color:var(--muted);line-height:1.45}
+    .voice-popover{position:fixed;isolation:isolate;left:50%;transform:translateX(-50%);bottom:calc(108px + env(safe-area-inset-bottom));width:min(440px,calc(100% - 28px));z-index:55;display:none;background:linear-gradient(145deg,rgba(38,38,44,.5),rgba(12,12,15,.3) 48%,rgba(36,36,42,.36));border:1px solid rgba(255,255,255,.18);border-radius:26px;padding:16px;box-shadow:0 18px 70px rgba(0,0,0,.48),inset 0 2px 10px rgba(255,255,255,.035);backdrop-filter:blur(15px) saturate(145%);-webkit-backdrop-filter:blur(15px) saturate(145%);transition:bottom .18s ease}
+    body.keyboard-open .bottom-zone{opacity:0;pointer-events:none;transform:translate(-50%,28px);transition:opacity .16s ease,transform .2s ease}
+    body.sheet-open .bottom-zone{opacity:0;pointer-events:none;transform:translate(-50%,28px)}
+    .voice-popover.open{display:block}.voice-popover .parse-card{margin-top:12px;padding:13px;border-radius:20px}.voice-popover .parse-amount{font-size:24px}.voice-popover-head{display:flex;gap:12px;align-items:flex-start}.voice-live-dot{width:11px;height:11px;border-radius:50%;background:var(--accent);margin-top:6px;flex:none}.voice-live-dot.pulse{animation:pulse 1.35s infinite}.voice-copy{min-width:0;flex:1}.voice-popover .voice-status{font-size:16px;margin:0 0 4px}.voice-popover .voice-text{font-size:14px;min-height:0;max-height:70px;overflow:auto}.voice-close{border:0;background:transparent;color:var(--muted);font-size:22px;padding:0 2px}.voice-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.voice-actions button{margin-top:8px}.voice-engine-note{margin-top:8px}
+    .debt-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.debt-total{padding:17px;border:1px solid var(--line);border-radius:24px;background:var(--panel);text-align:left;color:var(--text);cursor:pointer}.debt-total:active{transform:scale(.985)}.debt-total strong{display:block;font-size:22px;margin-top:5px}.debt-row{cursor:pointer}.debt-person{font-size:16px}.debt-note{font-size:12px;color:var(--muted);margin-top:3px}.debt-amount{font-variant-numeric:tabular-nums;white-space:nowrap}
+    .debt-sort{margin-bottom:12px}.debt-sort select{width:100%;border:1px solid var(--line);background:#101013;color:var(--text);border-radius:16px;padding:12px}.debt-section{border:1px solid var(--line);background:var(--panel);border-radius:24px;margin-bottom:10px;overflow:hidden;scroll-margin-top:20px}.debt-section>summary{cursor:pointer;padding:14px 15px;font-weight:650;display:grid;grid-template-columns:minmax(0,1fr) 36px 18px;gap:7px;align-items:center;list-style:none}.debt-section summary::-webkit-details-marker{display:none}.debt-section>summary::after{content:'⌄';color:currentColor;text-align:right;transition:.2s transform}.debt-section[open]>summary::after{transform:rotate(180deg)}.debt-group-title{display:flex;align-items:center;gap:10px;min-width:0}.debt-group-icon{width:32px;height:32px;border-radius:11px;background:rgba(255,255,255,.055);display:grid;place-items:center;flex:none}.debt-group-icon svg{width:19px;height:19px}.debt-group-count{text-align:right;min-width:36px;font-variant-numeric:tabular-nums}.debt-status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 10px 10px}.debt-status{border:1px solid var(--line);border-radius:17px;background:#111114;overflow:hidden;min-width:0}.debt-status summary{padding:12px 10px;display:flex;justify-content:space-between;gap:6px;font-size:12px;cursor:pointer;list-style:none}.debt-status .transactions{border:0;border-top:1px solid var(--line);border-radius:0}.debt-status .tx{grid-template-columns:34px minmax(0,1fr);padding:10px 8px;gap:7px}.debt-status .tx-icon{width:32px;height:32px;border-radius:11px}.debt-status .debt-amount{grid-column:2;font-size:13px}.debt-status .empty{padding:16px 6px;font-size:12px}.urgent-badge{color:var(--accent);font-size:12px}.round-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:10px}.round-action{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#1a1a1e;color:var(--text);display:grid;place-items:center;font-size:20px;padding:0}.round-action.primary-icon{background:var(--text);color:#080808}.round-action.danger-icon{color:var(--accent)}
+    .debt-section.owed>summary,.debt-section.receivable>summary,.debt-section.urgent>summary{color:var(--text);background:transparent}.debt-section.owed,.debt-section.receivable,.debt-section.urgent{border-color:var(--line)}
+    .debt-section>summary{grid-template-columns:minmax(0,1fr) 18px 36px}.debt-section>summary::after{grid-column:2;grid-row:1;text-align:center}.debt-group-count{grid-column:3;grid-row:1;text-align:right}
+    .sheet.swiping{transition:none!important}.sheet.settling{transition:transform .24s ease}
+    .scan-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}.scan-option{border:1px solid var(--line);border-radius:20px;background:#151518;color:var(--text);padding:18px 10px;text-align:center}.scan-preview{width:100%;max-height:260px;object-fit:contain;border-radius:18px;margin-top:12px;background:#060606}
+    .clickable-card{cursor:pointer}.clickable-card:active{transform:scale(.99)}
+    .jelly-item{will-change:transform;transform:translate3d(0,var(--jelly-y,0),0) scaleX(var(--jelly-x,1)) scaleY(var(--jelly-s,1));transform-origin:50% 45%}
+    @media (prefers-reduced-motion:reduce){.jelly-item{transform:none!important}.profile-drawer,.app,.bottom-zone,.dock-layout,.quick-entry-shell,.dock-group{transition-duration:.01ms!important}}
+    .hidden{display:none!important}
+    @media (min-width:700px){
+      body{background:#020202}
+      .app{border-left:1px solid #111;border-right:1px solid #111}
+    }
+    .analysis-chart{touch-action:pan-y}
+  </style>
+</head>
+<body>
+<div class="account-ticker" id="accountTicker" aria-label="Рухомий список рахунків"><div class="ticker-track" id="tickerTrack"></div></div>
+<svg aria-hidden="true" width="0" height="0" style="position:fixed;pointer-events:none">
+  <defs>
+    <filter id="glassRefraction" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.036" numOctaves="2" seed="17" result="glassNoise"/>
+      <feGaussianBlur in="glassNoise" stdDeviation="0.35" result="smoothGlass"/>
+      <feDisplacementMap in="SourceGraphic" in2="smoothGlass" scale="20" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="glassRefractionSoft" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018 0.03" numOctaves="1" seed="9" result="softNoise"/>
+      <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+<div class="profile-drawer-backdrop" id="profileDrawerBackdrop">
+  <aside class="profile-drawer" id="profileDrawer" aria-label="Меню профілю">
+    <h2 class="drawer-title">Профіль</h2>
+    <div class="drawer-sub">Швидкий доступ до категорій і налаштувань</div>
+    <div class="drawer-section-head"><h2>Категорії</h2><button id="allCategories">Усі</button></div>
+    <div class="category-grid" id="categoryGrid"></div>
+    <div class="drawer-section-head"><h2>Клієнти</h2><button id="allClients">Усі</button></div>
+    <div class="category-grid" id="clientQuickList"></div>
+    <div class="drawer-section-head"><h2>Мої борги</h2><button id="allCreditors">Усі</button></div>
+    <div class="category-grid" id="creditorQuickList"></div>
+    <button class="drawer-settings" id="openSettings"><span>Налаштування</span><span aria-hidden="true">›</span></button>
+  </aside>
+</div>
+<div class="app">
+  <section id="home" class="screen active">
+    <div class="topline home-topline">
+      <div><h1>Гарного дня!</h1><div class="sub" id="todayLabel"></div></div>
+    </div>
+    <label class="page-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input id="homeSearch" type="search" placeholder="Пошук операцій" autocomplete="off"></label>
+
+    <div class="balance-card card">
+      <div class="label" id="openBalanceLabel">Загальний баланс</div>
+      <div class="balance-row"><div class="balance-copy" id="openBalanceSummary"><div class="balance" id="balance">0 zł</div><div class="balance-change" id="balanceChange"><strong>—</strong><span>за 30 днів</span></div></div><button class="balance-chart-btn" id="openBalanceAnalysis" aria-label="Відкрити аналіз балансу"><svg viewBox="0 0 126 70" preserveAspectRatio="none"><defs><linearGradient id="balanceGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#66d896" stop-opacity=".3"/><stop offset="1" stop-color="#66d896" stop-opacity="0"/></linearGradient></defs><path class="fill" id="balanceChartFill"/><path id="balanceChartLine"/></svg></button></div>
+      <div class="split">
+        <button class="metric income" id="incomeSummary">
+          <div class="dot">↑</div>
+          <div><div class="label">Доходи</div><strong id="incomeTotal">0 zł</strong></div>
+        </button>
+        <div class="divider"></div>
+        <button class="metric expense" id="expenseSummary">
+          <div class="dot">↓</div>
+          <div><div class="label">Витрати</div><strong id="expenseTotal">0 zł</strong></div>
+        </button>
+      </div>
+    </div>
+
+    <div class="accounts-section">
+      <div class="section-head"><h2>Рахунки</h2><button id="toggleAccounts">Усі&nbsp; ›</button></div>
+      <div class="accounts-grid" id="accountsGrid"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><h2>Останні операції</h2><button id="seeAllTx">Усі</button></div>
+      <div class="transactions" id="recentTx"></div>
+    </div>
+    <div class="section-head" style="margin-top:24px"><h2>Фінансовий контроль</h2></div>
+    <div class="goal-card">
+      <div class="label">Місячний ліміт витрат</div><div class="big-stat" id="goalValue">8 000 zł</div>
+      <div class="bar"><div id="goalBar" style="width:0%"></div></div><div class="tiny" id="goalCaption" style="margin-top:9px"></div>
+    </div>
+    <div class="goal-card"><div class="label">Накопичення</div><div class="big-stat" id="savingsValue">0 zł</div><div class="muted">Доходи мінус витрати за весь період.</div></div>
+  </section>
+
+  <section id="balanceAnalysis" class="screen">
+    <button class="back-button" id="balanceBack">‹ Дім</button>
+    <div class="analysis-head"><div class="eyebrow">Загальний баланс</div><div class="analysis-value" id="analysisValue">0 zł</div><div class="analysis-change trend-flat" id="analysisChange">—</div></div>
+    <div class="period-tabs" id="periodTabs"><button data-period="1D">1D</button><button data-period="7D">7D</button><button class="active" data-period="1M">1M</button><button data-period="3M">3M</button><button data-period="1Y">1Y</button><button data-period="ALL">ALL</button></div>
+    <div class="analysis-chart" id="analysisChart"><svg viewBox="0 0 440 250" preserveAspectRatio="none"><path id="analysisArea" fill="rgba(102,216,150,.12)"/><path id="analysisLine" fill="none" stroke="#66d896" stroke-width="2.3" vector-effect="non-scaling-stroke"/><line class="chart-crosshair hidden" id="chartCrosshair" y1="0" y2="250"/><circle class="hidden" id="chartPoint" r="5" fill="#66d896"/></svg><div class="chart-tooltip hidden" id="chartTooltip"></div></div>
+    <div class="metrics-grid"><div class="metric-row"><small>Поточний</small><strong id="metricCurrent"></strong></div><div class="metric-row"><small>Зміна</small><strong id="metricChange"></strong></div><div class="metric-row"><small>Максимум</small><strong id="metricMax"></strong></div><div class="metric-row"><small>Мінімум</small><strong id="metricMin"></strong></div><div class="metric-row"><small>Доходи</small><strong class="trend-up" id="metricIncome"></strong></div><div class="metric-row"><small>Витрати</small><strong class="trend-down" id="metricExpense"></strong></div></div>
+    <div class="section-head"><h2>Рахунки</h2></div><div class="transactions" id="analysisAccounts"></div>
+  </section>
+
+  <section id="accountDetail" class="screen">
+    <button class="back-button" id="accountBack">‹ Дім</button>
+    <div class="detail-title"><div class="eyebrow">Рахунок</div><h1 id="accountDetailTitle">Рахунок</h1><div class="sub" id="accountDetailBalance"></div></div>
+    <div class="period-tabs" id="accountPeriodTabs"><button data-period="1D">1D</button><button data-period="7D">7D</button><button class="active" data-period="1M">1M</button><button data-period="3M">3M</button><button data-period="1Y">1Y</button><button data-period="ALL">ALL</button></div>
+    <div class="analysis-chart" id="accountChart"><svg viewBox="0 0 440 250" preserveAspectRatio="none"><path id="accountArea" fill="rgba(102,216,150,.12)"/><path id="accountLine" fill="none" stroke="#66d896" stroke-width="2.3" vector-effect="non-scaling-stroke"/></svg><div class="empty-chart hidden" id="accountChartEmpty">Історія з’явиться після змін балансу або синхронізації.</div></div>
+    <div class="metrics-grid"><div class="metric-row"><small>Поточний</small><strong id="accountCurrent"></strong></div><div class="metric-row"><small>Зміна</small><strong id="accountChange"></strong></div><div class="metric-row"><small>Максимум</small><strong id="accountMax"></strong></div><div class="metric-row"><small>Мінімум</small><strong id="accountMin"></strong></div></div>
+    <div class="section-head"><h2>Операції рахунку</h2></div><div class="transactions" id="accountTransactions"></div>
+  </section>
+
+  <section id="flowDetail" class="screen">
+    <button class="back-button" id="flowBack">‹ Дім</button>
+    <div class="detail-title"><div class="eyebrow" id="flowEyebrow">Операції</div><h1 id="flowTitle">Доходи</h1><div class="sub" id="flowTotal"></div></div>
+    <div class="period-tabs" id="flowPeriodTabs"><button data-period="1D">1D</button><button data-period="7D">7D</button><button class="active" data-period="1M">1M</button><button data-period="3M">3M</button><button data-period="1Y">1Y</button><button data-period="ALL">ALL</button></div>
+    <div class="analysis-chart" id="flowChart"><svg viewBox="0 0 440 250" preserveAspectRatio="none"><path id="flowArea" fill="rgba(102,216,150,.12)"/><path id="flowLine" fill="none" stroke="#66d896" stroke-width="2.3" vector-effect="non-scaling-stroke"/></svg><div class="empty-chart hidden" id="flowChartEmpty">Немає реальних операцій за цей період.</div></div>
+    <div class="section-head"><h2 id="flowListTitle">Усі доходи</h2></div><div class="transactions" id="flowTransactions"></div>
+  </section>
+
+  <section id="marketDetail" class="screen">
+    <button class="back-button" id="marketBack">‹ Назад</button>
+    <div class="detail-title"><div class="eyebrow" id="marketDetailKind">Ринок</div><h1 id="marketDetailTitle">Пара</h1><div class="analysis-value" id="marketDetailValue">—</div><div class="analysis-change" id="marketDetailChange">—</div></div>
+    <div class="period-tabs" id="marketPeriodTabs"><button data-period="1D">1D</button><button data-period="7D">7D</button><button class="active" data-period="1M">1M</button><button data-period="3M">3M</button><button data-period="1Y">1Y</button><button data-period="ALL">ALL</button></div>
+    <div class="analysis-chart" id="marketChart"><svg viewBox="0 0 440 250" preserveAspectRatio="none"><path id="marketArea" fill="rgba(102,216,150,.12)"/><path id="marketLine" fill="none" stroke="#66d896" stroke-width="2.3" vector-effect="non-scaling-stroke"/></svg><div class="empty-chart hidden" id="marketChartEmpty">Дані тимчасово недоступні.</div></div>
+    <div class="market-detail-meta"><div class="card"><small>Мінімум</small><strong id="marketMin">—</strong></div><div class="card"><small>Максимум</small><strong id="marketMax">—</strong></div><div class="card"><small>Початок періоду</small><strong id="marketOpen">—</strong></div><div class="card"><small>Оновлено</small><strong id="marketUpdated">—</strong></div></div>
+    <div class="market-source" id="marketSource"></div>
+  </section>
+
+  <section id="insights" class="screen">
+    <div class="topline"><div><div class="eyebrow">Фінанси</div><h1>Аналітика</h1><div class="sub">Цей місяць</div></div></div>
+    <div id="insightsContent"></div>
+  </section>
+
+  <section id="debts" class="screen">
+    <div class="topline"><div><div class="eyebrow">Облік</div><h1>Борги</h1><div class="sub">Кому винен я і хто винен мені</div></div></div>
+    <label class="page-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input id="debtSearch" type="search" placeholder="Пошук боргів" autocomplete="off"></label>
+    <div class="debt-summary">
+      <button class="debt-total" id="owedWidget"><div class="label">Мої борги</div><strong id="owedTotal">0 zł</strong></button>
+      <button class="debt-total" id="receivableWidget"><div class="label">Мої боржники</div><strong id="receivableTotal">0 zł</strong></button>
+    </div>
+    <div class="debt-sort"><select id="debtSortSelect" aria-label="Сортування боргів"><option value="name-asc">За ім’ям: А → Я</option><option value="name-desc">За ім’ям: Я → А</option></select></div>
+    <div id="debtGroups"></div>
+  </section>
+
+  <section id="goals" class="screen">
+    <div class="topline"><div><div class="eyebrow">Планування</div><h1>Цілі</h1><div class="sub">Ліміти та накопичення</div></div></div>
+    <div class="goal-card"><div class="label">Місячний ліміт витрат</div><div class="big-stat" id="goalsPageValue">8 000 zł</div><div class="bar"><div id="goalsPageBar" style="width:0%"></div></div><div class="tiny" id="goalsPageCaption" style="margin-top:9px"></div></div>
+    <div class="goal-card"><div class="label">Накопичення</div><div class="big-stat" id="goalsPageSavings">0 zł</div><div class="muted">Доходи мінус витрати за весь період.</div></div>
+  </section>
+
+  <section id="people" class="screen">
+    <button class="person-back" id="peopleBack">‹ Борги</button>
+    <div class="topline"><div><div class="eyebrow">Анкети</div><h1 id="peopleTitle">Клієнти</h1><div class="sub" id="peopleSubtitle"></div></div></div>
+    <div class="transactions person-list" id="peopleList"></div>
+  </section>
+
+  <section id="person" class="screen">
+    <button class="person-back" id="personBack">‹ Усі анкети</button>
+    <div class="topline"><div><div class="eyebrow" id="personEyebrow">Клієнт</div><h1 id="personTitle"></h1><div class="sub" id="personSubtitle"></div></div></div>
+    <div class="debt-summary person-summary"><div class="debt-total"><div class="label">Не оплачено</div><strong id="personOpenTotal">0 zł</strong></div><div class="debt-total"><div class="label">Оплачено</div><strong id="personPaidTotal">0 zł</strong></div></div>
+    <div class="transactions person-list" id="personDebtList"></div>
+  </section>
+
+</div>
+
+<div class="bottom-zone" id="bottomZone">
+  <div class="dock-layout">
+    <div class="quick-entry-shell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M12 5v14"/></svg><input class="quick-entry-input" id="quickEntryInput" placeholder="Введи операцію або борг" autocomplete="off" enterkeyhint="done"><button class="quick-send" id="quickSend" aria-label="Розпізнати фразу"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6.5 10.5 12 5l5.5 5.5"/></svg></button></div>
+    <nav class="dock" aria-label="Головна навігація"><div class="dock-group"><div class="dock-indicator" aria-hidden="true"></div>
+      <button data-screen="goals" aria-label="Цілі"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="m14 10 5-5"/></svg><span class="dock-label">Цілі</span></button>
+      <button data-screen="insights" aria-label="Аналітика"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M5 20V11M10 20V5M15 20v-8M20 20V8"/></svg><span class="dock-label">Аналітика</span></button>
+      <button data-screen="debts" aria-label="Борги"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><span class="dock-label">Борги</span></button>
+      <button class="active" data-screen="home" aria-label="Дім"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 11.5 12 4l9 7.5V21h-6v-6H9v6H3z"/></svg><span class="dock-label">Дім</span></button>
+      <button class="more-btn" id="moreBtn" aria-label="Додатково"><svg class="more-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg><svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 6-6 6 6 6"/></svg><span class="dock-label">Додатково</span></button>
+    </div></nav>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="accountAddBackdrop"><div class="sheet"><div class="handle"></div><h3>Додати рахунок</h3><p>Банківські підключення працюють лише через захищений сервер. Паролі, PIN та SMS-коди тут ніколи не вводяться.</p><div class="provider-list"><button class="provider-button" data-provider="PKO"><span>PKO Bank Polski</span><span>›</span></button><button class="provider-button" data-provider="REVOLUT"><span>Revolut</span><span>›</span></button><button class="provider-button" data-provider="ERSTE"><span>Erste</span><span>›</span></button><button class="provider-button" data-provider="MONOBANK"><span>Monobank</span><span>›</span></button></div><div class="label" style="margin:20px 0 9px">Додати вручну</div><div class="provider-list"><button class="provider-button" data-manual-type="cash"><span>Готівка</span><span>＋</span></button><button class="provider-button" data-manual-type="manual"><span>Інший рахунок</span><span>＋</span></button></div><button class="danger" data-close-sheet="accountAddBackdrop">Закрити</button></div></div>
+<div class="sheet-backdrop" id="manualAccountBackdrop"><div class="sheet"><div class="handle"></div><h3 id="manualAccountTitle">Новий рахунок</h3><div class="field"><label>Назва</label><input id="manualAccountName" placeholder="Готівка"></div><div class="field"><label>Поточний баланс</label><input id="manualAccountBalance" inputmode="decimal" placeholder="0"></div><div class="field"><label>Валюта</label><select id="manualAccountCurrency"><option>PLN</option><option>EUR</option><option>USD</option><option>UAH</option></select></div><button class="primary" id="saveManualAccount">Зберегти</button><button class="danger" data-close-sheet="manualAccountBackdrop">Скасувати</button></div></div>
+<div class="sheet-backdrop" id="monobankBackdrop"><div class="sheet"><div class="handle"></div><h3>Підключити Monobank</h3><p>Токен буде відправлено один раз у захищений backend і зашифровано. Він ніколи не зберігається у браузері або git.</p><div class="field"><label>Особистий токен</label><input id="monobankToken" type="password" autocomplete="off" placeholder="Встав токен"></div><button class="primary" id="connectMonobank">Підключити</button><button class="danger" data-close-sheet="monobankBackdrop">Скасувати</button></div></div>
+
+<div class="sheet-backdrop" id="settingsBackdrop">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h3>Налаштування</h3>
+    <p>Дані зберігаються локально у браузері.</p>
+    <div class="profile-card profile-actions">
+      <button id="manageCategories">Керувати категоріями</button>
+      <button id="exportData">Експорт JSON</button>
+      <button id="clearData" style="color:var(--accent)">Очистити всі дані</button>
+    </div>
+    <div class="profile-card">
+      <div class="label">Швидке введення</div>
+      <div class="big-stat" style="font-size:22px;margin-top:8px">UA + PL + EN текстом</div>
+      <div class="tiny" style="margin-top:8px">Нижнє поле відкриває клавіатуру. Фраза локально перетворюється на операцію або борг без API.</div>
+      <div class="tiny" id="modelProfileStatus" style="margin-top:10px">Готово до введення</div>
+    </div>
+    <div class="profile-card market-picker">
+      <div class="label">Верхній тікер</div>
+      <div class="big-stat" style="font-size:20px;margin-top:7px">Валюти й криптовалюта</div>
+      <div class="data-note">Валютні курси: Frankfurter. Крипто: публічні дані Kraken. Без ключів і платних запитів.</div>
+      <input class="market-search" id="marketSearch" type="search" placeholder="Пошук пари або криптовалюти">
+      <div class="market-list" id="marketList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="manualBackdrop">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h3 id="formTitle">Нова операція</h3>
+    <p>Можна додати вручну або відредагувати результат голосу.</p>
+    <div class="type-seg"><button id="typeExpense" class="active">Витрата</button><button id="typeIncome">Дохід</button></div>
+    <div class="field"><label>Сума</label><input id="amountInput" inputmode="decimal" placeholder="200"></div>
+    <div class="field"><label>Валюта</label><select id="currencyInput"><option>PLN</option><option>EUR</option><option>USD</option><option>GBP</option></select></div>
+    <div class="field"><label>Рахунок</label><select id="accountInput"><option value="">Без прив’язки</option></select></div>
+    <div class="field" id="categoryField"><label>Категорія</label><select id="categoryInput"></select></div>
+    <div class="field hidden" id="clientField"><label>Клієнт</label><input id="clientInput" placeholder="Johnny"></div>
+    <div class="field"><label>Опис</label><input id="noteInput" placeholder="Biedronka, монтаж, бензин…"></div>
+    <button class="primary" id="saveTx">Зберегти</button>
+    <button class="danger hidden" id="deleteTx">Видалити операцію</button>
+  </div>
+</div>
+
+<div class="voice-popover" id="voicePopover">
+  <div class="voice-popover-head">
+    <div class="voice-copy">
+      <div class="voice-status" id="voiceStatus">Введи операцію або борг</div>
+      <div class="voice-text" id="voiceText">Наприклад: «-200 на продукти» або «я винен Олегу 500».</div>
+    </div>
+    <button class="voice-close" id="voiceCancel" aria-label="Закрити">×</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:10px"><input id="voiceTestInput" aria-label="Текст фрази" placeholder="Сума, категорія або борг…" style="min-width:0;border:1px solid var(--line);background:#121215;color:var(--text);border-radius:14px;padding:12px"><button id="voiceTestBtn" class="round-action" aria-label="Розібрати">⌁</button></div>
+  <div class="parse-card hidden" id="parseCard">
+    <div class="parse-amount" id="parseAmount"></div>
+    <div class="parse-sub" id="parseSub"></div>
+    <div class="tiny" id="parseTranscript" style="margin-top:7px"></div>
+    <div class="round-actions"><button class="round-action danger-icon" id="editVoice" aria-label="Змінити">✎</button><button class="round-action primary-icon" id="confirmVoice" aria-label="Зберегти">✓</button></div>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="debtBackdrop">
+  <div class="sheet">
+    <div class="handle"></div><h3 id="debtFormTitle">Новий борг</h3>
+    <div class="type-seg"><button id="debtOwed" class="active">Я винен</button><button id="debtReceivable">Мені винні</button></div>
+    <div class="field"><label>Людина або компанія</label><input id="debtPerson" placeholder="Ім’я"></div>
+    <div class="field"><label>Сума</label><input id="debtAmount" inputmode="decimal" placeholder="500"></div>
+    <div class="field"><label>Валюта</label><select id="debtCurrency"><option>PLN</option><option>EUR</option><option>USD</option><option>GBP</option></select></div>
+    <div class="field"><label>Нотатка</label><input id="debtNote" placeholder="За що або до якої дати"></div>
+    <div class="field"><label><input id="debtUrgent" type="checkbox" style="width:auto;margin-right:8px">Терміновий</label></div>
+    <div class="field"><label><input id="debtPaid" type="checkbox" style="width:auto;margin-right:8px">Оплачено</label></div>
+    <button class="primary" id="saveDebt">Зберегти</button><button class="danger hidden" id="deleteDebt">Видалити</button>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="listBackdrop">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h3 id="listTitle">Операції</h3>
+    <div id="listContent"></div>
+    <button class="danger" id="closeList">Закрити</button>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="catBackdrop">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h3>Категорії</h3>
+    <p>Додай або видали власні категорії. Базові теж можна змінювати.</p>
+    <div id="catManager"></div>
+    <div class="field"><label>Нова категорія</label><input id="newCatName" placeholder="Наприклад: Студія"></div>
+    <button class="primary" id="addCategoryBtn">Додати категорію</button>
+    <button class="danger" id="closeCategories">Закрити</button>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="scanBackdrop">
+  <div class="sheet">
+    <div class="handle"></div><h3>Додати чек</h3><p>Обери камеру або готове фото. Зображення обробляється лише на цьому пристрої.</p>
+    <div class="scan-options"><button class="scan-option" id="scanCamera">📷<br>Камера</button><button class="scan-option" id="scanFile">▧<br>Фото або файл</button></div>
+    <input class="hidden" id="cameraInput" type="file" accept="image/*" capture="environment"><input class="hidden" id="fileInput" type="file" accept="image/*,.pdf">
+    <img class="scan-preview hidden" id="scanPreview" alt="Вибраний чек"><div class="tiny hidden" id="scanFileName" style="margin-top:10px"></div>
+    <button class="primary hidden" id="scanContinue">Внести дані з чека</button><button class="danger" id="scanClose">Закрити</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY='voice-finance-v01';
+const DEFAULT_CATEGORIES=[
+  {id:'groceries',name:'Продукти',icon:'🛒'},
+  {id:'transport',name:'Транспорт',icon:'🚕'},
+  {id:'food',name:'Їжа',icon:'🍴'},
+  {id:'tech',name:'Техніка',icon:'💻'},
+  {id:'home',name:'Дім',icon:'⌂'},
+  {id:'subscriptions',name:'Підписки',icon:'◉'},
+  {id:'business',name:'Бізнес',icon:'◫'},
+  {id:'travel',name:'Подорожі',icon:'✈︎'},
+  {id:'other',name:'Інше',icon:'•••'}
+];
+const DEFAULT_ACCOUNTS=[];
+const FIAT_CURRENCIES=['PLN','EUR','USD','GBP','CHF','UAH','CZK','SEK','NOK','DKK','CAD','AUD','NZD','JPY','CNY','HKD','SGD','HUF','RON','BGN','TRY','ILS','INR','BRL','MXN','ZAR'];
+const FIAT_PAIRS=FIAT_CURRENCIES.flatMap(base=>FIAT_CURRENCIES.filter(quote=>quote!==base).map(quote=>({id:`fx:${base}${quote}`,kind:'fx',base,quote,label:`${base}/${quote}`}))).slice(0,100);
+const CRYPTO_MARKETS=[['XBTUSD','BTC','Bitcoin'],['ETHUSD','ETH','Ethereum'],['USDTUSD','USDT','Tether'],['SOLUSD','SOL','Solana'],['XRPUSD','XRP','XRP'],['USDCUSD','USDC','USD Coin'],['DOGEUSD','DOGE','Dogecoin'],['ADAUSD','ADA','Cardano'],['LTCUSD','LTC','Litecoin'],['DOTUSD','DOT','Polkadot']].map(([pair,symbol,name])=>({id:`crypto:${pair}`,kind:'crypto',pair,symbol,name,label:`${symbol}/USD`}));
+const DEFAULT_MARKETS=['fx:EURPLN','fx:USDPLN','fx:EURUSD',...CRYPTO_MARKETS.map(m=>m.id)];
+const BANKING_API_BASE=document.querySelector('meta[name="voice-finance-api"]')?.content?.replace(/\/$/,'')||'';
+const uid=()=>{try{if(globalThis.crypto&&typeof globalThis.crypto.randomUUID==='function')return globalThis.crypto.randomUUID()}catch(e){}return 'id-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)};
+let state=loadState();
+let editingId=null;
+let formType='expense';
+let parsedVoice=null;
+let mediaStream=null;
+let mediaRecorder=null;
+let audioChunks=[];
+let recordingStartedAt=0;
+let recordTimerInterval=null;
+let whisperWorker=null;
+let whisperReady=false;
+let whisperBusy=false;
+let whisperModelName='';
+let speechRecognition=null;
+let speechTranscript='';
+let safariRecognitionRuns=0;
+let speechStartTimer=null;
+let editingDebtId=null;
+let debtDirection='owed';
+let debtView='owed';
+let debtSort='name-asc';
+let peopleDirection=sessionStorage.getItem('voice-finance-people-direction')||'receivable';
+let selectedPerson=sessionStorage.getItem('voice-finance-selected-person')||'';
+let selectedPersonDirection=sessionStorage.getItem('voice-finance-selected-person-direction')||'receivable';
+let selectedScanFile=null;
+let scanPreviewUrl='';
+let voicePositionTimers=[];
+let stableViewportHeight=Math.max(window.innerHeight,window.visualViewport?.height||0);
+let voiceState='idle';
+let voiceSession=0;
+let voiceTimeout=null;
+let recordingTimeout=null;
+let lockedScrollY=0;
+let drawerLockedScrollY=0;
+let lastPageScrollY=window.scrollY;
+let dockCompact=false;
+let dockTouchStartY=0;
+let dockTouchAtTop=false;
+let dockTouchAtBottom=false;
+let dockBoundaryHandled=false;
+let dockInteractionsReady=false;
+let dockIgnoreScrollUntil=0;
+let dockIndicatorIndex=0;
+let dockIndicatorAnimation=null;
+let accountsExpanded=false;
+let analysisPeriod='1M';
+let accountPeriod='1M';
+let flowPeriod='1M';
+let selectedAccountId='';
+let selectedFlowType='income';
+let marketData={};
+let selectedMarketId=sessionStorage.getItem('voice-finance-selected-market')||'';
+let marketPeriod='1M';
+let tickerOffset=0;
+let tickerDistance=0;
+let tickerLastFrame=0;
+let tickerDragging=false;
+let tickerPointerId=null;
+let tickerDragX=0;
+let tickerDragOffset=0;
+let tickerResumeAt=0;
+let tickerMoved=false;
+let tickerPressAt=0;
+let tickerPressMarketId='';
+const interactiveCharts=new WeakMap();
+let jellyVelocity=0;
+let jellyFrame=null;
+let jellyItems=[];
+const jellyState=new WeakMap();
+const RECORDING_LIMIT_MS=30000;
+const TRANSCRIPTION_LIMIT_MS=240000;
+
+function loadState(){
+  const raw=localStorage.getItem(STORAGE_KEY);
+  if(raw){
+    try{
+      const s=JSON.parse(raw);
+      const accounts=(s.accounts||[]).filter(a=>a.source!=='demo'&&!String(a.id).endsWith('-demo'));const balanceSnapshots=(s.balanceSnapshots||[]).filter(x=>x.source!=='demo');
+      return {categories:s.categories?.length?s.categories:DEFAULT_CATEGORIES,transactions:s.transactions||[],debts:s.debts||[],goal:s.goal||8000,speechLang:s.speechLang||'uk-UA',accounts,balanceSnapshots,marketSelection:s.marketSelection?.length?s.marketSelection:DEFAULT_MARKETS};
+    }catch(e){}
+  }
+  return {categories:[...DEFAULT_CATEGORIES],transactions:[],debts:[],goal:8000,speechLang:'uk-UA',accounts:[],balanceSnapshots:[],marketSelection:DEFAULT_MARKETS};
+}
+function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));render()}
+function fmt(n,c='PLN'){
+  try{return new Intl.NumberFormat('uk-UA',{style:'currency',currency:c,maximumFractionDigits:2}).format(n)}
+  catch(e){return `${n.toFixed(2)} ${c}`}
+}
+function plnOnly(list){return list.filter(t=>t.currency==='PLN')}
+function totals(){
+  const tx=plnOnly(state.transactions);
+  const income=tx.filter(t=>t.type==='income').reduce((a,b)=>a+b.amount,0);
+  const expense=tx.filter(t=>t.type==='expense').reduce((a,b)=>a+b.amount,0);
+  const accountBalance=(state.accounts||[]).filter(a=>a.isActive&&a.currency==='PLN').reduce((sum,a)=>sum+Number(a.currentBalance||0),0);
+  const unlinked=tx.filter(t=>!t.accountId).reduce((sum,t)=>sum+(t.type==='income'?t.amount:-t.amount),0);
+  return {income,expense,balance:accountBalance+unlinked}
+}
+function transactionEffect(tx){return tx?(tx.type==='income'?Number(tx.amount||0):-Number(tx.amount||0)):0}
+function applyAccountTransaction(next,previous){if(previous?.accountId){const a=state.accounts.find(x=>x.id===previous.accountId);if(a)a.currentBalance=Number(a.currentBalance||0)-transactionEffect(previous)}if(next?.accountId){const a=state.accounts.find(x=>x.id===next.accountId);if(a)a.currentBalance=Number(a.currentBalance||0)+transactionEffect(next)}if(previous?.accountId||next?.accountId){const accountBalances=Object.fromEntries(state.accounts.map(a=>[a.id,Number(a.currentBalance||0)])),total=state.accounts.filter(a=>a.isActive&&a.currency==='PLN').reduce((n,a)=>n+Number(a.currentBalance||0),0);state.balanceSnapshots.push({id:uid(),timestamp:new Date().toISOString(),totalBalance:total,convertedTotalBalance:total,baseCurrency:'PLN',accountBalances,source:'transaction'})}}
+function categoryById(id){return state.categories.find(c=>c.id===id)||{name:'Інше',icon:'•••'}}
+function dateLabel(iso){
+  const d=new Date(iso), now=new Date();
+  const delta=Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate())-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/86400000);
+  if(delta===0)return 'Сьогодні';
+  if(delta===1)return 'Вчора';
+  return d.toLocaleDateString('uk-UA',{day:'2-digit',month:'short'});
+}
+function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function render(){
+  const t=totals();
+  document.querySelector('#balance').textContent=fmt(t.balance);
+  document.querySelector('#incomeTotal').textContent=fmt(t.income);
+  document.querySelector('#expenseTotal').textContent=fmt(t.expense);
+  requestAnimationFrame(fitBalanceText);
+  document.querySelector('#todayLabel').textContent=new Date().toLocaleDateString('uk-UA',{weekday:'long',day:'numeric',month:'long'});
+  renderBalanceChart();
+  renderAccounts();
+  renderTicker();
+  renderMarketPicker();
+  renderBalanceAnalysis();
+  renderCategories();
+  renderTransactions();
+  renderInsights();
+  renderGoals();
+  renderDebts();
+  renderDrawerPeople();
+  renderPeople();
+  renderPersonProfile();
+  fillCategorySelect();
+  fillAccountSelect();
+  requestAnimationFrame(refreshJellyItems);
+}
+function fitTextToBox(el,minSize){
+  el.style.fontSize='';let size=parseFloat(getComputedStyle(el).fontSize);if(!el.clientWidth)return;
+  while(el.scrollWidth>el.clientWidth&&size>minSize){size-=.5;el.style.fontSize=size+'px'}
+}
+function fitBalanceText(){fitTextToBox(document.querySelector('#balance'),18);fitTextToBox(document.querySelector('#incomeTotal'),11);fitTextToBox(document.querySelector('#expenseTotal'),11);document.querySelectorAll('#balanceChange strong,#balanceChange span').forEach(el=>fitTextToBox(el,10))}
+function financialSeries(kind='balance',period='ALL'){
+  const all=plnOnly(state.transactions).filter(t=>Number.isFinite(Number(t.amount))).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const start=periodStart(period),current=totals().balance,now=new Date(),effect=t=>t.type==='income'?Number(t.amount):-Number(t.amount);
+  if(kind==='balance'){
+    let value=current-all.reduce((sum,t)=>sum+effect(t),0);const points=[];
+    all.forEach(t=>{if(new Date(t.date)<start)value+=effect(t)});points.push({timestamp:start.getTime()?start.toISOString():(all[0]?.date||now.toISOString()),value});
+    all.filter(t=>new Date(t.date)>=start).forEach(t=>{value+=effect(t);points.push({timestamp:t.date,value})});
+    if(points.at(-1)?.timestamp!==now.toISOString())points.push({timestamp:now.toISOString(),value:current});return points;
+  }
+  let value=0;const points=[{timestamp:start.getTime()?start.toISOString():(all[0]?.date||now.toISOString()),value:0}];
+  all.filter(t=>t.type===kind&&new Date(t.date)>=start).forEach(t=>{value+=Number(t.amount);points.push({timestamp:t.date,value})});
+  points.push({timestamp:now.toISOString(),value});return points;
+}
+function renderBalanceChart(){
+  const shown=financialSeries('balance','1M'),values=shown.map(s=>s.value),g=lineGeometry(values,126,62,4);document.querySelector('#balanceChartLine').setAttribute('d',g.line);document.querySelector('#balanceChartFill').setAttribute('d',g.area);const first=values[0]??totals().balance,last=values.at(-1)??first,change=last-first,pct=first?change/Math.abs(first)*100:0,el=document.querySelector('#balanceChange');el.innerHTML=`<strong>${values.length>1?formatMovement(change):'—'}</strong><span>${values.length>1?`(${pct>=0?'+':''}${pct.toFixed(1)}%) `:''}за 30 днів</span>`;el.className='balance-change '+(change>0?'trend-up':change<0?'trend-down':'trend-flat');
+}
+function lineGeometry(values,width,height,pad=4){if(!values.length)return{line:'',area:'',points:[]};const min=Math.min(...values),max=Math.max(...values),range=max-min||1,points=values.map((v,i)=>({x:values.length===1?width/2:pad+i*(width-pad*2)/(values.length-1),y:height-pad-(v-min)*(height-pad*2)/range,value:v})),line=points.map((p,i)=>`${i?'L':'M'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ');return{line,area:`${line} L${points.at(-1).x},${height} L${points[0].x},${height} Z`,points}}
+function chartDateLabel(timestamp){const d=new Date(timestamp),today=new Date(),sameDay=d.toDateString()===today.toDateString();return d.toLocaleString('uk-UA',{day:'numeric',month:'short',...(sameDay?{hour:'2-digit',minute:'2-digit'}:{})})}
+function registerInteractiveChart(target,geometry,data,{formatValue=fmt,color='#66d896'}={}){
+  const chart=typeof target==='string'?document.querySelector(target):target;if(!chart)return;
+  const svg=chart.querySelector('svg'),viewBox=svg?.viewBox?.baseVal;if(!svg||!viewBox)return;
+  let cross=svg.querySelector('[data-chart-crosshair],.chart-crosshair'),point=svg.querySelector('[data-chart-point],circle'),tip=chart.querySelector('[data-chart-tooltip],.chart-tooltip');
+  if(!cross){cross=document.createElementNS('http://www.w3.org/2000/svg','line');cross.dataset.chartCrosshair='';cross.setAttribute('class','chart-crosshair hidden');cross.setAttribute('y1',viewBox.y);cross.setAttribute('y2',viewBox.y+viewBox.height);svg.append(cross)}
+  if(!point){point=document.createElementNS('http://www.w3.org/2000/svg','circle');point.dataset.chartPoint='';point.setAttribute('class','hidden');point.setAttribute('r','5');svg.append(point)}
+  if(!tip){tip=document.createElement('div');tip.dataset.chartTooltip='';tip.className='chart-tooltip hidden';chart.append(tip)}
+  point.setAttribute('fill',color);const rows=geometry.points.map((p,i)=>({...p,data:data[i]})).filter(p=>p.data&&Number.isFinite(Number(p.data.value)));
+  interactiveCharts.set(chart,{points:rows,width:viewBox.width,formatValue,cross,point,tip});
+  if(!rows.length){cross.classList.add('hidden');point.classList.add('hidden');tip.classList.add('hidden')}
+}
+function inspectInteractiveChart(chart,clientX){const model=interactiveCharts.get(chart);if(!model?.points.length)return;const box=chart.getBoundingClientRect(),x=Math.max(0,Math.min(box.width,clientX-box.left)),scaled=x/box.width*model.width;let nearest=model.points[0];for(const p of model.points)if(Math.abs(p.x-scaled)<Math.abs(nearest.x-scaled))nearest=p;model.cross.setAttribute('x1',nearest.x);model.cross.setAttribute('x2',nearest.x);model.cross.classList.remove('hidden');model.point.setAttribute('cx',nearest.x);model.point.setAttribute('cy',nearest.y);model.point.classList.remove('hidden');model.tip.innerHTML=`${chartDateLabel(nearest.data.timestamp)}<br><strong>${model.formatValue(Number(nearest.data.value))}</strong>`;model.tip.classList.remove('hidden');model.tip.style.left=`${Math.min(box.width-model.tip.offsetWidth-6,Math.max(6,x-model.tip.offsetWidth/2))}px`}
+function hideInteractiveChart(chart){const model=interactiveCharts.get(chart);if(!model)return;model.cross.classList.add('hidden');model.point.classList.add('hidden');model.tip.classList.add('hidden')}
+function setupInteractiveCharts(){const gestures=new Map();document.addEventListener('pointerdown',e=>{const chart=e.target.closest?.('.analysis-chart');if(!chart||!interactiveCharts.has(chart))return;gestures.set(e.pointerId,{chart,startX:e.clientX,startY:e.clientY,axis:''});chart.setPointerCapture?.(e.pointerId);inspectInteractiveChart(chart,e.clientX)});document.addEventListener('pointermove',e=>{const gesture=gestures.get(e.pointerId),chart=gesture?.chart;if(!chart||!interactiveCharts.has(chart)||(e.pointerType!=='touch'&&!e.buttons))return;if(e.pointerType==='touch'){const dx=Math.abs(e.clientX-gesture.startX),dy=Math.abs(e.clientY-gesture.startY);if(!gesture.axis&&Math.max(dx,dy)>6)gesture.axis=dx>dy?'horizontal':'vertical';if(gesture.axis==='vertical'){hideInteractiveChart(chart);return}if(!gesture.axis)return}inspectInteractiveChart(chart,e.clientX);if(gesture.axis==='horizontal')e.preventDefault()},{passive:false});document.addEventListener('pointerup',e=>{const chart=gestures.get(e.pointerId)?.chart;gestures.delete(e.pointerId);if(chart&&e.pointerType!=='touch')hideInteractiveChart(chart)});document.addEventListener('pointercancel',e=>{const chart=gestures.get(e.pointerId)?.chart;gestures.delete(e.pointerId);if(chart)hideInteractiveChart(chart)});document.addEventListener('pointerleave',e=>{const chart=e.target.closest?.('.analysis-chart');if(chart&&e.pointerType!=='touch')hideInteractiveChart(chart)},true)}
+function accountIcon(a){return a.provider==='MONOBANK'?'mono':a.provider==='REVOLUT'?'R':a.provider==='CASH'?'▤':a.shortName||a.provider.slice(0,3)}
+function accountIconClass(a){return String(a.provider||'').toLowerCase()}
+function accountSnapshots(id){return(state.balanceSnapshots||[]).map(s=>({timestamp:s.timestamp,value:Number(s.accountBalances?.[id])})).filter(x=>Number.isFinite(x.value))}
+function formatMovement(n,c='PLN'){return`${n>0?'+':n<0?'−':''}${fmt(Math.abs(n),c)}`}
+function renderAccounts(){const grid=document.querySelector('#accountsGrid');if(!grid)return;const all=(state.accounts||[]).filter(a=>a.isActive),shown=accountsExpanded?all:all.slice(0,3);grid.classList.toggle('expanded',accountsExpanded);grid.innerHTML=shown.map(a=>`<button class="account-tile" data-account-id="${esc(a.id)}"><span class="account-icon ${accountIconClass(a)}">${accountIcon(a)}</span><span class="account-name">${esc(a.displayName)}</span><span class="account-balance ${a.currentBalance<0?'negative':''}">${fmt(a.currentBalance,a.currency)}</span></button>`).join('')+`<button class="account-tile" id="addAccount"><span class="account-icon add-icon">＋</span><span class="account-name">Додати</span><span class="account-balance">&nbsp;</span></button>`;grid.querySelectorAll('[data-account-id]').forEach(el=>el.onclick=()=>openAccountDetail(el.dataset.accountId));document.querySelector('#addAccount').onclick=()=>openSheet('#accountAddBackdrop');document.querySelector('#toggleAccounts').textContent=all.length>3?(accountsExpanded?'Згорнути ˄':'Усі ›'):''}
+function renderTicker(){const track=document.querySelector('#tickerTrack');if(!track)return;const selected=state.marketSelection||DEFAULT_MARKETS,items=selected.map(id=>marketData[id]).filter(Boolean);const item=m=>{const values=m.history||[],g=lineGeometry(values.slice(-12),38,13,1),cls=m.change>0?'trend-up':m.change<0?'trend-down':'trend-flat';return`<button class="ticker-item" data-market-id="${esc(m.id)}"><span class="ticker-logo">${esc(m.symbol||m.base)}</span><span class="ticker-name">${esc(m.label)}</span><span class="ticker-value ${cls}">${Number(m.value).toLocaleString('uk-UA',{maximumFractionDigits:m.value<10?4:2})}</span><svg class="ticker-spark" viewBox="0 0 38 13"><path d="${g.line}" fill="none" stroke="currentColor" stroke-width="1.5" class="${cls}"/></svg><span class="ticker-change ${cls}">${Number.isFinite(m.change)?`${m.change>=0?'+':''}${m.change.toFixed(2)}%`:'—'}</span></button>`};const seq=items.length?items.map(item).join(''):`<div class="ticker-item"><span class="ticker-logo">↻</span><span class="ticker-name">Курси</span><span class="ticker-value trend-flat">Оновлення…</span></div>`;track.innerHTML=Array.from({length:4},(_,i)=>`<div class="ticker-sequence" ${i?'aria-hidden="true"':''}>${seq}</div>`).join('');track.querySelectorAll('[data-market-id]').forEach(el=>el.onclick=e=>{if(e.detail===0)openMarketDetail(el.dataset.marketId)});requestAnimationFrame(updateTickerSpeed)}
+function updateTickerSpeed(){const seq=document.querySelector('#tickerTrack .ticker-sequence');if(!seq)return;tickerDistance=seq.getBoundingClientRect().width;if(tickerDistance){tickerOffset=((tickerOffset%tickerDistance)+tickerDistance)%tickerDistance;document.querySelector('#tickerTrack').style.transform=`translate3d(${-tickerOffset}px,0,0)`}}
+function runTicker(time){if(!tickerLastFrame)tickerLastFrame=time;const elapsed=Math.min(40,time-tickerLastFrame);tickerLastFrame=time;if(!tickerDragging&&time>=tickerResumeAt&&tickerDistance){tickerOffset=(tickerOffset+elapsed*(innerWidth/10000))%tickerDistance;document.querySelector('#tickerTrack').style.transform=`translate3d(${-tickerOffset}px,0,0)`}requestAnimationFrame(runTicker)}
+function setupTickerDrag(){const box=document.querySelector('#accountTicker');box.addEventListener('pointerdown',e=>{tickerDragging=true;tickerMoved=false;tickerPointerId=e.pointerId;tickerDragX=e.clientX;tickerDragOffset=tickerOffset;tickerPressAt=performance.now();tickerPressMarketId=e.target.closest?.('[data-market-id]')?.dataset.marketId||'';box.classList.add('dragging');box.setPointerCapture?.(e.pointerId)});box.addEventListener('pointermove',e=>{if(!tickerDragging||e.pointerId!==tickerPointerId)return;const dx=e.clientX-tickerDragX;if(Math.abs(dx)>7)tickerMoved=true;tickerOffset=tickerDragOffset-dx;if(tickerDistance)tickerOffset=((tickerOffset%tickerDistance)+tickerDistance)%tickerDistance;document.querySelector('#tickerTrack').style.transform=`translate3d(${-tickerOffset}px,0,0)`});const end=(e,allowTap)=>{if(!tickerDragging||e.pointerId!==tickerPointerId)return;const tapped=allowTap&&!tickerMoved&&performance.now()-tickerPressAt<380&&tickerPressMarketId,id=tickerPressMarketId;tickerDragging=false;tickerPointerId=null;tickerPressMarketId='';tickerResumeAt=performance.now()+700;box.classList.remove('dragging');if(tapped)openMarketDetail(id)};box.addEventListener('pointerup',e=>end(e,true));box.addEventListener('pointercancel',e=>end(e,false))}
+function marketCatalog(){return[...FIAT_PAIRS,...CRYPTO_MARKETS]}
+function renderMarketPicker(){const list=document.querySelector('#marketList');if(!list)return;const q=(document.querySelector('#marketSearch')?.value||'').trim().toLowerCase(),selected=new Set(state.marketSelection||DEFAULT_MARKETS),catalog=marketCatalog().filter(m=>!q||`${m.label} ${m.name||''}`.toLowerCase().includes(q));list.innerHTML=catalog.map(m=>`<label class="market-option"><input type="checkbox" value="${m.id}" ${selected.has(m.id)?'checked':''}><span>${esc(m.label)}</span><small>${m.kind==='crypto'?'Крипто':'Валюта'}</small></label>`).join('')||'<div class="empty">Нічого не знайдено</div>';list.querySelectorAll('input').forEach(input=>input.onchange=()=>{const set=new Set(state.marketSelection||DEFAULT_MARKETS);input.checked?set.add(input.value):set.delete(input.value);state.marketSelection=[...set].slice(0,20);saveState();loadMarketData()})}
+async function loadMarketData(){const catalog=marketCatalog(),selected=new Set(state.marketSelection||DEFAULT_MARKETS),wanted=catalog.filter(m=>selected.has(m.id)),cacheKey='voice-finance-market-cache';try{const cached=JSON.parse(localStorage.getItem(cacheKey)||'{}');if(cached.data)marketData=cached.data}catch(e){}renderTicker();await Promise.all(wanted.map(async m=>{try{if(m.kind==='fx'){const [latest,history]=await Promise.all([fetch(`https://api.frankfurter.dev/v2/rate/${m.base.toLowerCase()}/${m.quote.toLowerCase()}`).then(r=>{if(!r.ok)throw Error();return r.json()}),fetch(`https://api.frankfurter.dev/v2/rates?from=${new Date(Date.now()-14*86400000).toISOString().slice(0,10)}&base=${m.base.toLowerCase()}&quotes=${m.quote.toLowerCase()}`).then(r=>r.json())]);const values=history.map(x=>Number(x.rate)).filter(Number.isFinite),first=values[0]||Number(latest.rate),value=Number(latest.rate);marketData[m.id]={...m,value,history:values,change:first?(value-first)/first*100:0,updated:latest.date}}else{const data=await fetch(`https://api.kraken.com/0/public/Ticker?pair=${m.pair}`).then(r=>{if(!r.ok)throw Error();return r.json()}),row=Object.values(data.result||{})[0];if(!row)throw Error();const value=Number(row.c[0]),open=Number(row.o);marketData[m.id]={...m,value,history:[open,value],change:open?(value-open)/open*100:0,updated:new Date().toISOString()}}}catch(e){}}));localStorage.setItem(cacheKey,JSON.stringify({updated:Date.now(),data:marketData}));renderTicker()}
+function marketNumber(value){return Number(value).toLocaleString('uk-UA',{maximumFractionDigits:Number(value)<10?5:2})}
+function renderMarketDetail(){const m=marketData[selectedMarketId]||marketCatalog().find(x=>x.id===selectedMarketId);if(!m)return;const start=periodStart(marketPeriod),all=m.detailHistory||[],firstInPeriod=all.findIndex(p=>new Date(p.timestamp)>=start),series=firstInPeriod<0?[]:all.slice(Math.max(0,firstInPeriod-1)),fallback=(m.history||[]).map((value,i,a)=>({timestamp:new Date(Date.now()-(a.length-1-i)*86400000).toISOString(),value:Number(value)})),points=(series.length?series:fallback).filter(p=>Number.isFinite(Number(p.value))),values=points.map(p=>Number(p.value)),g=lineGeometry(values,440,250,12),first=values[0],last=values.at(-1)??Number(m.value),change=first?(last-first)/first*100:Number(m.change||0),positive=change>=0;document.querySelector('#marketDetailKind').textContent=m.kind==='crypto'?'Криптовалюта':'Валютна пара';document.querySelector('#marketDetailTitle').textContent=m.label;document.querySelector('#marketDetailValue').textContent=marketNumber(last);const changeEl=document.querySelector('#marketDetailChange');changeEl.textContent=`${change>=0?'+':''}${change.toFixed(2)}% за період`;changeEl.className='analysis-change '+(change>0?'trend-up':change<0?'trend-down':'trend-flat');document.querySelector('#marketLine').setAttribute('stroke',positive?'#66d896':'#ff5364');document.querySelector('#marketArea').setAttribute('fill',positive?'rgba(102,216,150,.12)':'rgba(255,83,100,.12)');document.querySelector('#marketLine').setAttribute('d',g.line);document.querySelector('#marketArea').setAttribute('d',g.area);document.querySelector('#marketChartEmpty').classList.toggle('hidden',values.length>1);registerInteractiveChart('#marketChart',g,points,{formatValue:marketNumber,color:positive?'#66d896':'#ff5364'});document.querySelector('#marketMin').textContent=values.length?marketNumber(Math.min(...values)):'—';document.querySelector('#marketMax').textContent=values.length?marketNumber(Math.max(...values)):'—';document.querySelector('#marketOpen').textContent=Number.isFinite(first)?marketNumber(first):'—';document.querySelector('#marketUpdated').textContent=m.updated?new Date(m.updated).toLocaleString('uk-UA',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—';document.querySelector('#marketSource').textContent=m.kind==='crypto'?'Реальні публічні ринкові дані Kraken. Дані можуть надходити із затримкою.':'Реальні довідкові валютні курси Frankfurter на основі даних ЄЦБ. Дані можуть надходити із затримкою.'}
+async function loadMarketDetail(id){const m=marketCatalog().find(x=>x.id===id),current=marketData[id]||m;if(!m)return;renderMarketDetail();if(current?.detailHistory?.length)return;try{let history;if(m.kind==='fx'){const from=new Date();from.setFullYear(from.getFullYear()-5);const rows=await fetch(`https://api.frankfurter.dev/v2/rates?from=${from.toISOString().slice(0,10)}&base=${m.base.toLowerCase()}&quotes=${m.quote.toLowerCase()}`).then(r=>{if(!r.ok)throw Error();return r.json()});history=rows.map(x=>({timestamp:x.date,value:Number(x.rate)})).filter(x=>Number.isFinite(x.value))}else{const since=Math.floor((Date.now()-365*86400000)/1000),data=await fetch(`https://api.kraken.com/0/public/OHLC?pair=${m.pair}&interval=1440&since=${since}`).then(r=>{if(!r.ok)throw Error();return r.json()}),rows=Object.entries(data.result||{}).find(([,v])=>Array.isArray(v))?.[1]||[];history=rows.map(x=>({timestamp:new Date(Number(x[0])*1000).toISOString(),value:Number(x[4])})).filter(x=>Number.isFinite(x.value))}marketData[id]={...(marketData[id]||m),detailHistory:history};localStorage.setItem('voice-finance-market-cache',JSON.stringify({updated:Date.now(),data:marketData}));renderMarketDetail()}catch(e){document.querySelector('#marketChartEmpty').textContent='Не вдалося оновити історію. Показані останні кешовані дані.';document.querySelector('#marketChartEmpty').classList.remove('hidden')}}
+function openMarketDetail(id){selectedMarketId=id;sessionStorage.setItem('voice-finance-selected-market',id);marketPeriod='1M';document.querySelectorAll('#marketPeriodTabs button').forEach(b=>b.classList.toggle('active',b.dataset.period==='1M'));switchScreen('marketDetail');loadMarketDetail(id)}
+function filteredSnapshots(period,id){return(state.balanceSnapshots||[]).filter(s=>new Date(s.timestamp)>=periodStart(period)&&(!id||Number.isFinite(Number(s.accountBalances?.[id]))))}
+function openAccountDetail(id){selectedAccountId=id;switchScreen('accountDetail')}
+function renderAccountDetail(){const a=(state.accounts||[]).find(x=>x.id===selectedAccountId);if(!a)return;document.querySelector('#accountDetailTitle').textContent=a.displayName;document.querySelector('#accountDetailBalance').textContent=fmt(a.currentBalance,a.currency);const snapshots=filteredSnapshots(accountPeriod,a.id),chartData=snapshots.map(s=>({timestamp:s.timestamp,value:Number(s.accountBalances[a.id])})),values=chartData.map(s=>s.value),g=lineGeometry(values,440,250,12),empty=values.length<2;document.querySelector('#accountLine').setAttribute('d',empty?'':g.line);document.querySelector('#accountArea').setAttribute('d',empty?'':g.area);document.querySelector('#accountChartEmpty').classList.toggle('hidden',!empty);registerInteractiveChart('#accountChart',g,chartData,{formatValue:value=>fmt(value,a.currency)});const first=values[0]??a.currentBalance,last=values.at(-1)??a.currentBalance,change=last-first;document.querySelector('#accountCurrent').textContent=fmt(a.currentBalance,a.currency);document.querySelector('#accountChange').textContent=values.length>1?formatMovement(change,a.currency):'—';document.querySelector('#accountMax').textContent=values.length?fmt(Math.max(...values),a.currency):'—';document.querySelector('#accountMin').textContent=values.length?fmt(Math.min(...values),a.currency):'—';const tx=state.transactions.filter(t=>t.accountId===a.id).sort((x,y)=>new Date(y.date)-new Date(x.date));const el=document.querySelector('#accountTransactions');el.innerHTML=tx.length?tx.map(txHtml).join(''):'<div class="empty">До цього рахунку ще не прив’язано операцій</div>';bindTxRows(el)}
+function openFlowDetail(type){selectedFlowType=type;switchScreen('flowDetail')}
+function renderFlowDetail(){const income=selectedFlowType==='income',color=income?'#66d896':'#ff5364',arr=state.transactions.filter(t=>t.type===selectedFlowType&&new Date(t.date)>=periodStart(flowPeriod)).sort((a,b)=>new Date(a.date)-new Date(b.date)),points=financialSeries(selectedFlowType,flowPeriod),values=points.map(p=>p.value),g=lineGeometry(values,440,250,12);document.querySelector('#flowTitle').textContent=income?'Доходи':'Витрати';document.querySelector('#flowTotal').textContent=fmt(arr.filter(t=>t.currency==='PLN').reduce((n,t)=>n+t.amount,0));document.querySelector('#flowListTitle').textContent=income?'Усі доходи':'Усі витрати';document.querySelector('#flowLine').setAttribute('stroke',color);document.querySelector('#flowArea').setAttribute('fill',income?'rgba(102,216,150,.12)':'rgba(255,83,100,.12)');document.querySelector('#flowLine').setAttribute('d',g.line);document.querySelector('#flowArea').setAttribute('d',g.area);document.querySelector('#flowChartEmpty').classList.toggle('hidden',values.length>1);registerInteractiveChart('#flowChart',g,points,{formatValue:fmt,color});const list=document.querySelector('#flowTransactions');list.innerHTML=arr.length?[...arr].reverse().map(txHtml).join(''):'<div class="empty">Немає операцій за цей період</div>';bindTxRows(list)}
+function periodStart(period){const d=new Date();if(period==='1D')d.setHours(d.getHours()-24);else if(period==='7D')d.setDate(d.getDate()-7);else if(period==='1M')d.setMonth(d.getMonth()-1);else if(period==='3M')d.setMonth(d.getMonth()-3);else if(period==='YTD')return new Date(d.getFullYear(),0,1);else if(period==='1Y')d.setFullYear(d.getFullYear()-1);else return new Date(0);return d}
+function renderBalanceAnalysis(){if(!document.querySelector('#analysisChart'))return;const points=financialSeries('balance',analysisPeriod),values=points.map(p=>p.value),g=lineGeometry(values,440,250,8);document.querySelector('#analysisLine').setAttribute('d',g.line);document.querySelector('#analysisArea').setAttribute('d',g.area);registerInteractiveChart('#analysisChart',g,points,{formatValue:fmt});const current=values.at(-1)??totals().balance,first=values[0]??current,change=current-first;document.querySelector('#analysisValue').textContent=fmt(current);document.querySelector('#analysisChange').textContent=values.length>1?`${formatMovement(change)} за період`:'Ще немає історії';document.querySelector('#metricCurrent').textContent=fmt(current);document.querySelector('#metricChange').textContent=values.length>1?formatMovement(change):'—';document.querySelector('#metricMax').textContent=fmt(values.length?Math.max(...values):current);document.querySelector('#metricMin').textContent=fmt(values.length?Math.min(...values):current);const tx=state.transactions.filter(t=>new Date(t.date)>=periodStart(analysisPeriod)&&t.currency==='PLN');document.querySelector('#metricIncome').textContent=fmt(tx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0));document.querySelector('#metricExpense').textContent=fmt(tx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0));const accounts=document.querySelector('#analysisAccounts');accounts.innerHTML=(state.accounts||[]).filter(a=>a.isActive).map(a=>`<div class="tx" data-account-detail="${esc(a.id)}"><div class="tx-icon">${accountIcon(a)}</div><div><div class="tx-title">${esc(a.displayName)}</div><div class="tx-meta">${esc(a.bankName)}</div></div><strong class="pos">${fmt(a.currentBalance,a.currency)}</strong></div>`).join('')||'<div class="empty">Додай перший рахунок</div>';accounts.querySelectorAll('[data-account-detail]').forEach(el=>el.onclick=()=>openAccountDetail(el.dataset.accountDetail))}
+function renderCategories(){
+  const grid=document.querySelector('#categoryGrid');
+  const sums={};
+  plnOnly(state.transactions).filter(t=>t.type==='expense').forEach(t=>sums[t.category]=(sums[t.category]||0)+t.amount);
+  const cats=[...state.categories].sort((a,b)=>(sums[b.id]||0)-(sums[a.id]||0)).slice(0,6);
+  grid.innerHTML=cats.map(c=>`<div class="category" data-cat="${c.id}"><div class="cat-icon">${esc(c.icon)}</div><div class="cat-name">${esc(c.name)}</div><div class="cat-sum">${fmt(sums[c.id]||0)}</div></div>`).join('');
+  grid.querySelectorAll('.category').forEach(el=>el.onclick=()=>openCategory(el.dataset.cat));
+}
+function renderTransactions(){
+  const el=document.querySelector('#recentTx');
+  const query=foldText(document.querySelector('#homeSearch')?.value||'');
+  const matches=state.transactions.filter(tx=>!query||foldText([tx.client,tx.note,categoryById(tx.category).name,tx.amount,tx.currency].join(' ')).includes(query));
+  const arr=[...matches].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,query?30:5);
+  if(!arr.length){el.innerHTML=`<div class="empty">${query?'Нічого не знайдено.':'Ще немає операцій.<br>Введи першу операцію в нижньому полі.'}</div>`;return}
+  el.innerHTML=arr.map(tx=>txHtml(tx)).join('');
+  bindTxRows(el);
+}
+function txHtml(tx){
+  const c=categoryById(tx.category);
+  const title=tx.client || tx.note || c.name;
+  const meta=[tx.type==='income'?'Дохід':c.name,dateLabel(tx.date)].join(' · ');
+  const sign=tx.type==='income'?'+':'−';
+  return `<div class="tx" data-id="${tx.id}">
+    <div class="tx-icon">${esc(c.icon)}</div>
+    <div><div class="tx-title">${esc(title)}</div><div class="tx-meta">${esc(meta)}</div></div>
+    <div class="tx-amount ${tx.type==='income'?'pos':'neg'}">${sign}${fmt(tx.amount,tx.currency)}</div>
+  </div>`;
+}
+function bindTxRows(root){root.querySelectorAll('.tx').forEach(x=>x.onclick=()=>{if(x.closest('#listBackdrop'))closeSheet('#listBackdrop');openEdit(x.dataset.id)})}
+function renderInsights(){
+  const wrap=document.querySelector('#insightsContent');
+  const ex=plnOnly(state.transactions).filter(t=>t.type==='expense');
+  const by={}; ex.forEach(t=>by[t.category]=(by[t.category]||0)+t.amount);
+  const top=Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const clients={}; plnOnly(state.transactions).filter(t=>t.type==='income'&&t.client).forEach(t=>clients[t.client]=(clients[t.client]||0)+t.amount);
+  const t=totals();
+  const openDebts=direction=>state.debts.filter(d=>d.direction===direction&&!d.paid&&d.currency==='PLN').reduce((sum,d)=>sum+d.amount,0);
+  const owed=openDebts('owed'),receivable=openDebts('receivable');
+  const urgent=state.debts.filter(d=>d.urgent&&!d.paid).length,paid=state.debts.filter(d=>d.paid).length;
+  wrap.innerHTML=`
+    <div class="insight-card"><div class="label">Чистий результат</div><div class="big-stat">${fmt(t.balance)}</div><div class="muted">Доходи мінус витрати</div></div>
+    <div class="insight-card clickable-card" id="debtInsight"><div class="label">Борги</div><div class="list-row"><span>Я винен</span><strong class="neg">${fmt(owed)}</strong></div><div class="list-row"><span>Мені винні</span><strong class="pos">${fmt(receivable)}</strong></div><div class="list-row"><span>Чиста позиція</span><strong class="${receivable-owed>=0?'pos':'neg'}">${fmt(receivable-owed)}</strong></div><div class="tiny" style="margin-top:12px">Термінових: ${urgent} · Оплачено: ${paid}</div></div>
+    <div class="insight-card clickable-card" id="expenseInsight"><div class="label">Витрати по категоріях</div>${top.length?top.map(([id,v])=>`<div class="list-row"><span>${esc(categoryById(id).name)}</span><strong>${fmt(v)}</strong></div>`).join(''):'<div class="empty">Немає даних</div>'}</div>
+    <div class="insight-card clickable-card" id="incomeInsight"><div class="label">Доходи по клієнтах</div>${Object.keys(clients).length?Object.entries(clients).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="list-row"><span>${esc(k)}</span><strong class="pos">+${fmt(v)}</strong></div>`).join(''):'<div class="empty">Немає доходів по клієнтах</div>'}</div>`;
+  document.querySelector('#debtInsight').onclick=()=>switchScreen('debts');
+  document.querySelector('#expenseInsight').onclick=()=>openFlowDetail('expense');document.querySelector('#incomeInsight').onclick=()=>openFlowDetail('income');
+}
+function renderGoals(){
+  const t=totals(), pct=Math.min(100,(t.expense/state.goal)*100);
+  document.querySelector('#goalValue').textContent=fmt(state.goal);
+  document.querySelector('#goalBar').style.width=pct+'%';
+  document.querySelector('#goalCaption').textContent=`Витрачено ${fmt(t.expense)} з ${fmt(state.goal)} (${Math.round(pct)}%)`;
+  document.querySelector('#savingsValue').textContent=fmt(t.balance);
+  document.querySelector('#goalsPageValue').textContent=fmt(state.goal);
+  document.querySelector('#goalsPageBar').style.width=pct+'%';
+  document.querySelector('#goalsPageCaption').textContent=`Витрачено ${fmt(t.expense)} з ${fmt(state.goal)} (${Math.round(pct)}%)`;
+  document.querySelector('#goalsPageSavings').textContent=fmt(t.balance);
+}
+function renderDebts(){
+  state.debts=state.debts||[];
+  state.debts=state.debts.map(d=>({...d,paid:!!d.paid,urgent:!!d.urgent}));
+  const sum=direction=>state.debts.filter(d=>d.direction===direction&&!d.paid&&d.currency==='PLN').reduce((a,d)=>a+d.amount,0);
+  document.querySelector('#owedTotal').textContent=fmt(sum('owed'));
+  document.querySelector('#receivableTotal').textContent=fmt(sum('receivable'));
+  document.querySelector('#debtSortSelect').value=debtSort;
+  const direction=debtSort==='name-desc'?-1:1;
+  const query=foldText(document.querySelector('#debtSearch')?.value||'');
+  const sorted=state.debts.filter(d=>!query||foldText([d.person,d.note,d.amount,d.currency].join(' ')).includes(query)).sort((a,b)=>direction*a.person.localeCompare(b.person,'uk',{sensitivity:'base'}));
+  const icons={owed:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="16" height="13" rx="3"/><path d="M4 10h16M15 14h2"/></svg>',receivable:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>',urgent:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 4 21 20H3Z"/><path d="M12 9v5M12 17h.01"/></svg>'};
+  const groups=[{key:'owed',title:'Мої борги',items:sorted.filter(d=>d.direction==='owed')},{key:'receivable',title:'Мої боржники',items:sorted.filter(d=>d.direction==='receivable')},{key:'urgent',title:'Термінові',items:sorted.filter(d=>d.urgent)}];
+  const row=d=>`<div class="tx debt-row" data-debt-id="${d.id}"><div class="tx-icon">${d.direction==='owed'?'↗':'↙'}</div><div><div class="debt-person">${esc(d.person)}</div><div class="debt-note">${esc(d.note||'Без нотатки')}</div></div><strong class="debt-amount ${d.direction==='receivable'?'pos':'neg'}">${fmt(d.amount,d.currency)}</strong></div>`;
+  const status=(items,paid)=>`<details class="debt-status" ${paid?'':'open'}><summary><span>${paid?'Оплачено':'Не оплачено'}</span><span>${items.filter(d=>d.paid===paid).length}</span></summary><div class="transactions">${items.filter(d=>d.paid===paid).map(row).join('')||'<div class="empty">Порожньо</div>'}</div></details>`;
+  const wrap=document.querySelector('#debtGroups');wrap.innerHTML=groups.map((g,i)=>`<details class="debt-section ${g.key}" ${i===0?'open':''} data-debt-group="${g.key}"><summary><span class="debt-group-title"><span class="debt-group-icon">${icons[g.key]}</span><span>${g.title}</span></span><span class="debt-group-count">${g.items.filter(d=>!d.paid).length}</span></summary><div class="debt-status-grid">${status(g.items,false)}${status(g.items,true)}</div></details>`).join('');
+  wrap.querySelectorAll('[data-debt-id]').forEach(row=>row.onclick=e=>{e.stopPropagation();const d=state.debts.find(x=>x.id===row.dataset.debtId);if(d)openPersonProfile(d.direction,d.person)});
+  wrap.querySelectorAll('[data-debt-group]').forEach(group=>group.addEventListener('toggle',()=>{if(group.open)debtView=group.dataset.debtGroup}));
+}
+function personProfiles(direction){
+  const grouped=new Map();
+  state.debts.filter(d=>d.direction===direction&&d.person).forEach(d=>{const key=foldText(d.person);if(!key)return;const profile=grouped.get(key)||{key,name:d.person,items:[],latest:''};profile.items.push(d);if(!profile.latest||new Date(d.date)>new Date(profile.latest)){profile.name=d.person;profile.latest=d.date}grouped.set(key,profile)});
+  return [...grouped.values()].map(p=>({...p,open:p.items.filter(d=>!d.paid),paid:p.items.filter(d=>d.paid)})).sort((a,b)=>a.name.localeCompare(b.name,'uk',{sensitivity:'base'}));
+}
+function profileAmount(items){const pln=items.filter(d=>d.currency==='PLN').reduce((sum,d)=>sum+d.amount,0);return fmt(pln)}
+function profileRow(profile,direction){return `<div class="category" data-person="${esc(profile.name)}" data-direction="${direction}"><div class="cat-icon">${direction==='receivable'?'👤':'↗'}</div><div class="cat-name">${esc(profile.name)}</div><div class="cat-sum">${profileAmount(profile.open)}</div></div>`}
+function bindProfileRows(root){root?.querySelectorAll('[data-person]').forEach(row=>row.onclick=()=>openPersonProfile(row.dataset.direction,row.dataset.person))}
+function renderDrawerPeople(){
+  const clients=document.querySelector('#clientQuickList'),creditors=document.querySelector('#creditorQuickList');if(!clients||!creditors)return;
+  const fill=(root,direction)=>{const profiles=personProfiles(direction).slice(0,4);root.innerHTML=profiles.map(p=>profileRow(p,direction)).join('')||'<div class="empty">Поки порожньо</div>';bindProfileRows(root)};
+  fill(clients,'receivable');fill(creditors,'owed');
+}
+function openPeople(direction){peopleDirection=direction;sessionStorage.setItem('voice-finance-people-direction',direction);renderPeople();switchScreen('people')}
+function renderPeople(){
+  const list=document.querySelector('#peopleList');if(!list)return;const profiles=personProfiles(peopleDirection),receivable=peopleDirection==='receivable';
+  document.querySelector('#peopleTitle').textContent=receivable?'Клієнти':'Мої борги';document.querySelector('#peopleSubtitle').textContent=receivable?'Усі, хто винен мені':'Усі, кому винен я';
+  list.innerHTML=profiles.length?profiles.map(p=>`<div class="tx" data-person="${esc(p.name)}" data-direction="${peopleDirection}"><div class="tx-icon">${receivable?'👤':'↗'}</div><div><div class="tx-title">${esc(p.name)}</div><div class="tx-meta">Не оплачено: ${p.open.length} · Оплачено: ${p.paid.length}</div></div><strong class="debt-amount ${receivable?'pos':'neg'}">${profileAmount(p.open)}</strong></div>`).join(''):'<div class="empty">Анкет ще немає</div>';bindProfileRows(list);
+}
+function openPersonProfile(direction,person){selectedPersonDirection=direction;selectedPerson=person;sessionStorage.setItem('voice-finance-selected-person-direction',direction);sessionStorage.setItem('voice-finance-selected-person',person);renderPersonProfile();closeProfileDrawer();switchScreen('person')}
+function renderPersonProfile(){
+  const list=document.querySelector('#personDebtList');if(!list||!selectedPerson)return;const key=foldText(selectedPerson),items=state.debts.filter(d=>d.direction===selectedPersonDirection&&foldText(d.person)===key).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const receivable=selectedPersonDirection==='receivable';document.querySelector('#personEyebrow').textContent=receivable?'Клієнт':'Мій борг';document.querySelector('#personTitle').textContent=selectedPerson;document.querySelector('#personSubtitle').textContent=receivable?'Всі борги цього клієнта':'Всі борги цій людині';document.querySelector('#personOpenTotal').textContent=profileAmount(items.filter(d=>!d.paid));document.querySelector('#personPaidTotal').textContent=profileAmount(items.filter(d=>d.paid));
+  list.innerHTML=items.length?items.map(d=>`<div class="tx" data-edit-debt="${d.id}"><div class="tx-icon">${d.paid?'✓':receivable?'↙':'↗'}</div><div><div class="tx-title">${esc(d.note||'Борг')}</div><div class="person-status ${d.paid?'paid':'unpaid'}">${d.paid?'Оплачено':'Не оплачено'}</div><div class="tx-meta">${dateLabel(d.date)}</div></div><strong class="debt-amount ${receivable?'pos':'neg'}">${fmt(d.amount,d.currency)}</strong></div>`).join(''):'<div class="empty">Боргів немає</div>';list.querySelectorAll('[data-edit-debt]').forEach(row=>row.onclick=()=>openDebt(row.dataset.editDebt));
+}
+function focusDebtGroup(key){
+  switchScreen('debts');requestAnimationFrame(()=>{const groups=[...document.querySelectorAll('[data-debt-group]')],target=groups.find(g=>g.dataset.debtGroup===key);groups.forEach(g=>g.open=g===target);debtView=key;target?.scrollIntoView({behavior:'smooth',block:'start'})});
+}
+function setDebtView(view){debtView=view;renderDebts()}
+function setDebtDirection(direction){debtDirection=direction;document.querySelector('#debtOwed').classList.toggle('active',direction==='owed');document.querySelector('#debtReceivable').classList.toggle('active',direction==='receivable');}
+function openDebt(id=null){
+  editingDebtId=id;const d=state.debts.find(x=>x.id===id);setDebtDirection(d?.direction||(debtView==='receivable'?'receivable':'owed'));
+  document.querySelector('#debtFormTitle').textContent=d?'Редагувати борг':'Новий борг';document.querySelector('#debtPerson').value=d?.person||'';document.querySelector('#debtAmount').value=d?.amount||'';document.querySelector('#debtCurrency').value=d?.currency||'PLN';document.querySelector('#debtNote').value=d?.note||'';document.querySelector('#debtUrgent').checked=!!d?.urgent;document.querySelector('#debtPaid').checked=!!d?.paid;document.querySelector('#deleteDebt').classList.toggle('hidden',!d);openSheet('#debtBackdrop');
+}
+function saveDebt(){
+  const person=document.querySelector('#debtPerson').value.trim(),amount=parseFloat(document.querySelector('#debtAmount').value.replace(',','.'));if(!person)return showToast('Вкажи ім’я');if(!(amount>0))return showToast('Вкажи суму');
+  const previous=state.debts.find(d=>d.id===editingDebtId);
+  const debt={id:editingDebtId||uid(),direction:debtDirection,person,amount,currency:document.querySelector('#debtCurrency').value,note:document.querySelector('#debtNote').value.trim(),urgent:document.querySelector('#debtUrgent').checked,paid:document.querySelector('#debtPaid').checked,date:previous?.date||new Date().toISOString()};
+  state.debts=editingDebtId?state.debts.map(d=>d.id===editingDebtId?debt:d):[...state.debts,debt];syncDebtPayment(debt);closeSheet('#debtBackdrop');saveState();showToast(debt.paid?'Борг оплачено й враховано в балансі':'Борг збережено');
+}
+function syncDebtPayment(debt){
+  const existing=state.transactions.find(t=>t.debtId===debt.id);
+  if(!debt.paid){if(existing)state.transactions=state.transactions.filter(t=>t.debtId!==debt.id);return}
+  const payment={id:existing?.id||uid(),debtId:debt.id,type:debt.direction==='receivable'?'income':'expense',amount:debt.amount,currency:debt.currency,category:debt.direction==='receivable'?'business':'other',client:debt.direction==='receivable'?debt.person:'',note:`Оплата боргу · ${debt.person}${debt.note?' · '+debt.note:''}`,date:existing?.date||new Date().toISOString()};
+  state.transactions=existing?state.transactions.map(t=>t.id===existing.id?payment:t):[...state.transactions,payment];
+}
+function fillCategorySelect(){
+  document.querySelector('#categoryInput').innerHTML=state.categories.map(c=>`<option value="${c.id}">${esc(c.icon)} ${esc(c.name)}</option>`).join('');
+}
+function showToast(text){const t=document.querySelector('#toast');t.textContent=text;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+function lockPageScroll(){
+  if(document.body.classList.contains('sheet-open'))return;
+  lockedScrollY=window.scrollY;document.body.classList.add('sheet-open');document.documentElement.style.overflow='hidden';document.body.style.overflow='hidden';
+}
+function unlockPageScroll(){
+  if(!document.body.classList.contains('sheet-open'))return;
+  document.body.classList.remove('sheet-open');document.documentElement.style.overflow='';document.body.style.overflow='';if(Math.abs(window.scrollY-lockedScrollY)>1)window.scrollTo(0,lockedScrollY);lastPageScrollY=lockedScrollY;
+}
+function openSheet(id){lockPageScroll();document.querySelector(id).classList.add('open')}
+function closeSheet(id){const backdrop=document.querySelector(id),sheet=backdrop?.querySelector('.sheet');if(sheet){sheet.style.transform='';sheet.classList.remove('swiping','settling')}backdrop?.classList.remove('open');requestAnimationFrame(()=>{if(!document.querySelector('.sheet-backdrop.open'))unlockPageScroll()})}
+function setupSheetGestures(){
+  document.querySelectorAll('.sheet-backdrop>.sheet').forEach(sheet=>{
+    let startY=0,startX=0,lastY=0,startAt=0,dragging=false,eligible=false;
+    sheet.addEventListener('touchstart',e=>{if(e.touches.length!==1)return;const t=e.touches[0];startY=lastY=t.clientY;startX=t.clientX;startAt=performance.now();dragging=false;eligible=sheet.scrollTop<=0},{passive:true});
+    sheet.addEventListener('touchmove',e=>{if(!eligible||e.touches.length!==1)return;const t=e.touches[0],dy=Math.max(0,t.clientY-startY),dx=Math.abs(t.clientX-startX);if(!dragging&&dy>8&&dy>dx)dragging=true;if(!dragging)return;e.preventDefault();lastY=t.clientY;sheet.classList.add('swiping');sheet.style.transform=`translateY(${dy}px)`},{passive:false});
+    sheet.addEventListener('touchend',()=>{if(!dragging)return;const dy=Math.max(0,lastY-startY),speed=dy/Math.max(1,performance.now()-startAt);sheet.classList.remove('swiping');sheet.classList.add('settling');if(dy>90||speed>.55){sheet.style.transform='translateY(105%)';setTimeout(()=>closeSheet('#'+sheet.parentElement.id),230)}else{sheet.style.transform='';setTimeout(()=>sheet.classList.remove('settling'),240)}dragging=false});
+    sheet.addEventListener('touchcancel',()=>{sheet.style.transform='';sheet.classList.remove('swiping','settling');dragging=false});
+  });
+}
+function setFormType(type){
+  formType=type;
+  document.querySelector('#typeExpense').classList.toggle('active',type==='expense');
+  document.querySelector('#typeIncome').classList.toggle('active',type==='income');
+  document.querySelector('#clientField').classList.toggle('hidden',type!=='income');
+}
+function resetForm(){
+  editingId=null;setFormType('expense');
+  document.querySelector('#formTitle').textContent='Нова операція';
+  document.querySelector('#amountInput').value='';
+  document.querySelector('#currencyInput').value='PLN';
+  document.querySelector('#accountInput').value='';
+  document.querySelector('#categoryInput').value=state.categories[0]?.id||'other';
+  document.querySelector('#clientInput').value='';
+  document.querySelector('#noteInput').value='';
+  document.querySelector('#deleteTx').classList.add('hidden');
+}
+function openAdd(prefill={}){
+  resetForm();
+  if(prefill.type)setFormType(prefill.type);
+  if(prefill.amount!=null)document.querySelector('#amountInput').value=prefill.amount;
+  if(prefill.currency)document.querySelector('#currencyInput').value=prefill.currency;
+  if(prefill.accountId)document.querySelector('#accountInput').value=prefill.accountId;
+  if(prefill.category)document.querySelector('#categoryInput').value=prefill.category;
+  if(prefill.client)document.querySelector('#clientInput').value=prefill.client;
+  if(prefill.note)document.querySelector('#noteInput').value=prefill.note;
+  openSheet('#manualBackdrop');
+}
+function openEdit(id){
+  const tx=state.transactions.find(t=>t.id===id); if(!tx)return;
+  editingId=id;setFormType(tx.type);
+  document.querySelector('#formTitle').textContent='Редагувати операцію';
+  document.querySelector('#amountInput').value=tx.amount;
+  document.querySelector('#currencyInput').value=tx.currency;
+  document.querySelector('#accountInput').value=tx.accountId||'';
+  document.querySelector('#categoryInput').value=tx.category;
+  document.querySelector('#clientInput').value=tx.client||'';
+  document.querySelector('#noteInput').value=tx.note||'';
+  document.querySelector('#deleteTx').classList.remove('hidden');
+  openSheet('#manualBackdrop');
+}
+function saveForm(){
+  const amount=parseFloat(String(document.querySelector('#amountInput').value).replace(',','.'));
+  if(!(amount>0)){showToast('Вкажи суму');return}
+  const tx={
+    id:editingId||uid(),type:formType,amount,currency:document.querySelector('#currencyInput').value,accountId:document.querySelector('#accountInput').value||'',
+    category:document.querySelector('#categoryInput').value,client:document.querySelector('#clientInput').value.trim(),
+    note:document.querySelector('#noteInput').value.trim(),date:editingId?(state.transactions.find(t=>t.id===editingId)?.date||new Date().toISOString()):new Date().toISOString()
+  };
+  const previous=editingId?state.transactions.find(t=>t.id===editingId):null;applyAccountTransaction(tx,previous);
+  if(editingId){state.transactions=state.transactions.map(t=>t.id===editingId?tx:t)}else state.transactions.push(tx);
+  closeSheet('#manualBackdrop');saveState();showToast('Збережено');
+}
+function fillAccountSelect(){const el=document.querySelector('#accountInput');if(!el)return;const value=el.value;el.innerHTML='<option value="">Без прив’язки</option>'+state.accounts.filter(a=>a.isActive).map(a=>`<option value="${esc(a.id)}">${esc(a.displayName)}</option>`).join('');el.value=[...el.options].some(o=>o.value===value)?value:''}
+function openCategory(id){
+  const c=categoryById(id);
+  const arr=state.transactions.filter(t=>t.category===id).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.querySelector('#listTitle').textContent=c.name;
+  document.querySelector('#listContent').innerHTML=arr.length?`<div class="transactions">${arr.map(txHtml).join('')}</div>`:'<div class="empty">Немає операцій</div>';
+  bindTxRows(document.querySelector('#listContent'));
+  openSheet('#listBackdrop');
+}
+function openAllTx(){
+  const arr=[...state.transactions].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.querySelector('#listTitle').textContent='Усі операції';
+  document.querySelector('#listContent').innerHTML=arr.length?`<div class="transactions">${arr.map(txHtml).join('')}</div>`:'<div class="empty">Немає операцій</div>';
+  bindTxRows(document.querySelector('#listContent'));
+  openSheet('#listBackdrop');
+}
+function switchScreen(id){
+  if(!document.getElementById(id)?.classList.contains('screen'))id='home';
+  const buttons=[...document.querySelectorAll('.dock [data-screen]')],navId=(id==='people'||id==='person')?'debts':['balanceAnalysis','accountDetail','flowDetail','marketDetail'].includes(id)?'home':id,nextIndex=Math.max(0,buttons.findIndex(b=>b.dataset.screen===navId));
+  closeProfileDrawer();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
+  buttons.forEach(b=>b.classList.toggle('active',b.dataset.screen===navId));
+  document.querySelector('#bottomZone')?.classList.toggle('compact-home',navId==='home');
+  moveDockIndicator(nextIndex);
+  if(location.hash!==`#${id}`)history.replaceState(null,'',`#${id}`);
+  if(id==='home')requestAnimationFrame(fitBalanceText);if(id==='balanceAnalysis')renderBalanceAnalysis();if(id==='accountDetail')renderAccountDetail();if(id==='flowDetail')renderFlowDetail();if(id==='marketDetail')renderMarketDetail();
+  dockIgnoreScrollUntil=performance.now()+550;window.scrollTo({top:0,behavior:'auto'});lastPageScrollY=0;
+  requestAnimationFrame(refreshJellyItems);
+}
+function lockDrawerPage(){if(document.body.classList.contains('drawer-scroll-locked'))return;drawerLockedScrollY=window.scrollY;document.body.classList.add('drawer-scroll-locked');document.documentElement.style.overflow='hidden';document.body.style.overflow='hidden'}
+function unlockDrawerPage(){if(!document.body.classList.contains('drawer-scroll-locked'))return;document.body.classList.remove('drawer-scroll-locked');document.documentElement.style.overflow='';document.body.style.overflow='';if(Math.abs(window.scrollY-drawerLockedScrollY)>1)window.scrollTo(0,drawerLockedScrollY);lastPageScrollY=drawerLockedScrollY}
+function openProfileDrawer(){lockDrawerPage();document.body.classList.add('drawer-open');const drawer=document.querySelector('#profileDrawer');drawer.scrollTop=0;document.querySelector('#profileDrawerBackdrop').classList.add('open');const button=document.querySelector('#moreBtn');button.classList.add('active');button.setAttribute('aria-label','Назад')}
+function closeProfileDrawer(){const wasOpen=document.body.classList.contains('drawer-open');document.body.classList.remove('drawer-open');document.querySelector('#profileDrawerBackdrop')?.classList.remove('open');const button=document.querySelector('#moreBtn');button?.classList.remove('active');button?.setAttribute('aria-label','Додатково');if(wasOpen)unlockDrawerPage()}
+function toggleProfileDrawer(){document.body.classList.contains('drawer-open')?closeProfileDrawer():openProfileDrawer()}
+function setDockCompact(compact){
+  if(dockCompact===compact)return;
+  dockCompact=compact;if(!compact)dockIgnoreScrollUntil=performance.now()+980;const zone=document.querySelector('#bottomZone'),indicator=document.querySelector('.dock-indicator');dockIndicatorAnimation?.cancel();dockIndicatorAnimation=null;indicator?.classList.remove('moving');zone.classList.toggle('compact',compact);
+}
+function moveDockIndicator(nextIndex,animate=true){
+  const indicator=document.querySelector('.dock-indicator'),group=document.querySelector('.dock-group');if(!indicator||!group)return;
+  const unit=(group.clientWidth-12)/5,to=nextIndex*unit,matrix=new DOMMatrixReadOnly(getComputedStyle(indicator).transform),from=Number.isFinite(matrix.m41)?matrix.m41:dockIndicatorIndex*unit,distance=Math.abs(to-from)/Math.max(1,unit);
+  dockIndicatorAnimation?.cancel();dockIndicatorAnimation=null;indicator.classList.remove('moving');indicator.style.transform=`translateX(${from}px) scaleY(1)`;
+  if(animate&&distance>.01&&!dockCompact&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const squeeze=Math.max(.62,1-distance*.085),middle=from+(to-from)*.5;
+    dockIndicatorAnimation=indicator.animate([{transform:`translateX(${from}px) scaleY(1)`},{transform:`translateX(${middle}px) scaleY(${squeeze})`,offset:.5},{transform:`translateX(${to}px) scaleY(1)`}],{duration:700,easing:'cubic-bezier(.65,0,.35,1)',fill:'forwards'});
+    const active=dockIndicatorAnimation;active.onfinish=()=>{if(dockIndicatorAnimation!==active)return;indicator.style.transform=`translateX(${to}px) scaleY(1)`;active.cancel();dockIndicatorAnimation=null};
+  }else indicator.style.transform=`translateX(${to}px) scaleY(1)`;
+  dockIndicatorIndex=nextIndex;
+}
+function refreshJellyItems(){
+  jellyItems=[...document.querySelectorAll('.screen.active .card,.screen.active .transactions,.screen.active .goal-card,.screen.active .insight-card,.screen.active .debt-total,.screen.active .debt-section')];
+  jellyItems.forEach(el=>{el.classList.add('jelly-item');if(!jellyState.has(el))jellyState.set(el,{y:0})});
+}
+function runJelly(){
+  let moving=Math.abs(jellyVelocity)>.08;
+  jellyItems.forEach((el,index)=>{const state=jellyState.get(el)||{y:0},delay=Math.min(index,8),target=jellyVelocity*(.16+delay*.025),response=.22-delay*.012;state.y+=(target-state.y)*Math.max(.09,response);if(Math.abs(state.y)>.05)moving=true;else state.y=0;jellyState.set(el,state);const stretch=Math.min(1.008,1+Math.abs(state.y)*.00065);el.style.setProperty('--jelly-y',`${state.y.toFixed(2)}px`);el.style.setProperty('--jelly-s',stretch.toFixed(4));el.style.setProperty('--jelly-x',(2-stretch).toFixed(4))});
+  jellyVelocity*=.78;if(moving)jellyFrame=requestAnimationFrame(runJelly);else{jellyFrame=null;jellyItems.forEach(el=>{el.style.setProperty('--jelly-y','0px');el.style.setProperty('--jelly-s','1');el.style.setProperty('--jelly-x','1')})}
+}
+function handlePageScroll(){
+  if(document.body.classList.contains('sheet-open')||document.body.classList.contains('drawer-open'))return;
+  const y=window.scrollY,delta=y-lastPageScrollY;lastPageScrollY=y;
+  if(dockInteractionsReady&&performance.now()>=dockIgnoreScrollUntil&&delta>5)setDockCompact(true);
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  jellyVelocity=Math.max(-16,Math.min(16,delta));if(!jellyFrame)jellyFrame=requestAnimationFrame(runJelly);
+}
+function handleDockTouchEnd(e){
+  if(document.body.classList.contains('sheet-open')||document.body.classList.contains('drawer-open'))return;
+  if(dockBoundaryHandled){dockBoundaryHandled=false;return}
+  const endY=e.changedTouches?.[0]?.clientY??dockTouchStartY,delta=dockTouchStartY-endY;
+  if(Math.abs(delta)<26)return;
+  if(delta>0){if(dockTouchAtBottom&&dockCompact)setDockCompact(false);else setDockCompact(true)}
+  else if(dockTouchAtTop&&dockCompact)setDockCompact(false);
+}
+function handleDockTouchMove(e){
+  if(!dockCompact||dockBoundaryHandled||e.touches.length!==1)return;const delta=dockTouchStartY-e.touches[0].clientY;
+  if((dockTouchAtBottom&&delta>26)||(dockTouchAtTop&&delta<-26)){dockBoundaryHandled=true;setDockCompact(false)}
+}
+function handleBoundaryWheel(e){
+  if(!dockCompact)return;const maxScroll=Math.max(0,document.documentElement.scrollHeight-window.innerHeight);
+  if((e.deltaY>0&&window.scrollY>=maxScroll-2)||(e.deltaY<0&&window.scrollY<=2))setDockCompact(false);
+}
+function positionQuickEntry(){
+  const input=document.querySelector('#quickEntryInput'),zone=document.querySelector('#bottomZone'),viewport=window.visualViewport;
+  if(document.activeElement!==input||!viewport){zone.style.bottom='';return}
+  const keyboardOffset=Math.max(0,window.innerHeight-viewport.height-viewport.offsetTop);
+  zone.style.bottom=keyboardOffset>80?`${keyboardOffset}px`:'';
+}
+function submitQuickEntry(){
+  const quick=document.querySelector('#quickEntryInput'),text=quick.value.trim();if(!text)return;
+  startVoice();document.querySelector('#voiceTestInput').value=text;document.querySelector('#voiceTestBtn').click();quick.value='';
+}
+function openInsightSection(id){switchScreen('insights');requestAnimationFrame(()=>document.querySelector(id)?.scrollIntoView({behavior:'smooth',block:'start'}))}
+function normalizeWords(s){
+  return String(s||'')
+    .toLowerCase()
+    .replace(/[’`]/g,"'")
+    .replace(/[–—]/g,'-')
+    .replace(/[.,!?;:()[\]{}]/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function foldText(s){
+  return normalizeWords(s)
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/ł/g,'l').replace(/ż|ź/g,'z').replace(/ś/g,'s').replace(/ć/g,'c').replace(/ń/g,'n')
+    .replace(/ą/g,'a').replace(/ę/g,'e').replace(/ó/g,'o')
+    .replace(/[^\p{L}0-9'\s-]/gu,' ')
+    .replace(/\s+/g,' ').trim();
+}
+const NUMBER_WORDS={
+  нуль:0,ноль:0,один:1,одна:1,два:2,дві:2,три:3,чотири:4,пять:5,"п'ять":5,шість:6,сім:7,вісім:8,девять:9,"дев'ять":9,
+  десять:10,одинадцять:11,дванадцять:12,тринадцять:13,чотирнадцять:14,пятнадцять:15,"п'ятнадцять":15,шістнадцять:16,
+  сімнадцять:17,вісімнадцять:18,девятнадцять:19,"дев'ятнадцять":19,двадцять:20,тридцять:30,сорок:40,пятдесят:50,
+  "п'ятдесят":50,шістдесят:60,сімдесят:70,вісімдесят:80,девяносто:90,"дев'яносто":90,сто:100,двісті:200,триста:300,
+  чотириста:400,пятсот:500,"п'ятсот":500,шістсот:600,сімсот:700,вісімсот:800,девятсот:900,"дев'ятсот":900,
+  zero:0,jeden:1,jedna:1,dwa:2,dwie:2,trzy:3,cztery:4,piec:5,szesc:6,siedem:7,osiem:8,dziewiec:9,dziesiec:10,
+  jedenascie:11,dwanascie:12,trzynascie:13,czternascie:14,pietnascie:15,szesnascie:16,siedemnascie:17,osiemnascie:18,
+  dziewietnascie:19,dwadziescia:20,trzydziesci:30,czterdziesci:40,piecdziesiat:50,szescdziesiat:60,siedemdziesiat:70,
+  osiemdziesiat:80,dziewiecdziesiat:90,sto:100,dwiescie:200,trzysta:300,czterysta:400,piecset:500,szescset:600,
+  siedemset:700,osiemset:800,dziewiecset:900,
+  one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,
+  fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,
+  eighty:80,ninety:90,hundred:100
+};
+function wordsToNumber(s){
+  const t=foldText(s).split(/\s+/);let total=0,current=0,seen=false;
+  for(const w of t){
+    if(['тисяча','тисячі','тисяч','тысяча','tysiac','tysiace','tysiecy','thousand'].includes(w)){total+=(current||1)*1000;current=0;seen=true;continue;}
+    if(w==='hundred'){current=(current||1)*100;seen=true;continue;}
+    if(Object.prototype.hasOwnProperty.call(NUMBER_WORDS,w)){current+=NUMBER_WORDS[w];seen=true;}
+  }
+  return seen?total+current:null;
+}
+function detectAmount(text){
+  const raw=String(text||'').replace(/[−–—]/g,'-').replace(/(\d)\s+(\d{3})(?!\d)/g,'$1$2');
+  const m=raw.match(/(?:^|\s)[+-]?(\d+(?:[.,]\d{1,2})?)(?=\s|$|zł|zl|pln|eur|euro|usd|gbp|злот|євро|евро|дол|фунт)/i)||raw.match(/(?:^|\s)[+-]?(\d+(?:[.,]\d{1,2})?)(?=\s)/);
+  if(m)return Math.abs(parseFloat(m[1].replace(',','.')));
+  const loose=raw.match(/[+-]?\s*(\d+(?:[.,]\d{1,2})?)/);if(loose)return Math.abs(parseFloat(loose[1].replace(',','.')));
+  return wordsToNumber(raw);
+}
+function detectCurrency(t){
+  const x=foldText(t);
+  if(x.includes('євро')||x.includes('евро')||/(^|\s)(eur|euro)(\s|$)/.test(x))return'EUR';
+  if(x.includes('долар')||x.includes('доллар')||/(^|\s)(usd|dollar|dollars)(\s|$)/.test(x))return'USD';
+  if(x.includes('фунт')||/(^|\s)(gbp|pound|pounds)(\s|$)/.test(x))return'GBP';return'PLN';
+}
+function detectType(t){
+  const raw=String(t||'');
+  if(/^\s*\+/.test(raw))return'income';
+  if(/^\s*[-−–—]/.test(raw))return'expense';
+  const x=foldText(t);
+  const incomeWords=['плюс','прихід','приход','дохід','доход','отримав','отримала','заробив','заробила','przychod','dochod','wplyw','zarobilem','zarobilam','otrzymalem','otrzymalam','income','received','earned','plus'];
+  if(incomeWords.some(w=>x.split(/\s+/).includes(w)))return'income';
+  if(x.includes('заплатив мені')||x.includes('заплатила мені')||x.includes('оплатив мені')||x.includes('paid me'))return'income';
+  return'expense';
+}
+const MERCHANTS=[
+  {canonical:'Biedronka',aliases:['biedronka','bedronka','bjedronka','biedronko','бєдронка','бедронка','бідронка','бьедронка'],category:'groceries'},
+  {canonical:'Żabka',aliases:['zabka','żabka','жабка'],category:'groceries'},
+  {canonical:'Lidl',aliases:['lidl','лідл'],category:'groceries'},
+  {canonical:'Auchan',aliases:['auchan','ашан'],category:'groceries'},
+  {canonical:'Carrefour',aliases:['carrefour','карфур'],category:'groceries'},
+  {canonical:'Uber',aliases:['uber','убер'],category:'transport'},
+  {canonical:'Bolt',aliases:['bolt','болт'],category:'transport'},
+  {canonical:'Booking',aliases:['booking','booking.com','букинг','букінг'],category:'travel'},
+  {canonical:'Airbnb',aliases:['airbnb','air bnb','еирбнб','ейрбнб'],category:'travel'},
+  {canonical:'Netflix',aliases:['netflix','нетфликс','нетфлікс'],category:'subscriptions'},
+  {canonical:'Spotify',aliases:['spotify','спотифай','спотіфай'],category:'subscriptions'},
+  {canonical:'Adobe',aliases:['adobe','адобі','адоби'],category:'subscriptions'},
+  {canonical:'OpenAI',aliases:['openai','open ai','опенай','оупен ай'],category:'subscriptions'},
+  {canonical:'Apple',aliases:['apple','епл','эпл'],category:'tech'},
+  {canonical:'IKEA',aliases:['ikea','икеа','ікеа'],category:'home'},
+  {canonical:'DaVinci Resolve',aliases:['davinci','da vinci','davinci resolve','давінчі','да винчи','да вінчі'],category:'business'}
+];
+function editDistance(a,b){
+  a=foldText(a);b=foldText(b);const m=a.length,n=b.length,dp=Array(n+1).fill(0);for(let j=0;j<=n;j++)dp[j]=j;
+  for(let i=1;i<=m;i++){let prev=dp[0];dp[0]=i;for(let j=1;j<=n;j++){const tmp=dp[j];dp[j]=Math.min(dp[j]+1,dp[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));prev=tmp;}}return dp[n];
+}
+function findMerchant(raw){
+  const folded=foldText(raw);for(const m of MERCHANTS)for(const alias of m.aliases){const a=foldText(alias);if(folded.includes(a))return m;}
+  const words=folded.split(/\s+/).filter(w=>w.length>=4);let best=null,bestScore=999;
+  for(const m of MERCHANTS)for(const alias of m.aliases){const a=foldText(alias);if(a.includes(' '))continue;for(const w of words){const d=editDistance(w,a),mx=Math.max(w.length,a.length);if(mx>=6&&d<=Math.max(1,Math.floor(mx*.23))&&d<bestScore){best=m;bestScore=d;}}}return best;
+}
+function detectCategory(t){
+  const merchant=findMerchant(t);if(merchant&&state.categories.some(c=>c.id===merchant.category))return merchant.category;
+  const x=foldText(t);const rules=[
+    ['groceries',/(продукт|харч|молок|хліб|хлеб|овоч|фрукт|мяс|риба|вода|напій|закуп|магазин|супермаркет|grocer|supermarket|sklep|spozyw|zakupy|jedzeni|warzyw|owoc|mleko|chleb)/],
+    ['transport',/(uber|bolt|таксі|такси|taxi|транспорт|metro|метро|автобус|трамва|поїзд|поезд|квиток|білет|tramw|pociag|bilet|benzyn|бензин|дизел|палив|fuel|parking|парков|авто|машин|serwis.*auto)/],
+    ['food',/(ресторан|кафе|кава|coffee|чай|pizza|піца|пицца|burger|бургер|food|їжа|обід|вечеря|снідан|доставка|sniad|obiad|kolac|restaur|kawiarn|lunch|dinner|breakfast|sushi|суші)/],
+    ['tech',/(технік|електрон|гаджет|компют|ноутбук|лептоп|laptop|computer|телефон|смартфон|smartphone|камера|kamera|camera|lens|обєктив|monitor|монітор|клавіат|миша|мишк|mouse|навушник|наушник|headphone|headset|earbuds|airpods|słuchawk|sluchawk|колонк|speaker|зарядк|charger|кабел|cable|iphone|ipad|macbook|apple|samsung|xiaomi|телевізор|telewizor|tv|консол|playstation|xbox)/],
+    ['subscriptions',/(підписк|subscription|abonament|щомісяч|monthly|netflix|spotify|adobe|openai|youtube premium|icloud|google one|patreon|canva|dropbox)/],
+    ['home',/(дім|дом|квартир|ikea|мебл|ремонт|посуд|ламп|ліжк|кровать|стіл|стол|стілец|home|house|mieszk|mebl|remont|czynsz|оренд|rent|комунал|prad|газ|electric|прибиран|cleaning)/],
+    ['travel',/(готел|hotel|hostel|flight|літак|самолет|авіа|booking|airbnb|подорож|travel|lotn|wakac|відпуст|urlop|валіз|багаж|visa|віза|тур|resort)/],
+    ['business',/(бізнес|студі|робот|зарплат|гонорар|проєкт|проект|монтаж|з[йи]омк|фото|відео|shoot|editing|edit|montaz|nagran|client|клієнт|замовник|invoice|рахунок|фактур|davinci|реклам|marketing|офіс|office)/]
+  ];
+  for(const [id,re] of rules)if(re.test(x)&&state.categories.some(c=>c.id===id))return id;
+  const custom=state.categories.find(c=>x.includes(foldText(c.name)));return custom?.id||(state.categories.some(c=>c.id==='other')?'other':state.categories[0]?.id);
+}
+function detectClient(raw,type){
+  if(type!=='income')return'';const ps=[/(?:від|от|from|od)\s+([A-ZА-ЯІЇЄҐŁŚŻŹĆŃ][\p{L}\-']+)/u,/(?:клієнт|клиент|client)\s+([A-ZА-ЯІЇЄҐŁŚŻŹĆŃ]?[\p{L}\-']+)/iu,/^([A-ZА-ЯІЇЄҐŁŚŻŹĆŃ][\p{L}\-']+)\s+(?:заплатив|заплатила|paid|zapłacił|zaplacil)/u];
+  for(const re of ps){const m=raw.match(re);if(m)return m[1];}return'';
+}
+function detectDebt(raw){
+  const x=foldText(raw);let direction='';
+  let clientMatch=raw.match(/(?:^|\s)(?:клієнт|клиент|client|klient)\s+([\p{L}'’\-]+)(?=\s|$)/iu);
+  let owedMatch=raw.match(/(?:^|\s)(?:борг|долг|debt|dług|dlug)\s+(?!мені\b|мне\b|mnie\b)([\p{L}'’\-]+)(?=\s|$)/iu);
+  if(clientMatch&&/(термінов|срочн|urgent)/.test(foldText(clientMatch[1])))clientMatch=null;if(owedMatch&&/(термінов|срочн|urgent)/.test(foldText(owedMatch[1])))owedMatch=null;
+  if(clientMatch)direction='receivable';
+  else if(owedMatch)direction='owed';
+  else if(/(борг мені|мені вин(ен|на|ні)|вин(ен|на|ні) мені)/.test(x))direction='receivable';
+  else if(/(я вин(ен|на)|мій борг|вин(ен|на) комусь)/.test(x))direction='owed';
+  else if(/(?:^|\s)(клієнт|клиент|client|klient)(?:\s|$)/.test(x))direction='receivable';
+  else if(/(?:^|\s)(борг|долг|debt|dług|dlug)(?:\s|$)/.test(x))direction='owed';
+  if(!direction)return null;
+  if(clientMatch)return{direction,person:clientMatch[1],urgent:/(термінов|срочн|urgent)/.test(x)};
+  if(owedMatch)return{direction,person:owedMatch[1],urgent:/(термінов|срочн|urgent)/.test(x)};
+  const patterns=direction==='owed'?[/(?:я\s+вин(?:ен|на)|мій\s+борг)\s+([\p{L}'-]+)/iu]:[/([\p{L}'-]+)\s+вин(?:ен|на|ні)\s+мені/iu,/мені\s+вин(?:ен|на|ні)\s+([\p{L}'-]+)/iu,/борг\s+мені\s+([\p{L}'-]+)/iu];
+  let person='';for(const re of patterns){const m=raw.match(re);if(m){person=m[1];break;}}
+  if(!person){const stop=new Set(['борг','долг','debt','dług','dlug','клієнт','клиент','client','klient','мені','мне','я','винен','винна','винні','терміново','срочно','urgent','pln','zł','zl','грн','uah','eur','usd','злотих','злоті','євро','доларів']);const words=raw.match(/[\p{L}'’\-]+/gu)||[],candidate=words.find(w=>!stop.has(foldText(w))&&/^[A-ZА-ЯІЇЄҐŁŚŻŹĆŃ]/u.test(w))||words.find(w=>!stop.has(foldText(w)));person=candidate||''}
+  return{direction,person,urgent:/(термінов|срочн|urgent)/.test(x)};
+}
+function parseVoice(text){
+  const raw=String(text||'').trim(),debt=detectDebt(raw),merchant=findMerchant(raw),type=detectType(raw);
+  if(debt)return{kind:'debt',...debt,amount:detectAmount(raw),currency:detectCurrency(raw),note:raw,transcript:raw};
+  return{kind:'transaction',type,amount:detectAmount(raw),currency:detectCurrency(raw),category:detectCategory(raw),client:detectClient(raw,type),merchant:merchant?merchant.canonical:'',note:raw,transcript:raw};
+}
+function renderVoiceParse(p){
+  parsedVoice=p;const card=document.querySelector('#parseCard');
+  if(!p.amount){card.classList.add('hidden');document.querySelector('#voiceStatus').textContent='Не знайшов суму';document.querySelector('#voiceText').textContent='Спробуй сказати суму чітко або відредагуй текст нижче.';return;}
+  let detail,sign='−';if(p.kind==='debt'){detail=[p.direction==='owed'?'Я винен':'Мені винні',p.person||'потрібне ім’я'];if(p.urgent)detail.push('терміново');sign=p.direction==='receivable'?'+':'−';}else{const c=categoryById(p.category);detail=[p.type==='income'?'Дохід':'Витрата',c.name];if(p.client)detail.push('клієнт '+p.client);if(p.merchant)detail.push(p.merchant);sign=p.type==='income'?'+':'−';}
+  document.querySelector('#parseAmount').textContent=`${sign}${fmt(p.amount,p.currency)}`;document.querySelector('#parseSub').textContent=detail.join(' · ');document.querySelector('#parseTranscript').textContent='“'+(p.transcript||p.note||'')+'”';card.classList.remove('hidden');document.querySelector('#voiceStatus').textContent='Готово до збереження';
+}
+function setModelStatus(text,pct=null){
+  const el=document.querySelector('#modelStatus');if(el)el.textContent=text;const pr=document.querySelector('#modelProfileStatus');if(pr)pr.textContent=text;const wrap=document.querySelector('#modelProgressWrap'),bar=document.querySelector('#modelProgress');
+  if(pct==null){if(wrap)wrap.style.display='none';}else{if(wrap)wrap.style.display='block';if(bar)bar.style.width=Math.max(0,Math.min(100,pct))+'%';}
+}
+function setVoiceState(next,status,text){
+  voiceState=next;
+  if(status)document.querySelector('#voiceStatus').textContent=status;
+  if(text)document.querySelector('#voiceText').textContent=text;
+  document.querySelector('#voiceLiveDot')?.classList.toggle('pulse',next==='recording');
+}
+function clearVoiceTimeouts(){clearTimeout(voiceTimeout);clearTimeout(recordingTimeout);voiceTimeout=null;recordingTimeout=null;}
+function resetWhisperWorker(message){
+  if(whisperWorker)try{whisperWorker.terminate()}catch(e){}
+  whisperWorker=null;whisperReady=false;whisperBusy=false;clearVoiceTimeouts();
+  if(message){setModelStatus('Локальна модель зупинена',null);setVoiceState('error','Розпізнавання зупинено',message);}
+}
+function ensureWhisperWorker(){
+  if(whisperWorker)return whisperWorker;whisperWorker=new Worker('./whisper-worker.js',{type:'module'});
+  whisperWorker.onmessage=(e)=>{const msg=e.data||{};
+    if(msg.requestId!=null&&msg.requestId!==voiceSession)return;
+    if(msg.type==='progress'){setVoiceState('model-loading','Завантажую модель…','Перший запуск потребує інтернету; потім модель береться з кешу.');setModelStatus(msg.text||'Завантажую локальну модель…',Number.isFinite(msg.progress)?Math.round(msg.progress):null);}
+    else if(msg.type==='ready'){whisperReady=true;whisperModelName=msg.model||'Whisper';setModelStatus('Готово: '+whisperModelName,null);}
+    else if(msg.type==='result'){clearVoiceTimeouts();whisperBusy=false;setVoiceState('confirmation','Розпізнано локально','“'+msg.text+'”');setModelStatus('Готово: '+(whisperModelName||msg.model||'Whisper'),null);document.querySelector('#voiceTestInput').value=msg.text||'';renderVoiceParse(parseVoice(msg.text||''));}
+    else if(msg.type==='error'){clearVoiceTimeouts();whisperBusy=false;setModelStatus('Помилка локальної моделі',null);setVoiceState('error','Не вдалося розпізнати',msg.error||'Спробуй ще раз або введи фразу нижче.');stopVoiceVisual();}
+  };
+  whisperWorker.onerror=()=>{resetWhisperWorker();setModelStatus('Не вдалося запустити локальну модель',null);setVoiceState('error','Помилка локальної моделі','Текстове поле та ручне додавання продовжують працювати.');};return whisperWorker;
+}
+function chooseMimeType(){const choices=['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'];for(const t of choices)if(window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(t))return t;return'';}
+function setRecordingVisual(on){document.querySelector('.quick-entry-shell')?.classList.toggle('listening',on);document.querySelector('#voiceLiveDot')?.classList.toggle('pulse',on);}
+function updateTimer(){if(!recordingStartedAt)return;document.querySelector('#recordTimer').textContent='● '+((Date.now()-recordingStartedAt)/1000).toFixed(1)+' с';}
+async function startRecording(){
+  if(mediaRecorder&&mediaRecorder.state==='recording')return stopRecording();
+  if(!['idle','confirmation','error'].includes(voiceState))return;
+  const session=++voiceSession;clearVoiceTimeouts();document.querySelector('#parseCard').classList.add('hidden');setVoiceState('requesting','Дозвіл на мікрофон…','Safari може показати системний запит.');
+  try{
+    if(!navigator.mediaDevices?.getUserMedia)throw new Error('У цьому браузері немає доступу до мікрофона.');
+    const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1},video:false});
+    if(session!==voiceSession){stream.getTracks().forEach(t=>t.stop());return;}
+    mediaStream=stream;audioChunks=[];const mimeType=chooseMimeType();mediaRecorder=new MediaRecorder(mediaStream,mimeType?{mimeType}:undefined);
+    mediaRecorder.ondataavailable=e=>{if(e.data&&e.data.size)audioChunks.push(e.data)};
+    mediaRecorder.onerror=e=>{cleanupRecorder();setVoiceState('error','Помилка запису',e.error?.message||'Можна одразу спробувати ще раз.');};
+    mediaRecorder.onstop=async()=>{const recorder=mediaRecorder,type=recorder?.mimeType||mimeType||'audio/mp4',blob=new Blob(audioChunks,{type});cleanupRecorder();if(session!==voiceSession)return;if(blob.size<1200){setVoiceState('error','Запис занадто короткий','Натисни ще раз і скажи фразу.');return;}await transcribeBlob(blob,session);};
+    mediaRecorder.start(250);recordingStartedAt=Date.now();clearInterval(recordTimerInterval);recordTimerInterval=setInterval(updateTimer,100);recordingTimeout=setTimeout(stopRecording,RECORDING_LIMIT_MS);updateTimer();setRecordingVisual(true);setVoiceState('recording','Слухаю… натисни ще раз, щоб зупинити','Говори природно: «Biedronka, двісті злотих, продукти»');
+  }catch(err){cleanupRecorder();if(session!==voiceSession)return;setVoiceState('error','Немає доступу до мікрофона',(err?.name==='NotAllowedError'?'У Safari: aA → Website Settings → Microphone → Allow. ':'')+(err?.message||''));}
+}
+function stopRecording(){if(mediaRecorder&&mediaRecorder.state==='recording'){clearTimeout(recordingTimeout);setVoiceState('stopping','Готую аудіо…','Мікрофон уже вимикається.');try{mediaRecorder.requestData();mediaRecorder.stop()}catch(e){cleanupRecorder();setVoiceState('error','Не вдалося зупинити запис','Спробуй ще раз.');}}}
+function cleanupRecorder(){setRecordingVisual(false);clearInterval(recordTimerInterval);clearTimeout(recordingTimeout);recordTimerInterval=null;recordingTimeout=null;recordingStartedAt=0;const timer=document.querySelector('#recordTimer');if(timer)timer.textContent='';if(mediaStream)for(const t of mediaStream.getTracks())try{t.stop()}catch(e){}mediaStream=null;mediaRecorder=null;}
+async function blobTo16kMono(blob){
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw new Error('AudioContext недоступний');const ctx=new AC();
+  try{const ab=await blob.arrayBuffer(),decoded=await ctx.decodeAudioData(ab.slice(0)),channels=decoded.numberOfChannels,len=decoded.length,mono=new Float32Array(len);for(let c=0;c<channels;c++){const d=decoded.getChannelData(c);for(let i=0;i<len;i++)mono[i]+=d[i]/channels;}if(decoded.sampleRate===16000)return mono;const ratio=decoded.sampleRate/16000,outLen=Math.max(1,Math.round(mono.length/ratio)),out=new Float32Array(outLen);for(let i=0;i<outLen;i++){const pos=i*ratio,lo=Math.floor(pos),hi=Math.min(mono.length-1,lo+1),f=pos-lo;out[i]=mono[lo]*(1-f)+mono[hi]*f;}return out;}finally{try{await ctx.close()}catch(e){}}
+}
+async function transcribeBlob(blob,session){
+  try{whisperBusy=true;setVoiceState('decoding','Обробляю аудіо…','Запис залишається лише на цьому пристрої.');const pcm=await blobTo16kMono(blob);if(session!==voiceSession)return;setVoiceState(whisperReady?'transcribing':'model-loading',whisperReady?'Розпізнаю локально…':'Завантажую модель…','Перший запуск може бути довшим. Ручне введення доступне завжди.');const worker=ensureWhisperWorker();voiceTimeout=setTimeout(()=>{if(session===voiceSession)resetWhisperWorker('Час очікування минув. Спробуй коротшу фразу або введи її текстом.');},TRANSCRIPTION_LIMIT_MS);worker.postMessage({type:'transcribe',audio:pcm,requestId:session},[pcm.buffer]);}
+  catch(err){whisperBusy=false;if(session!==voiceSession)return;setVoiceState('error','Не вдалося обробити аудіо',(err?.message||String(err))+' Можна одразу записати ще раз.');}
+}
+function supportsBrowserRecognition(){return !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
+function startBrowserRecognition(){
+  if(speechRecognition)try{speechRecognition.abort()}catch(e){}
+  const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;if(!Recognition)return startRecording();
+  const session=++voiceSession;speechTranscript='';document.querySelector('#voiceTestInput').value='';const recognition=new Recognition();speechRecognition=recognition;recognition.lang='uk-UA';recognition.interimResults=true;recognition.continuous=false;recognition.maxAlternatives=3;
+  speechStartTimer=setTimeout(()=>{if(session!==voiceSession||speechRecognition!==recognition)return;try{recognition.abort()}catch(e){}speechRecognition=null;setModelStatus('Safari не відповів — переходжу на локальний Whisper',null);startRecording();},2500);
+  recognition.onstart=()=>{clearTimeout(speechStartTimer);if(session!==voiceSession)return;setRecordingVisual(true);setVoiceState('recording','Слухаю українською…','Говори зараз. Англійські та польські назви можна казати в цій самій фразі.');setModelStatus('Розпізнавання Safari · без платного API',null);};
+  recognition.onresult=e=>{if(session!==voiceSession)return;let interim='',final='';for(let i=e.resultIndex;i<e.results.length;i++){const text=e.results[i][0]?.transcript||'';if(e.results[i].isFinal)final+=text;else interim+=text;}if(final)speechTranscript=(speechTranscript+' '+final).trim();const shown=(speechTranscript+' '+interim).trim();if(shown){document.querySelector('#voiceText').textContent='“'+shown+'”';document.querySelector('#voiceTestInput').value=shown;}};
+  recognition.onerror=e=>{clearTimeout(speechStartTimer);if(session!==voiceSession)return;setRecordingVisual(false);speechRecognition=null;const messages={'not-allowed':'Дозволь мікрофон у налаштуваннях Safari для цього сайту.','no-speech':'Не почув мовлення. Натисни мікрофон і спробуй ще раз.','network':'Safari не зміг запустити розпізнавання. Можна ввести фразу текстом.'};setVoiceState('error','Не вдалося розпізнати',messages[e.error]||'Натисни мікрофон і спробуй ще раз.');};
+  recognition.onend=()=>{clearTimeout(speechStartTimer);if(session!==voiceSession)return;setRecordingVisual(false);speechRecognition=null;const text=(speechTranscript||document.querySelector('#voiceTestInput').value).trim();if(text){safariRecognitionRuns++;setVoiceState('confirmation','Розпізнано','“'+text+'”');renderVoiceParse(parseVoice(text));}else if(voiceState==='recording')setVoiceState('error','Не почув мовлення','Натисни мікрофон і спробуй ще раз.');};
+  try{recognition.start()}catch(e){speechRecognition=null;startRecording();}
+}
+function stopBrowserRecognition(){if(speechRecognition){setVoiceState('stopping','Завершую…','Обробляю сказане.');try{speechRecognition.stop()}catch(e){try{speechRecognition.abort()}catch(_){}}}}
+function positionVoicePopover(){
+  const popover=document.querySelector('#voicePopover');if(!popover.classList.contains('open'))return;
+  const viewport=window.visualViewport,input=document.querySelector('#voiceTestInput');
+  if(document.activeElement!==input)stableViewportHeight=Math.max(window.innerHeight,viewport?.height||0);
+  const keyboardOffset=viewport?Math.max(0,stableViewportHeight-viewport.height-viewport.offsetTop,window.innerHeight-viewport.height-viewport.offsetTop):0;
+  const keyboardOpen=keyboardOffset>80&&document.activeElement===input;
+  document.body.classList.toggle('keyboard-open',keyboardOpen);
+  popover.style.bottom=keyboardOpen?`${keyboardOffset+10}px`:'';
+}
+function scheduleVoicePosition(){voicePositionTimers.forEach(clearTimeout);voicePositionTimers=[40,180,360,600].map(delay=>setTimeout(positionVoicePopover,delay))}
+function startVoice(){const input=document.querySelector('#voiceTestInput');document.querySelector('#voicePopover').classList.add('open');document.querySelector('#parseCard').classList.add('hidden');input.value='';document.querySelector('#voiceStatus').textContent='Введи операцію або борг';document.querySelector('#voiceText').textContent='Наприклад: «-200 на продукти» або «я винен Олегу 500».';input.focus({preventScroll:true});scheduleVoicePosition()}
+function stopVoiceVisual(){setRecordingVisual(false)}
+function closeVoice(){voiceSession++;voicePositionTimers.forEach(clearTimeout);voicePositionTimers=[];document.body.classList.remove('keyboard-open');const popover=document.querySelector('#voicePopover');popover.style.bottom='';clearTimeout(speechStartTimer);clearVoiceTimeouts();if(speechRecognition)try{speechRecognition.abort()}catch(e){}speechRecognition=null;if(mediaRecorder&&mediaRecorder.state==='recording')try{mediaRecorder.stop()}catch(e){}cleanupRecorder();if(whisperBusy)resetWhisperWorker();voiceState='idle';popover.classList.remove('open')}
+function voiceSave(){
+  if(!parsedVoice?.amount)return;if(parsedVoice.kind==='debt'){if(!parsedVoice.person)return openDebtFromParse(parsedVoice);state.debts.push({id:uid(),direction:parsedVoice.direction,person:parsedVoice.person,amount:parsedVoice.amount,currency:parsedVoice.currency,note:parsedVoice.note,urgent:!!parsedVoice.urgent,paid:false,date:new Date().toISOString()});closeVoice();saveState();showToast('Борг додано');return;}state.transactions.push({type:parsedVoice.type,amount:parsedVoice.amount,currency:parsedVoice.currency,category:parsedVoice.category,client:parsedVoice.client||'',note:parsedVoice.merchant?`${parsedVoice.merchant} — ${parsedVoice.note}`:parsedVoice.note,id:uid(),date:new Date().toISOString()});closeVoice();saveState();showToast('Операцію додано');
+}
+function openDebtFromParse(p){closeVoice();openDebt();setDebtDirection(p.direction);document.querySelector('#debtPerson').value=p.person||'';document.querySelector('#debtAmount').value=p.amount||'';document.querySelector('#debtCurrency').value=p.currency||'PLN';document.querySelector('#debtNote').value=p.note||'';document.querySelector('#debtUrgent').checked=!!p.urgent}
+function renderCatManager(){
+  const el=document.querySelector('#catManager');
+  el.innerHTML=state.categories.map(c=>`<div class="list-row"><span>${esc(c.icon)} ${esc(c.name)}</span><button data-id="${c.id}" style="border:0;background:transparent;color:var(--accent)">Видалити</button></div>`).join('');
+  el.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    if(state.categories.length<=1)return showToast('Потрібна хоча б одна категорія');
+    state.categories=state.categories.filter(c=>c.id!==b.dataset.id);
+    state.transactions=state.transactions.map(t=>t.category===b.dataset.id?{...t,category:state.categories[0].id}:t);
+    saveState();renderCatManager();
+  });
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='voice-finance-data.json';a.click();URL.revokeObjectURL(a.href);
+}
+function openProvider(provider){if(provider==='MONOBANK'){closeSheet('#accountAddBackdrop');document.querySelector('#monobankToken').value='';openSheet('#monobankBackdrop');return}showToast(`${provider}: безпечне серверне підключення ще не налаштоване`)}
+function openManualAccount(type){closeSheet('#accountAddBackdrop');document.querySelector('#manualAccountTitle').textContent=type==='cash'?'Додати готівку':'Новий ручний рахунок';document.querySelector('#manualAccountName').value=type==='cash'?'Готівка':'';document.querySelector('#manualAccountBalance').value='';document.querySelector('#manualAccountBackdrop').dataset.type=type;openSheet('#manualAccountBackdrop')}
+function saveManualAccount(){const name=document.querySelector('#manualAccountName').value.trim(),amount=parseFloat(document.querySelector('#manualAccountBalance').value.replace(',','.')),currency=document.querySelector('#manualAccountCurrency').value,type=document.querySelector('#manualAccountBackdrop').dataset.type||'manual';if(!name)return showToast('Вкажи назву рахунку');if(!Number.isFinite(amount))return showToast('Вкажи баланс');state.accounts.push({id:uid(),provider:type==='cash'?'CASH':'MANUAL',bankName:name,displayName:name,shortName:name.slice(0,5).toUpperCase(),currency,currentBalance:amount,availableBalance:amount,isActive:true,source:type});state.balanceSnapshots.push({id:uid(),timestamp:new Date().toISOString(),totalBalance:totals().balance,convertedTotalBalance:totals().balance,baseCurrency:'PLN',accountBalances:Object.fromEntries(state.accounts.map(a=>[a.id,a.currentBalance])),source:'manual'});closeSheet('#manualAccountBackdrop');saveState();showToast('Рахунок додано')}
+async function connectMonobank(){const input=document.querySelector('#monobankToken'),token=input.value.trim();if(!token)return showToast('Встав особистий токен');if(!BANKING_API_BASE){input.value='';return showToast('Backend ще не налаштований. Токен не збережено')}try{const r=await fetch(`${BANKING_API_BASE}/api/banks/monobank/connect`,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});input.value='';if(!r.ok)throw new Error('Monobank не підтвердив токен');closeSheet('#monobankBackdrop');showToast('Monobank підключено')}catch(e){input.value='';showToast(e.message)}}
+document.querySelectorAll('.dock [data-screen]').forEach(b=>b.onclick=()=>{if(dockCompact&&b.classList.contains('active'))setDockCompact(false);else switchScreen(b.dataset.screen)});
+document.querySelector('#moreBtn').onclick=toggleProfileDrawer;
+document.querySelector('#profileDrawerBackdrop').onclick=e=>{if(e.target.id==='profileDrawerBackdrop')closeProfileDrawer()};
+document.querySelector('#profileDrawer').onclick=e=>e.stopPropagation();
+document.querySelector('#openSettings').onclick=()=>{closeProfileDrawer();openSheet('#settingsBackdrop')};
+document.querySelector('#incomeSummary').onclick=()=>openFlowDetail('income');
+document.querySelector('#expenseSummary').onclick=()=>openFlowDetail('expense');
+document.querySelector('#quickEntryInput').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();submitQuickEntry()}};
+document.querySelector('#quickSend').onclick=submitQuickEntry;
+document.querySelector('#quickEntryInput').addEventListener('focus',positionQuickEntry);
+document.querySelector('#quickEntryInput').addEventListener('blur',()=>setTimeout(positionQuickEntry,120));
+document.querySelector('#homeSearch').addEventListener('input',renderTransactions);
+document.querySelector('#openBalanceAnalysis').onclick=()=>switchScreen('balanceAnalysis');
+document.querySelector('#openBalanceSummary').onclick=()=>switchScreen('balanceAnalysis');
+document.querySelector('#openBalanceLabel').onclick=()=>switchScreen('balanceAnalysis');
+document.querySelector('#balanceBack').onclick=()=>switchScreen('home');
+document.querySelector('#accountBack').onclick=()=>switchScreen('home');
+document.querySelector('#flowBack').onclick=()=>switchScreen('home');
+document.querySelector('#marketBack').onclick=()=>switchScreen('home');
+document.querySelector('#toggleAccounts').onclick=()=>{accountsExpanded=!accountsExpanded;renderAccounts()};
+document.querySelectorAll('#periodTabs button').forEach(b=>b.onclick=()=>{analysisPeriod=b.dataset.period;document.querySelectorAll('#periodTabs button').forEach(x=>x.classList.toggle('active',x===b));renderBalanceAnalysis()});
+document.querySelectorAll('#accountPeriodTabs button').forEach(b=>b.onclick=()=>{accountPeriod=b.dataset.period;document.querySelectorAll('#accountPeriodTabs button').forEach(x=>x.classList.toggle('active',x===b));renderAccountDetail()});
+document.querySelectorAll('#flowPeriodTabs button').forEach(b=>b.onclick=()=>{flowPeriod=b.dataset.period;document.querySelectorAll('#flowPeriodTabs button').forEach(x=>x.classList.toggle('active',x===b));renderFlowDetail()});
+document.querySelectorAll('#marketPeriodTabs button').forEach(b=>b.onclick=()=>{marketPeriod=b.dataset.period;document.querySelectorAll('#marketPeriodTabs button').forEach(x=>x.classList.toggle('active',x===b));renderMarketDetail()});
+document.querySelector('#marketSearch').addEventListener('input',renderMarketPicker);
+setupInteractiveCharts();
+document.querySelectorAll('[data-provider]').forEach(b=>b.onclick=()=>openProvider(b.dataset.provider));
+document.querySelectorAll('[data-manual-type]').forEach(b=>b.onclick=()=>openManualAccount(b.dataset.manualType));
+document.querySelectorAll('[data-close-sheet]').forEach(b=>b.onclick=()=>closeSheet('#'+b.dataset.closeSheet));
+document.querySelector('#saveManualAccount').onclick=saveManualAccount;document.querySelector('#connectMonobank').onclick=connectMonobank;
+document.querySelector('#debtSearch').addEventListener('input',renderDebts);
+document.querySelector('#typeExpense').onclick=()=>setFormType('expense');
+document.querySelector('#typeIncome').onclick=()=>setFormType('income');
+document.querySelector('#saveTx').onclick=saveForm;
+document.querySelector('#deleteTx').onclick=()=>{
+  if(!editingId)return;const removed=state.transactions.find(t=>t.id===editingId);applyAccountTransaction(null,removed);state.transactions=state.transactions.filter(t=>t.id!==editingId);if(removed?.debtId)state.debts=state.debts.map(d=>d.id===removed.debtId?{...d,paid:false}:d);closeSheet('#manualBackdrop');saveState();showToast('Видалено')
+};
+document.querySelector('#voiceCancel').onclick=closeVoice;
+document.querySelector('#voiceTestBtn').onclick=()=>{
+  const text=document.querySelector('#voiceTestInput').value.trim();
+  if(!text)return;
+  document.querySelector('#voiceText').textContent='“'+text+'”';
+  renderVoiceParse(parseVoice(text));
+};
+document.querySelector('#confirmVoice').onclick=voiceSave;
+document.querySelector('#editVoice').onclick=()=>{const p=parsedVoice;if(p?.kind==='debt')openDebtFromParse(p);else{closeVoice();openAdd(p||{})}};
+document.querySelector('#seeAllTx').onclick=openAllTx;
+document.querySelector('#closeList').onclick=()=>closeSheet('#listBackdrop');
+document.querySelector('#allCategories').onclick=()=>{renderCatManager();openSheet('#catBackdrop')};
+document.querySelector('#allClients').onclick=()=>{closeProfileDrawer();openPeople('receivable')};
+document.querySelector('#allCreditors').onclick=()=>{closeProfileDrawer();openPeople('owed')};
+document.querySelector('#peopleBack').onclick=()=>switchScreen('debts');
+document.querySelector('#personBack').onclick=()=>openPeople(selectedPersonDirection);
+document.querySelector('#manageCategories').onclick=()=>{renderCatManager();openSheet('#catBackdrop')};
+document.querySelector('#closeCategories').onclick=()=>closeSheet('#catBackdrop');
+document.querySelector('#addCategoryBtn').onclick=()=>{
+  const name=document.querySelector('#newCatName').value.trim();if(!name)return;
+  const id='custom-'+Date.now();state.categories.push({id,name,icon:'•'});document.querySelector('#newCatName').value='';saveState();renderCatManager()
+};
+document.querySelector('#owedWidget').onclick=()=>openPeople('owed');
+document.querySelector('#receivableWidget').onclick=()=>openPeople('receivable');
+document.querySelector('#debtSortSelect').onchange=e=>{debtSort=e.target.value;renderDebts()};
+document.querySelector('#debtOwed').onclick=()=>setDebtDirection('owed');
+document.querySelector('#debtReceivable').onclick=()=>setDebtDirection('receivable');
+document.querySelector('#saveDebt').onclick=saveDebt;
+document.querySelector('#deleteDebt').onclick=()=>{if(!editingDebtId)return;state.debts=state.debts.filter(d=>d.id!==editingDebtId);state.transactions=state.transactions.filter(t=>t.debtId!==editingDebtId);closeSheet('#debtBackdrop');saveState();showToast('Борг видалено')};
+document.querySelector('#exportData').onclick=exportData;
+document.querySelector('#clearData').onclick=()=>{if(confirm('Очистити всі операції та борги?')){state.transactions=[];state.debts=[];saveState();showToast('Дані очищено')}};
+document.querySelector('#manualBackdrop').onclick=e=>{if(e.target.id==='manualBackdrop')closeSheet('#manualBackdrop')};
+document.querySelector('#debtBackdrop').onclick=e=>{if(e.target.id==='debtBackdrop')closeSheet('#debtBackdrop')};
+document.querySelector('#listBackdrop').onclick=e=>{if(e.target.id==='listBackdrop')closeSheet('#listBackdrop')};
+document.querySelector('#catBackdrop').onclick=e=>{if(e.target.id==='catBackdrop')closeSheet('#catBackdrop')};
+document.querySelector('#scanBackdrop').onclick=e=>{if(e.target.id==='scanBackdrop')closeSheet('#scanBackdrop')};
+document.querySelector('#settingsBackdrop').onclick=e=>{if(e.target.id==='settingsBackdrop')closeSheet('#settingsBackdrop')};
+document.querySelector('#accountAddBackdrop').onclick=e=>{if(e.target.id==='accountAddBackdrop')closeSheet('#accountAddBackdrop')};document.querySelector('#manualAccountBackdrop').onclick=e=>{if(e.target.id==='manualAccountBackdrop')closeSheet('#manualAccountBackdrop')};document.querySelector('#monobankBackdrop').onclick=e=>{if(e.target.id==='monobankBackdrop'){document.querySelector('#monobankToken').value='';closeSheet('#monobankBackdrop')}};
+document.querySelector('#scanCamera').onclick=()=>document.querySelector('#cameraInput').click();
+document.querySelector('#scanFile').onclick=()=>document.querySelector('#fileInput').click();
+document.querySelector('#scanClose').onclick=()=>closeSheet('#scanBackdrop');
+function handleScanFile(file){
+  if(!file)return;selectedScanFile=file;const preview=document.querySelector('#scanPreview');
+  if(scanPreviewUrl)URL.revokeObjectURL(scanPreviewUrl);scanPreviewUrl='';
+  if(file.type.startsWith('image/')){scanPreviewUrl=URL.createObjectURL(file);preview.src=scanPreviewUrl;preview.classList.remove('hidden')}else preview.classList.add('hidden');
+  document.querySelector('#scanFileName').textContent=file.name;document.querySelector('#scanFileName').classList.remove('hidden');document.querySelector('#scanContinue').classList.remove('hidden');
+}
+document.querySelector('#cameraInput').onchange=e=>handleScanFile(e.target.files[0]);
+document.querySelector('#fileInput').onchange=e=>handleScanFile(e.target.files[0]);
+document.querySelector('#scanContinue').onclick=()=>{const name=selectedScanFile?.name||'чек';closeSheet('#scanBackdrop');openAdd({note:`Чек: ${name}`});showToast('Внеси суму та категорію з чека')};
+document.querySelector('#voiceTestInput').onkeydown=e=>{if(e.key==='Enter')document.querySelector('#voiceTestBtn').click()};
+document.querySelector('#voiceTestInput').addEventListener('focus',scheduleVoicePosition);
+document.querySelector('#voiceTestInput').addEventListener('blur',()=>setTimeout(positionVoicePopover,120));
+window.visualViewport?.addEventListener('resize',positionVoicePopover);
+window.visualViewport?.addEventListener('scroll',positionVoicePopover);
+window.visualViewport?.addEventListener('resize',positionQuickEntry);
+window.visualViewport?.addEventListener('scroll',positionQuickEntry);
+addEventListener('orientationchange',()=>{if(document.activeElement!==document.querySelector('#voiceTestInput'))stableViewportHeight=Math.max(window.innerHeight,window.visualViewport?.height||0)});
+addEventListener('resize',()=>requestAnimationFrame(()=>{fitBalanceText();updateTickerSpeed()}));
+addEventListener('scroll',handlePageScroll,{passive:true});
+addEventListener('touchstart',e=>{if(e.touches.length!==1)return;dockBoundaryHandled=false;dockTouchStartY=e.touches[0].clientY;const maxScroll=Math.max(0,document.documentElement.scrollHeight-window.innerHeight);dockTouchAtTop=window.scrollY<=2;dockTouchAtBottom=maxScroll<2||window.scrollY>=maxScroll-2},{passive:true});
+addEventListener('touchmove',handleDockTouchMove,{passive:true});
+addEventListener('touchend',handleDockTouchEnd,{passive:true});
+addEventListener('wheel',handleBoundaryWheel,{passive:true});
+
+if('serviceWorker' in navigator && location.protocol!=='file:'){
+  let reloadingForUpdate=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
+  navigator.serviceWorker.register('./sw.js?v=43',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+}
+try{
+  if('scrollRestoration' in history)history.scrollRestoration='manual';
+  window.scrollTo(0,0);lastPageScrollY=0;document.querySelector('#bottomZone').classList.remove('compact');dockCompact=false;
+  setupSheetGestures();
+  setupTickerDrag();
+  requestAnimationFrame(runTicker);
+  render();
+  loadMarketData();
+  const initialScreen=location.hash.slice(1)||'home';switchScreen(initialScreen==='marketDetail'&&!selectedMarketId?'home':initialScreen);if(initialScreen==='marketDetail'&&selectedMarketId)loadMarketDetail(selectedMarketId);
+  addEventListener('hashchange',()=>switchScreen(location.hash.slice(1)||'home'));
+  setTimeout(()=>{window.scrollTo(0,0);lastPageScrollY=0;setDockCompact(false);dockInteractionsReady=true},900);
+  window.__VOICE_FINANCE_READY__=true;
+  window.__VOICE_FINANCE_TEST__={parseVoice,getVoiceState:()=>voiceState,getActiveTrackCount:()=>mediaStream?.getTracks().filter(t=>t.readyState==='live').length||0};
+}catch(err){
+  console.error(err);
+  const t=document.querySelector('#toast');
+  if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "Voice Finance Free",
+  "short_name": "Voice Finance",
+  "start_url": "./?v=25",
+  "id": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "description": "Безкоштовний локальний голосовий трекер фінансів"
+}
