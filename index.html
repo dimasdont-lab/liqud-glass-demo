@@ -93,7 +93,7 @@
     .empty{padding:28px;text-align:center;color:var(--muted)}
     .bottom-zone{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(480px,100%);padding:8px 15px calc(11px + env(safe-area-inset-bottom));background:linear-gradient(0deg,#050505 0 48%,transparent);z-index:30;transition:transform .5s cubic-bezier(.22,.82,.22,1),bottom .22s ease}
     .dock-layout{position:relative;height:128px;transition:height .62s cubic-bezier(.2,.72,.18,1)}
-    .dock-liquid-layer{position:absolute;z-index:1;inset:-14px;display:block;width:calc(100% + 28px);height:calc(100% + 28px);overflow:visible;pointer-events:none;contain:layout paint;will-change:contents}
+    .dock-liquid-layer{position:absolute;z-index:1;left:-14px;top:-14px;display:block;width:calc(100% + 28px);height:156px;overflow:visible;pointer-events:none;contain:layout paint;will-change:contents}
     .dock-liquid-mass{fill:url(#dockGlassFill);filter:url(#dockLiquidGlass)}
     .dock-entry-glass{fill:url(#dockGlassFill);filter:url(#dockEntryGlass)}
     .dock-liquid-rim{fill:none;stroke:url(#dockGlassRim);stroke-width:1.05;opacity:.78;filter:url(#dockRimSoft)}
@@ -894,7 +894,7 @@ function switchScreen(id){
   closeProfileDrawer();
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   buttons.forEach(b=>b.classList.toggle('active',b.dataset.screen===navId));
-  const compactActive=document.querySelector('#compactActiveBtn'),activeButton=buttons.find(b=>b.dataset.screen===navId);if(compactActive&&activeButton){compactActive.innerHTML=activeButton.innerHTML;compactActive.setAttribute('aria-label',`${activeButton.getAttribute('aria-label')||'Активна сторінка'} · розгорнути док`)}
+  const compactActive=document.querySelector('#compactActiveBtn'),compactSource=buttons.find(b=>b.dataset.screen===(navId==='home'?'debts':navId));if(compactActive&&compactSource){compactActive.innerHTML=compactSource.innerHTML;compactActive.dataset.compactScreen=compactSource.dataset.screen;compactActive.setAttribute('aria-label',`${compactSource.getAttribute('aria-label')||'Активна сторінка'} · розгорнути док`)}
   document.querySelector('#bottomZone')?.classList.toggle('compact-home',navId==='home');
   moveDockIndicator(nextIndex);
   if(location.hash!==`#${id}`)history.replaceState(null,'',`#${id}`);
@@ -1337,7 +1337,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=45',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=46',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
