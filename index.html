@@ -113,6 +113,7 @@
     .dock-indicator{transition-duration:.62s}.dock-group button{transition-duration:.62s,.43s,.28s,.62s,.62s,.62s,.62s}.dock-label{transition-duration:.28s}.bottom-zone.compact .dock-layout{transition:height .62s cubic-bezier(.2,.72,.18,1)}.bottom-zone.compact .quick-entry-shell{transition:top .62s cubic-bezier(.2,.72,.18,1),left .62s cubic-bezier(.2,.72,.18,1),width .62s cubic-bezier(.2,.72,.18,1),height .62s cubic-bezier(.2,.72,.18,1),border-radius .62s cubic-bezier(.2,.72,.18,1),padding .62s cubic-bezier(.2,.72,.18,1),opacity .28s ease}.bottom-zone.compact .dock-group::before{opacity:0}.bottom-zone.compact .dock-indicator{border:0;box-shadow:none}.bottom-zone.compact .dock-indicator::before{background:rgba(8,8,10,.8)}.bottom-zone.compact .dock-group button[data-screen="home"].active{background:rgba(8,8,10,.78)}
     .bottom-zone.compact.compact-home .quick-entry-shell{left:68px;width:calc(100% - 200px)}.bottom-zone.compact.compact-home .dock-indicator{opacity:1}.bottom-zone.compact .dock-group button.active:not([data-screen="home"]){opacity:0;pointer-events:none;transform:translateX(0) scale(.72)}.bottom-zone.compact .dock-group .compact-active-btn{display:flex;left:0;top:6px;width:64px;height:64px;border-radius:50%;transform:none;opacity:1;pointer-events:auto;color:#ff4060}.bottom-zone.compact .compact-active-btn .dock-label{display:none}
     .bottom-zone.compact .quick-entry-shell{transition:left .28s cubic-bezier(.2,.72,.18,1) .2s,width .28s cubic-bezier(.2,.72,.18,1) .2s,height .28s cubic-bezier(.2,.72,.18,1) .2s,border-radius .28s cubic-bezier(.2,.72,.18,1) .2s,padding .28s cubic-bezier(.2,.72,.18,1) .2s,top .28s cubic-bezier(.2,.72,.18,1) .42s,opacity .28s ease}
+    .bottom-zone.compact .dock-layout{height:128px}.bottom-zone.compact .dock{top:50px}.bottom-zone.compact .quick-entry-shell{top:59px;transition:left .36s cubic-bezier(.2,.72,.18,1) .28s,width .36s cubic-bezier(.2,.72,.18,1) .28s,height .36s cubic-bezier(.2,.72,.18,1) .28s,border-radius .36s cubic-bezier(.2,.72,.18,1) .28s,padding .36s cubic-bezier(.2,.72,.18,1) .28s,top .34s cubic-bezier(.2,.72,.18,1) .52s,opacity .28s ease}.dock-indicator{transition-duration:.84s}.dock-group button{transition-duration:.84s,.58s,.38s,.84s,.84s,.84s,.84s}
     .topline{padding-left:0}.page-search{height:41px;margin:0 0 18px;border:1px solid rgba(255,255,255,.1);border-radius:21px;background:#1c1c1e;display:flex;align-items:center;padding:0 16px}.page-search svg{width:20px;height:20px;flex:none}.page-search input{width:100%;height:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--text);padding:0 12px;font-size:17px}.page-search input::placeholder{color:#77777f}
     .home-topline{min-height:72px;align-items:flex-start}.home-topline h1{font-size:31px;margin-bottom:7px}.home-topline .sub{margin:0;font-size:16px;text-transform:capitalize}
     .profile-drawer-backdrop{position:fixed;inset:0;z-index:29;background:rgba(0,0,0,0);pointer-events:none;transition:background .46s ease}
@@ -914,7 +915,7 @@ function dockLiquidTargets(compact){
   const layer=document.querySelector('#dockLiquidLayer'),layout=document.querySelector('.dock-layout'),w=layout?.clientWidth||450,pad=14;
   layer?.setAttribute('viewBox',`0 0 ${w+pad*2} ${128+pad*2}`);
   if(!compact)return{entry:[pad,pad,w,42,21,1],entryBulge:[pad+w*.5,pad+42,1,1,0],nav:[pad,pad+50,w,78,39,1],active:[pad+6+dockIndicatorIndex*((w-12)/5),pad+56,(w-12)/5,64,31,.18],neck:[pad+w*.5,pad+78,2,2,0],drop:[pad+w*.5,pad+78,1,1,0],shine:[pad+w*.2,pad+4,w*.56,8,.52]};
-  return{entry:[pad+68,pad+9,w-200,60,30,1],entryBulge:[pad+68+(w-200)*.5,pad+69,1,1,0],nav:[pad+w-124,pad,124,64,32,1],active:[pad,pad,64,64,32,1],neck:[pad+64,pad+32,1,1,0],drop:[pad+64,pad+32,1,1,0],shine:[pad+80,pad+13,Math.max(34,w-234),7,.42]};
+  return{entry:[pad+68,pad+59,w-200,60,30,1],entryBulge:[pad+68+(w-200)*.5,pad+119,1,1,0],nav:[pad+w-124,pad+50,124,64,32,1],active:[pad,pad+50,64,64,32,1],neck:[pad+64,pad+82,1,1,0],drop:[pad+64,pad+82,1,1,0],shine:[pad+80,pad+63,Math.max(34,w-234),7,.42]};
 }
 function setLiquidRect(id,v){const el=document.querySelector(id);if(!el)return;el.setAttribute('x',v[0]);el.setAttribute('y',v[1]);el.setAttribute('width',Math.max(.1,v[2]));el.setAttribute('height',Math.max(.1,v[3]));el.setAttribute('rx',Math.max(0,v[4]));el.style.opacity=v[5]}
 function renderDockLiquid(s){
@@ -923,9 +924,9 @@ function renderDockLiquid(s){
   [[neck,s.neck],[drop,s.drop],[entryBulge,s.entryBulge],[shine,s.shine]].forEach(([el,v])=>{if(!el)return;el.setAttribute('cx',v[0]+(v.length===6?v[2]/2:0));el.setAttribute('cy',v[1]+(v.length===6?v[3]/2:0));el.setAttribute('rx',Math.max(.1,v[2]/2));el.setAttribute('ry',Math.max(.1,v[3]/2));el.style.opacity=v[v.length-1]});
 }
 function animateDockLiquid(compact){
-  cancelAnimationFrame(dockLiquidFrame);const target=dockLiquidTargets(compact),start=dockLiquidCurrent||dockLiquidTargets(!compact),began=performance.now(),duration=620,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  cancelAnimationFrame(dockLiquidFrame);const target=dockLiquidTargets(compact),start=dockLiquidCurrent||dockLiquidTargets(!compact),began=performance.now(),duration=840,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(reduced){dockLiquidCurrent=target;renderDockLiquid(target);return}
-  const tick=now=>{const raw=Math.min(1,(now-began)/duration),clamp=n=>Math.max(0,Math.min(1,n)),navT=liquidEase(clamp(raw/(compact?.62:1))),sizeT=liquidEase(clamp((raw-(compact?.3:.3))/(compact?.38:.48))),moveT=liquidEase(clamp((raw-(compact?.58:0))/(compact?.42:.36))),state={};
+  const tick=now=>{const raw=Math.min(1,(now-began)/duration),clamp=n=>Math.max(0,Math.min(1,n)),navT=liquidEase(clamp(raw/(compact?.58:1))),sizeT=liquidEase(clamp((raw-(compact?.3:.3))/(compact?.4:.48))),moveT=liquidEase(clamp((raw-(compact?.62:0))/(compact?.38:.36))),state={};
     for(const key of ['nav','active','neck','drop'])state[key]=target[key].map((v,i)=>liquidMix(start[key][i],v,navT));
     state.entry=target.entry.map((v,i)=>liquidMix(start.entry[i],v,i===1?moveT:sizeT));state.shine=target.shine.map((v,i)=>liquidMix(start.shine[i],v,sizeT));
     const fieldTension=Math.sin(Math.PI*sizeT),fieldDirection=compact?1:-1,entryCenterX=state.entry[0]+state.entry[2]*.5,entryBottom=state.entry[1]+state.entry[3];state.entry[3]+=fieldTension*9;state.entry[1]-=fieldTension*4.5;state.entryBulge=[entryCenterX+fieldDirection*fieldTension*12,entryBottom-fieldTension*3,12+fieldTension*22,8+fieldTension*17,fieldTension*.72];
@@ -1340,7 +1341,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=47',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=48',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
