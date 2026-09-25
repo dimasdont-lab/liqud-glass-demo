@@ -134,6 +134,8 @@
     .bottom-zone.dock-expanding.compact-home .dock-group button[data-screen="insights"],
     .bottom-zone.dock-expanding:not(.compact-home) .dock-group button:not(.active):not([data-screen="home"]):not(.more-btn){transition-delay:0s,.25s,0s,0s,0s,0s,0s}
     .dock-liquid-layer{transform:translateZ(0);backface-visibility:hidden}
+    .bottom-zone.dock-motion .quick-entry-shell,.bottom-zone.dock-motion .quick-entry-shell>svg,.bottom-zone.dock-motion .quick-send,.bottom-zone.dock-motion .quick-send svg,.bottom-zone.dock-motion .dock,.bottom-zone.dock-motion .dock-group,.bottom-zone.dock-motion .dock-group button,.bottom-zone.dock-motion .dock-label,.bottom-zone.dock-motion .dock-indicator{transition:none!important;animation:none!important}
+    .bottom-zone.compact.compact-home .dock-indicator{left:calc(100% - 124px);opacity:1}.bottom-zone.compact .dock-group button[data-screen="home"].active{background:transparent}
     .topline{padding-left:0}.page-search{height:41px;margin:0 0 18px;border:1px solid rgba(255,255,255,.1);border-radius:21px;background:#1c1c1e;display:flex;align-items:center;padding:0 16px}.page-search svg{width:20px;height:20px;flex:none}.page-search input{width:100%;height:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--text);padding:0 12px;font-size:17px}.page-search input::placeholder{color:#77777f}
     .home-topline{min-height:72px;align-items:flex-start}.home-topline h1{font-size:31px;margin-bottom:7px}.home-topline .sub{margin:0;font-size:16px;text-transform:capitalize}
     .profile-drawer-backdrop{position:fixed;inset:0;z-index:29;background:rgba(0,0,0,0);pointer-events:none;transition:background .46s ease}
@@ -557,6 +559,9 @@ let dockIndicatorAnimation=null;
 let dockLiquidFrame=null;
 let dockLiquidCurrent=null;
 let dockLiquidMode='expanded';
+let dockMotionToken=0;
+let dockMotionNodes=null;
+let dockLiquidNodes=null;
 let dockPhaseTimer=null;
 let accountsExpanded=false;
 let analysisPeriod='1M';
@@ -938,42 +943,78 @@ function switchScreen(id){
 function lockDrawerPage(){if(document.body.classList.contains('drawer-scroll-locked'))return;drawerLockedScrollY=window.scrollY;document.body.classList.add('drawer-scroll-locked');document.documentElement.style.overflow='hidden';document.body.style.overflow='hidden'}
 function unlockDrawerPage(){if(!document.body.classList.contains('drawer-scroll-locked'))return;document.body.classList.remove('drawer-scroll-locked');document.documentElement.style.overflow='';document.body.style.overflow='';if(Math.abs(window.scrollY-drawerLockedScrollY)>1)window.scrollTo(0,drawerLockedScrollY);lastPageScrollY=drawerLockedScrollY}
 function openProfileDrawer(){lockDrawerPage();document.body.classList.add('drawer-open');animateDockLiquid('drawer');const drawer=document.querySelector('#profileDrawer');drawer.scrollTop=0;document.querySelector('#profileDrawerBackdrop').classList.add('open');const button=document.querySelector('#moreBtn');button.classList.add('active');button.setAttribute('aria-label','Назад')}
-function closeProfileDrawer(){const wasOpen=document.body.classList.contains('drawer-open');document.body.classList.remove('drawer-open');document.querySelector('#profileDrawerBackdrop')?.classList.remove('open');const button=document.querySelector('#moreBtn');button?.classList.remove('active');button?.setAttribute('aria-label','Додатково');if(wasOpen){const zone=document.querySelector('#bottomZone');dockCompact=false;clearTimeout(dockPhaseTimer);zone.classList.remove('compact','dock-collapsing');zone.classList.add('dock-expanding');animateDockLiquid(false);dockPhaseTimer=setTimeout(()=>zone.classList.remove('dock-expanding'),900);unlockDrawerPage()}}
+function closeProfileDrawer(){const wasOpen=document.body.classList.contains('drawer-open');document.body.classList.remove('drawer-open');document.querySelector('#profileDrawerBackdrop')?.classList.remove('open');const button=document.querySelector('#moreBtn');button?.classList.remove('active');button?.setAttribute('aria-label','Додатково');if(wasOpen){dockCompact=false;clearTimeout(dockPhaseTimer);document.querySelector('#bottomZone')?.classList.remove('dock-collapsing','dock-expanding');animateDockLiquid(false);unlockDrawerPage()}}
 function toggleProfileDrawer(){document.body.classList.contains('drawer-open')?closeProfileDrawer():openProfileDrawer()}
 const liquidMix=(a,b,t)=>a+(b-a)*t;
 const liquidEase=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 function dockLiquidTargets(mode){
-  const drawer=mode==='drawer',compact=mode===true||mode==='compact';
-  const layer=document.querySelector('#dockLiquidLayer'),layout=document.querySelector('.dock-layout'),w=layout?.clientWidth||450,pad=14;
-  const unit=(w-12)/5,split=pad+6+unit*3;
+  mode=mode===true?'compact':mode===false?'expanded':mode;
+  const layer=document.querySelector('#dockLiquidLayer'),layout=document.querySelector('.dock-layout'),w=layout?.clientWidth||450,pad=14,unit=(w-12)/5;
+  const buttons=[...document.querySelectorAll('.dock-group>button:not(.compact-active-btn)')],activeIndex=Math.max(0,buttons.findIndex(button=>button.classList.contains('active')&&button.dataset.screen)),leftIndex=activeIndex===3?2:Math.min(activeIndex,2);
   layer?.setAttribute('viewBox',`0 0 ${w+pad*2} ${128+pad*2}`);
-  if(drawer){const x=pad+w-64,y=pad+50;return{entry:[x,y,64,64,32,.22],entryBulge:[x+32,y+32,1,1,0],nav:[x,y,64,64,32,1],active:[x,y,64,64,32,.42],navRim:[x,y,64,64,32,1],activeRim:[x,y,64,64,32,0],neck:[x,y+32,1,1,0],drop:[x,y+32,1,1,0],drop2:[x,y+32,1,1,0],drop3:[x,y+32,1,1,0],shine:[x+13,y+8,34,7,.5]}}
-  if(!compact)return{entry:[pad,pad,w,42,21,1],entryBulge:[pad+w*.5,pad+42,1,1,0],nav:[pad,pad+50,w,78,39,1],active:[pad,pad+50,split-pad+12,78,39,0],navRim:[pad,pad+50,w,78,39,1],activeRim:[pad,pad+50,split-pad+12,78,39,0],neck:[split,pad+82,2,2,0],drop:[split,pad+82,1,1,0],drop2:[split,pad+82,1,1,0],drop3:[split,pad+82,1,1,0],shine:[pad+w*.2,pad+4,w*.56,8,.52]};
-  return{entry:[pad+68,pad+59,w-200,60,30,1],entryBulge:[pad+68+(w-200)*.5,pad+119,1,1,0],nav:[pad+w-124,pad+50,124,64,32,1],active:[pad,pad+50,64,64,32,1],navRim:[pad+w-124,pad+50,124,64,32,1],activeRim:[pad,pad+50,64,64,32,1],neck:[pad+64,pad+82,1,1,0],drop:[pad+64,pad+82,1,1,0],drop2:[pad+64,pad+82,1,1,0],drop3:[pad+64,pad+82,1,1,0],shine:[pad+80,pad+63,Math.max(34,w-234),7,.42]};
+  const expandedButtons=buttons.map((_,index)=>[6+unit*index,6,unit,64,31,1,1,1]);
+  if(mode==='drawer'){
+    const x=w-64,sx=pad+x,sy=pad+50;
+    return{mode,w,entry:[sx,sy,64,64,32,0],entryBulge:[sx+32,sy+32,1,1,0],nav:[sx,sy,64,64,32,1],active:[sx,sy,64,64,32,0],navRim:[sx,sy,64,64,32,1],activeRim:[sx,sy,64,64,32,0],neck:[sx+32,sy+32,1,1,0],drop:[sx+32,sy+32,1,1,0],drop2:[sx+32,sy+32,1,1,0],drop3:[sx+32,sy+32,1,1,0],shine:[sx+13,sy+8,34,7,.5],entryHtml:[x,57,64,64,32,0,.28,0,0,0,0,38,19],buttons:buttons.map((_,index)=>[x,7,64,64,32,index===4?1:0,index===4?1:.28,0]),indicator:[x,7,64,64,32,0]};
+  }
+  if(mode==='compact'){
+    const compactButtons=buttons.map((_,index)=>{const visible=index===leftIndex||index===3||index===4,x=index===3?w-124:index===4?w-62:0;return[x,6,64,64,32,visible?1:0,visible?1:.72,0]});
+    return{mode,w,entry:[pad+68,pad+59,w-200,60,30,1],entryBulge:[pad+68+(w-200)*.5,pad+119,1,1,0],nav:[pad+w-124,pad+50,124,64,32,1],active:[pad,pad+50,64,64,32,1],navRim:[pad+w-124,pad+50,124,64,32,1],activeRim:[pad,pad+50,64,64,32,1],neck:[pad+w*.5,pad+82,1,1,0],drop:[pad+w*.5,pad+82,1,1,0],drop2:[pad+w*.5,pad+82,1,1,0],drop3:[pad+w*.5,pad+82,1,1,0],shine:[pad+80,pad+63,Math.max(34,w-234),7,.42],entryHtml:[68,59,w-200,60,30,1,1,14,9,0,0,38,19],buttons:compactButtons,indicator:[activeIndex===3?w-124:0,6,64,64,32,1]};
+  }
+  const indicatorX=6+unit*activeIndex;
+  return{mode:'expanded',w,entry:[pad,pad,w,42,21,1],entryBulge:[pad+w*.5,pad+42,1,1,0],nav:[pad,pad+50,w,78,39,1],active:[pad,pad+50,w,78,39,0],navRim:[pad,pad+50,w,78,39,1],activeRim:[pad,pad+50,w,78,39,0],neck:[pad+w*.5,pad+89,1,1,0],drop:[pad+w*.5,pad+89,1,1,0],drop2:[pad+w*.5,pad+89,1,1,0],drop3:[pad+w*.5,pad+89,1,1,0],shine:[pad+w*.2,pad+4,w*.56,8,.52],entryHtml:[0,0,w,42,21,1,1,18,18,1,22,27,14],buttons:expandedButtons,indicator:[indicatorX,6,unit,64,31,1]};
 }
-function setLiquidRect(id,v){const el=document.querySelector(id);if(!el)return;el.setAttribute('x',v[0]);el.setAttribute('y',v[1]);el.setAttribute('width',Math.max(.1,v[2]));el.setAttribute('height',Math.max(.1,v[3]));el.setAttribute('rx',Math.max(0,v[4]));el.style.opacity=v[5]}
+function getDockLiquidNodes(){if(dockLiquidNodes?.nav?.isConnected)return dockLiquidNodes;dockLiquidNodes={entry:document.querySelector('#liquidEntry'),nav:document.querySelector('#liquidNav'),active:document.querySelector('#liquidActive'),entryRim:document.querySelector('#liquidEntryRim'),navRim:document.querySelector('#liquidNavRim'),activeRim:document.querySelector('#liquidActiveRim'),neck:document.querySelector('#liquidNeck'),drop:document.querySelector('#liquidDrop'),drop2:document.querySelector('#liquidDrop2'),drop3:document.querySelector('#liquidDrop3'),entryBulge:document.querySelector('#liquidEntryBulge'),shine:document.querySelector('#liquidShine')};return dockLiquidNodes}
+function setLiquidRect(el,v){if(!el)return;el.setAttribute('x',v[0]);el.setAttribute('y',v[1]);el.setAttribute('width',Math.max(.1,v[2]));el.setAttribute('height',Math.max(.1,v[3]));el.setAttribute('rx',Math.max(0,v[4]));el.style.opacity=v[5]}
 function renderDockLiquid(s){
-  setLiquidRect('#liquidEntry',s.entry);setLiquidRect('#liquidNav',s.nav);setLiquidRect('#liquidActive',s.active);setLiquidRect('#liquidEntryRim',s.entry);setLiquidRect('#liquidNavRim',s.navRim||s.nav);setLiquidRect('#liquidActiveRim',s.activeRim||s.active);
-  const neck=document.querySelector('#liquidNeck'),drop=document.querySelector('#liquidDrop'),drop2=document.querySelector('#liquidDrop2'),drop3=document.querySelector('#liquidDrop3'),entryBulge=document.querySelector('#liquidEntryBulge'),shine=document.querySelector('#liquidShine');
+  const{entry,nav,active,entryRim,navRim,activeRim,neck,drop,drop2,drop3,entryBulge,shine}=getDockLiquidNodes();setLiquidRect(entry,s.entry);setLiquidRect(nav,s.nav);setLiquidRect(active,s.active);setLiquidRect(entryRim,s.entry);setLiquidRect(navRim,s.navRim||s.nav);setLiquidRect(activeRim,s.activeRim||s.active);
   [[neck,s.neck],[drop,s.drop],[drop2,s.drop2],[drop3,s.drop3],[entryBulge,s.entryBulge],[shine,s.shine]].forEach(([el,v])=>{if(!el||!v)return;el.setAttribute('cx',v[0]+(v.length===6?v[2]/2:0));el.setAttribute('cy',v[1]+(v.length===6?v[3]/2:0));el.setAttribute('rx',Math.max(.1,v[2]/2));el.setAttribute('ry',Math.max(.1,v[3]/2));el.style.opacity=v[v.length-1]});
 }
+function setDockStyle(el,name,value,unit='px'){if(!el)return;el.style.setProperty(name,`${value}${unit}`,'important')}
+function getDockMotionNodes(){
+  if(dockMotionNodes?.zone?.isConnected)return dockMotionNodes;
+  const entry=document.querySelector('.quick-entry-shell'),send=document.querySelector('.quick-send');
+  dockMotionNodes={zone:document.querySelector('#bottomZone'),entry,entryIcon:entry?.querySelector(':scope>svg'),send,sendIcon:send?.querySelector('svg'),buttons:[...document.querySelectorAll('.dock-group>button:not(.compact-active-btn)')],indicator:document.querySelector('.dock-indicator')};
+  dockMotionNodes.labels=dockMotionNodes.buttons.map(button=>button.querySelector('.dock-label'));return dockMotionNodes;
+}
+function renderDockChrome(s){
+  const{zone,entry,entryIcon,send,sendIcon,buttons,labels,indicator}=getDockMotionNodes(),e=s.entryHtml;
+  zone?.classList.add('dock-motion');
+  if(entry&&e){setDockStyle(entry,'left',e[0]);setDockStyle(entry,'top',e[1]);setDockStyle(entry,'width',e[2]);setDockStyle(entry,'height',e[3]);setDockStyle(entry,'border-radius',e[4]);setDockStyle(entry,'opacity',e[5],'');entry.style.setProperty('transform',`translateZ(0) scale(${e[6]})`,'important');entry.style.setProperty('padding',`0 ${e[8]}px 0 ${e[7]}px`,'important')}
+  if(entryIcon&&e){setDockStyle(entryIcon,'opacity',e[9],'');setDockStyle(entryIcon,'width',e[10]);setDockStyle(entryIcon,'height',e[10])}
+  if(send&&e){setDockStyle(send,'width',e[11]);setDockStyle(send,'height',e[11])}if(sendIcon&&e){setDockStyle(sendIcon,'width',e[12]);setDockStyle(sendIcon,'height',e[12])}
+  buttons.forEach((button,index)=>{const v=s.buttons?.[index];if(!v)return;setDockStyle(button,'left',v[0]);setDockStyle(button,'top',v[1]);setDockStyle(button,'width',v[2]);setDockStyle(button,'height',v[3]);setDockStyle(button,'border-radius',v[4]);setDockStyle(button,'opacity',v[5],'');button.style.setProperty('transform',`translateZ(0) scale(${v[6]})`,'important');if(labels[index])setDockStyle(labels[index],'opacity',v[7],'')});
+  if(indicator&&s.indicator){const v=s.indicator;setDockStyle(indicator,'left',v[0]);setDockStyle(indicator,'top',v[1]);setDockStyle(indicator,'width',v[2]);setDockStyle(indicator,'height',v[3]);setDockStyle(indicator,'border-radius',v[4]);setDockStyle(indicator,'opacity',v[5],'');indicator.style.setProperty('transform','translateZ(0)','important')}
+}
+function clearDockChrome(){
+  const{zone,entry,entryIcon,send,sendIcon,buttons,labels,indicator}=getDockMotionNodes(),nodes=[entry,entryIcon,send,sendIcon,indicator,...buttons,...labels];
+  nodes.filter(Boolean).forEach(el=>['left','top','width','height','border-radius','opacity','transform','padding'].forEach(prop=>el.style.removeProperty(prop)));
+  zone?.classList.remove('dock-motion');
+}
+function mixDockArray(from,to,t){return to.map((value,index)=>liquidMix(from?.[index]??value,value,t))}
 function animateDockLiquid(mode){
-  const nextMode=mode==='drawer'?'drawer':mode?'compact':'expanded',drawer=nextMode==='drawer',compact=nextMode==='compact',fromDrawer=dockLiquidMode==='drawer';dockLiquidMode=nextMode;
-  cancelAnimationFrame(dockLiquidFrame);const target=dockLiquidTargets(nextMode),start=dockLiquidCurrent||dockLiquidTargets(compact?'expanded':'compact'),began=performance.now(),duration=drawer||fromDrawer?760:840,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduced){dockLiquidCurrent=target;renderDockLiquid(target);return}
-  const tick=now=>{const raw=Math.min(1,(now-began)/duration),clamp=n=>Math.max(0,Math.min(1,n)),navT=liquidEase(clamp(raw/(compact?.58:1))),sizeT=liquidEase(clamp((raw-(compact?.3:.18))/(compact?.4:.58))),moveT=liquidEase(clamp((raw-(compact?.62:.12))/(compact?.38:.7))),state={};
-    for(const key of ['nav','active','navRim','activeRim','neck','drop','drop2','drop3'])state[key]=target[key].map((v,i)=>liquidMix((start[key]||start[key==='navRim'?'nav':key==='activeRim'?'active':'drop'])[i],v,navT));
-    state.entry=target.entry.map((v,i)=>liquidMix(start.entry[i],v,i===1?moveT:sizeT));state.shine=target.shine.map((v,i)=>liquidMix(start.shine[i],v,sizeT));
-    const fieldTension=Math.sin(Math.PI*sizeT),fieldDirection=compact||drawer?1:-1,entryCenterX=state.entry[0]+state.entry[2]*.5,entryBottom=state.entry[1]+state.entry[3];state.entry[3]+=fieldTension*16;state.entry[1]-=fieldTension*8;state.entryBulge=[entryCenterX+fieldDirection*fieldTension*20,entryBottom-fieldTension*5,16+fieldTension*38,10+fieldTension*28,fieldTension*.9];
-    const w=document.querySelector('.dock-layout')?.clientWidth||450,pad=14,split=pad+6+((w-12)/5)*3,leftEdge=state.active[0]+state.active[2];
-    if(drawer||fromDrawer){const travel=drawer?navT:1-navT,flow=Math.sin(Math.PI*raw),sinkX=pad+w-32,streamX=liquidMix(pad+w*.42,sinkX,travel),wave=Math.sin(raw*Math.PI*3)*flow;state.neck=[streamX-34-flow*35,pad+82+wave*5,68+flow*92,12+flow*30,flow*.98];state.drop=[liquidMix(pad+w*.18,sinkX,travel),pad+82-wave*8,12+flow*30,14+flow*34,flow*.94];state.drop2=[liquidMix(pad+w*.4,sinkX,travel),pad+73+wave*11,10+flow*26,12+flow*28,flow*.9];state.drop3=[liquidMix(pad+w*.64,sinkX,travel),pad+91-wave*9,8+flow*22,10+flow*24,flow*.86]}
-    else{const tearT=Math.max(0,Math.min(1,compact?navT/.58:(1-navT)/.58)),tension=Math.sin(Math.PI*tearT),tearX=liquidMix(split,leftEdge,tearT),wave=Math.sin(tearT*Math.PI*2)*tension;state.neck=[tearX-18-tension*18,state.active[1]+state.active[3]*.5+wave*3,36+tension*48,Math.max(3,25*(1-tearT)+tension*17),tension*.98];state.drop=[liquidMix(split,leftEdge-4,tearT),state.active[1]+state.active[3]*.5-wave*6,8+tension*25,11+tension*29,tension*.94];state.drop2=[liquidMix(split+18,leftEdge-10,tearT),state.active[1]+state.active[3]*.5+wave*10,7+tension*20,9+tension*23,tension*.88];state.drop3=[liquidMix(split-15,leftEdge+7,tearT),state.active[1]+state.active[3]*.5-wave*11,6+tension*16,8+tension*19,tension*.8]}
-    dockLiquidCurrent=state;renderDockLiquid(state);if(raw<1)dockLiquidFrame=requestAnimationFrame(tick);else{dockLiquidCurrent=target;renderDockLiquid(target);dockLiquidFrame=null}}
+  const nextMode=mode==='drawer'?'drawer':mode?'compact':'expanded',previousMode=dockLiquidMode||'expanded',drawerTransition=nextMode==='drawer'||previousMode==='drawer';dockLiquidMode=nextMode;
+  const motionToken=++dockMotionToken;cancelAnimationFrame(dockLiquidFrame);const target=dockLiquidTargets(nextMode),start=dockLiquidCurrent||dockLiquidTargets(previousMode),began=performance.now(),duration=drawerTransition?920:980,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,clamp=value=>Math.max(0,Math.min(1,value));
+  const finish=()=>{if(motionToken!==dockMotionToken)return;dockLiquidCurrent=target;renderDockLiquid(target);renderDockChrome(target);const zone=document.querySelector('#bottomZone');if(nextMode!=='drawer')zone?.classList.toggle('compact',nextMode==='compact');requestAnimationFrame(()=>{if(motionToken!==dockMotionToken)return;clearDockChrome();moveDockIndicator(dockIndicatorIndex,false)});dockLiquidFrame=null};
+  if(reduced){finish();return}
+  renderDockChrome(start);
+  const tick=now=>{const raw=Math.min(1,(now-began)/duration),mainT=liquidEase(raw),entrySizeT=nextMode==='compact'?liquidEase(clamp((raw-.28)/.48)):nextMode==='expanded'?liquidEase(clamp((raw-.2)/.8)):mainT,entryMoveT=nextMode==='compact'?liquidEase(clamp((raw-.52)/.48)):nextMode==='expanded'?liquidEase(clamp(raw/.5)):mainT,state={mode:nextMode,w:target.w};
+    for(const key of ['nav','active','navRim','activeRim','shine','indicator'])state[key]=mixDockArray(start[key],target[key],mainT);
+    state.entry=mixDockArray(start.entry,target.entry,entrySizeT);state.entry[1]=liquidMix(start.entry[1],target.entry[1],entryMoveT);state.entry[3]=liquidMix(start.entry[3],target.entry[3],entryMoveT);
+    state.entryHtml=mixDockArray(start.entryHtml,target.entryHtml,entrySizeT);state.entryHtml[1]=liquidMix(start.entryHtml[1],target.entryHtml[1],entryMoveT);state.entryHtml[3]=liquidMix(start.entryHtml[3],target.entryHtml[3],entryMoveT);
+    state.buttons=target.buttons.map((values,index)=>mixDockArray(start.buttons?.[index],values,mainT));
+    if(nextMode==='compact'&&previousMode!=='drawer'){const reveal=liquidEase(clamp(raw/.2));state.active[5]=liquidMix(start.active?.[5]??0,1,reveal);state.activeRim[5]=state.active[5]}
+    if(nextMode==='expanded'&&previousMode!=='drawer'){const release=liquidEase(clamp((raw-.82)/.18));state.active[5]=liquidMix(start.active?.[5]??1,0,release);state.activeRim[5]=state.active[5]}
+    const fieldTension=Math.sin(Math.PI*entrySizeT),entryCenterX=state.entry[0]+state.entry[2]*.5,entryBottom=state.entry[1]+state.entry[3],direction=nextMode==='expanded'?-1:1;state.entry[1]-=fieldTension*5;state.entry[3]+=fieldTension*10;state.entryHtml[1]-=fieldTension*5;state.entryHtml[3]+=fieldTension*10;state.entryBulge=[entryCenterX+direction*fieldTension*16,entryBottom,12+fieldTension*30,8+fieldTension*22,fieldTension*.86];
+    const pad=14,w=target.w,leftEdge=state.active[0]+state.active[2],rightEdge=state.nav[0],gap=Math.max(0,rightEdge-leftEdge),maxGap=Math.max(1,w-188),separation=clamp(gap/maxGap);
+    if(drawerTransition){const flow=Math.sin(Math.PI*raw),sinkX=pad+w-32,sourceX=liquidMix(start.nav[0]+start.nav[2]*.5,sinkX,mainT),width=28+flow*116,height=10+flow*38;state.neck=[sourceX,pad+82,width,height,flow*.98];state.drop=[liquidMix(start.active[0]+start.active[2]*.5,sinkX,mainT),pad+82,12+flow*31,14+flow*34,flow*.94];state.drop2=[liquidMix(start.entry[0]+start.entry[2]*.5,sinkX,entrySizeT),pad+74,9+flow*25,11+flow*28,flow*.88];state.drop3=[liquidMix(start.nav[0]+start.nav[2]*.72,sinkX,mainT),pad+91,7+flow*20,9+flow*23,flow*.8]}
+    else{const bridge=Math.pow(1-separation,.66),cx=(leftEdge+rightEdge)*.5,tear=Math.sin(Math.PI*clamp((separation-.62)/.38));state.neck=[cx,pad+82,gap+42,Math.max(2,60*bridge),separation<.985?1:0];state.drop=[cx-8,pad+82,8+tear*24,10+tear*29,tear*.94];state.drop2=[cx+gap*.14,pad+73,7+tear*18,9+tear*22,tear*.82];state.drop3=[cx-gap*.17,pad+91,6+tear*15,8+tear*18,tear*.72]}
+    dockLiquidCurrent=state;renderDockLiquid(state);renderDockChrome(state);if(raw<1)dockLiquidFrame=requestAnimationFrame(tick);else finish()}
   dockLiquidFrame=requestAnimationFrame(tick);
 }
 function setDockCompact(compact){
   if(dockCompact===compact)return;
-  dockCompact=compact;if(!compact)dockIgnoreScrollUntil=performance.now()+980;const zone=document.querySelector('#bottomZone'),indicator=document.querySelector('.dock-indicator');dockIndicatorAnimation?.cancel();dockIndicatorAnimation=null;indicator?.classList.remove('moving');clearTimeout(dockPhaseTimer);zone.classList.remove('dock-collapsing','dock-expanding');zone.classList.add(compact?'dock-collapsing':'dock-expanding');animateDockLiquid(compact);zone.classList.toggle('compact',compact);dockPhaseTimer=setTimeout(()=>zone.classList.remove('dock-collapsing','dock-expanding'),900);
+  dockCompact=compact;if(!compact)dockIgnoreScrollUntil=performance.now()+1050;const zone=document.querySelector('#bottomZone'),indicator=document.querySelector('.dock-indicator');dockIndicatorAnimation?.cancel();dockIndicatorAnimation=null;indicator?.classList.remove('moving');clearTimeout(dockPhaseTimer);zone.classList.remove('dock-collapsing','dock-expanding');animateDockLiquid(compact);
 }
 function moveDockIndicator(nextIndex,animate=true){
   const indicator=document.querySelector('.dock-indicator'),group=document.querySelector('.dock-group');if(!indicator||!group)return;
@@ -1378,7 +1419,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=55',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=56',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
