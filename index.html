@@ -95,7 +95,7 @@
     .dock-layout{position:relative;height:128px;transition:height .62s cubic-bezier(.2,.72,.18,1)}
     .dock-liquid-layer{position:absolute;z-index:1;left:-14px;top:-14px;display:block;width:calc(100% + 28px);height:156px;overflow:visible;pointer-events:none;contain:layout paint;will-change:contents}
     .dock-liquid-mass{fill:url(#dockGlassFill);filter:url(#dockLiquidGlass)}
-    .dock-entry-glass{fill:url(#dockGlassFill);filter:url(#dockLiquidGlass)}
+    .dock-entry-glass{fill:url(#dockGlassFill)}
     .dock-liquid-rim{fill:none;stroke:url(#dockGlassRim);stroke-width:1.05;opacity:.78;filter:url(#dockRimSoft)}
     .dock-liquid-shine{fill:rgba(255,255,255,.075);opacity:.72;filter:url(#dockShineSoft)}
     .quick-entry-shell{position:absolute;z-index:3;left:0;top:0;width:100%;height:42px;border:0;border-radius:21px;background:transparent;box-shadow:none;display:flex;align-items:center;padding:0 18px;transition:top .62s cubic-bezier(.2,.72,.18,1),left .62s cubic-bezier(.2,.72,.18,1),width .62s cubic-bezier(.2,.72,.18,1),height .62s cubic-bezier(.2,.72,.18,1),border-radius .62s cubic-bezier(.2,.72,.18,1),padding .62s cubic-bezier(.2,.72,.18,1),opacity .32s ease;overflow:hidden}
@@ -105,7 +105,6 @@
     .profile-drawer::before{content:"";position:absolute;pointer-events:none;inset:1px;border-radius:inherit;background:linear-gradient(100deg,rgba(255,255,255,.07),transparent 18% 82%,rgba(255,255,255,.055));opacity:.5}
     .dock-group::after{content:none}
     .dock-indicator{position:absolute;z-index:0;left:6px;top:6px;width:calc((100% - 12px)/5);height:64px;border-radius:31px;transform:translateX(0);will-change:transform,width,height,left,top;transition:left .8s cubic-bezier(.65,0,.35,1),top .8s cubic-bezier(.65,0,.35,1),width .8s cubic-bezier(.65,0,.35,1),height .8s cubic-bezier(.65,0,.35,1),border-radius .8s cubic-bezier(.65,0,.35,1)}.dock-indicator::before{content:"";position:absolute;inset:0;border-radius:inherit;background:#09090a;transform-origin:center}
-    .dock-indicator.moving{animation:dockIndicatorMove .5s cubic-bezier(.65,0,.35,1) both}.dock-indicator.moving::before{animation:dockIndicatorSqueeze .5s ease-in-out both}@keyframes dockIndicatorMove{from{transform:translateX(var(--indicator-from))}to{transform:translateX(var(--indicator-to))}}@keyframes dockIndicatorSqueeze{0%,100%{transform:scaleY(1)}50%{transform:scaleY(var(--indicator-squeeze))}}
     .dock button{border:0;color:#f1f1f3}.dock-group button{--i:0;position:absolute;z-index:1;left:6px;top:6px;width:calc((100% - 12px)/5);height:64px;border-radius:31px;background:transparent;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:5px 2px;transform:translateX(calc(var(--i) * 100%));transition:transform .8s cubic-bezier(.22,.72,.18,1),opacity .55s ease,color .35s ease,width .8s cubic-bezier(.22,.72,.18,1),height .8s cubic-bezier(.22,.72,.18,1),top .8s cubic-bezier(.22,.72,.18,1),left .8s cubic-bezier(.22,.72,.18,1)}.dock-group button:nth-of-type(2){--i:1}.dock-group button:nth-of-type(3){--i:2}.dock-group button:nth-of-type(4){--i:3}.dock-group button:nth-of-type(5){--i:4}.dock-group button.active{color:#ff4060}.dock-group button:active{filter:brightness(.82)}.dock svg{width:25px;height:25px}.dock-label{font-size:10px;line-height:1;white-space:nowrap;letter-spacing:-.1px;transition:opacity .35s ease}
     .dock-group .compact-active-btn{display:none;opacity:0;pointer-events:none}
     .bottom-zone.compact .dock-layout{height:78px}.bottom-zone.compact .quick-entry-shell{left:68px;top:9px;width:calc(100% - 200px);height:60px;border-radius:30px;padding:0 9px 0 14px}.bottom-zone.compact .dock{top:0;height:78px}.bottom-zone.compact .dock-group{height:78px;border-color:transparent;background:transparent;box-shadow:none;overflow:visible}.bottom-zone.compact .dock-group::before{opacity:1;transform:scaleX(1)}.bottom-zone.compact .dock-group::after{opacity:0}.bottom-zone.compact .dock-indicator{left:0;top:6px;width:64px;height:64px;border-radius:50%;transform:translateX(0)!important;border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px rgba(255,255,255,.12)}.bottom-zone.compact.compact-home .dock-indicator{opacity:0}.bottom-zone.compact .dock-indicator::before{background:rgba(31,31,33,.96)}.bottom-zone.compact .dock-group button{left:0;top:6px;width:64px;height:64px;border-radius:50%;transform:translateX(0) scale(.72);opacity:0;pointer-events:none}.bottom-zone.compact .dock-group button.active:not([data-screen="home"]){transform:translateX(0) scale(1);opacity:1;pointer-events:auto}.bottom-zone.compact .dock-group button[data-screen="home"]{left:calc(100% - 124px);transform:translateX(0) scale(1);opacity:1;pointer-events:auto}.bottom-zone.compact .dock-group button[data-screen="home"].active{background:#09090a}.bottom-zone.compact .dock-group .more-btn{left:calc(100% - 62px);transform:translateX(0) scale(1);opacity:1;pointer-events:auto;background:transparent;border:0;box-shadow:none}.bottom-zone.compact .dock-label{opacity:0}.bottom-zone.compact .quick-entry-shell>svg{width:0;opacity:0}.bottom-zone.compact .quick-send{width:38px;height:38px}.bottom-zone.compact .quick-send svg{width:19px;height:19px}
@@ -126,13 +125,6 @@
     .bottom-zone.compact .dock-group .more-btn{left:calc(100% - 62px);transform:translateZ(0) scale(1)}
     .bottom-zone.compact.compact-home .dock-group button[data-screen="debts"],
     .bottom-zone.compact:not(.compact-home) .dock-group button.active:not([data-screen="home"]){left:0;transform:translateZ(0) scale(1);opacity:1;pointer-events:auto}
-    .bottom-zone.dock-collapsing .dock-group button{transition-duration:.49s,.22s,.38s,.49s,.49s,.49s,.49s}
-    .bottom-zone.dock-collapsing.compact-home .dock-group button[data-screen="goals"],
-    .bottom-zone.dock-collapsing.compact-home .dock-group button[data-screen="insights"],
-    .bottom-zone.dock-collapsing:not(.compact-home) .dock-group button:not(.active):not([data-screen="home"]):not(.more-btn){transition-duration:.84s,.14s,.38s,.84s,.84s,.84s,.84s}
-    .bottom-zone.dock-expanding.compact-home .dock-group button[data-screen="goals"],
-    .bottom-zone.dock-expanding.compact-home .dock-group button[data-screen="insights"],
-    .bottom-zone.dock-expanding:not(.compact-home) .dock-group button:not(.active):not([data-screen="home"]):not(.more-btn){transition-delay:0s,.25s,0s,0s,0s,0s,0s}
     .dock-liquid-layer{transform:translateZ(0);backface-visibility:hidden}
     .bottom-zone.dock-motion .quick-entry-shell,.bottom-zone.dock-motion .quick-entry-shell>svg,.bottom-zone.dock-motion .quick-send,.bottom-zone.dock-motion .quick-send svg,.bottom-zone.dock-motion .dock,.bottom-zone.dock-motion .dock-group,.bottom-zone.dock-motion .dock-group button,.bottom-zone.dock-motion .dock-label,.bottom-zone.dock-motion .dock-indicator{transition:none!important;animation:none!important}
     .bottom-zone.compact.compact-home .dock-indicator{left:calc(100% - 124px);opacity:1}.bottom-zone.compact .dock-group button[data-screen="home"].active{background:transparent}
@@ -145,15 +137,14 @@
     .profile-drawer-backdrop.open .profile-drawer{transform:translateX(0)}
     body.drawer-open .bottom-zone{pointer-events:none}body.drawer-open .more-btn{pointer-events:auto}
     body.drawer-open .app{transform:translateX(calc(-1 * min(22vw,105px)));filter:brightness(.72)}
-    body.drawer-open .bottom-zone{z-index:52}body.drawer-open .quick-entry-shell,body.drawer-open .dock-indicator,body.drawer-open .bottom-zone .dock-group button:not(.more-btn){opacity:0!important;pointer-events:none!important;transform:scale(.72)!important}body.drawer-open .dock-group{background:transparent;border-color:transparent;box-shadow:none}body.drawer-open .dock-group::before,body.drawer-open .dock-group::after{opacity:0!important;transform:scale(.7)!important}.more-btn .more-icon,.more-btn .back-icon{position:absolute;left:50%;top:13px;width:25px;height:25px;transform:translateX(-50%);transition:opacity .25s ease,transform .3s cubic-bezier(.65,0,.35,1)}.more-btn .back-icon{opacity:0;transform:translateX(-50%) scale(.65) rotate(-24deg)}.more-btn .dock-label{position:absolute;left:50%;bottom:8px;transform:translateX(-50%)}body.drawer-open .bottom-zone .dock-group .more-btn{left:calc(100% - 64px);top:7px;width:64px;height:64px;border-radius:50%;opacity:1;pointer-events:auto;transform:none;background:#1d1d20;border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px rgba(255,255,255,.1)}body.drawer-open .more-btn .more-icon{opacity:0;transform:translateX(-50%) scale(.65) rotate(24deg)}body.drawer-open .more-btn .back-icon{opacity:1;transform:translateX(-50%) scale(1) rotate(0)}body.drawer-open .more-btn .dock-label{font-size:0}body.drawer-open .more-btn .dock-label::after{content:"Назад";font-size:10px}.bottom-zone.compact .more-btn .more-icon,.bottom-zone.compact .more-btn .back-icon{top:16px}
-    body.drawer-open .quick-entry-shell{left:calc(100% - 64px)!important;top:57px!important;width:64px!important;height:64px!important;padding:0!important;border-radius:50%!important;opacity:0!important;transform:translateZ(0) scale(.28)!important;transition:left .72s cubic-bezier(.65,0,.35,1),top .72s cubic-bezier(.65,0,.35,1),width .72s cubic-bezier(.65,0,.35,1),height .72s cubic-bezier(.65,0,.35,1),border-radius .72s cubic-bezier(.65,0,.35,1),transform .72s cubic-bezier(.65,0,.35,1),opacity .34s ease .28s!important}
-    body.drawer-open .bottom-zone .dock-group button:not(.more-btn){left:calc(100% - 64px)!important;top:7px!important;width:64px!important;height:64px!important;opacity:0!important;transform:translateZ(0) scale(.3)!important;transition:transform .72s cubic-bezier(.65,0,.35,1),opacity .3s ease .34s,width .72s cubic-bezier(.65,0,.35,1),height .72s cubic-bezier(.65,0,.35,1),top .72s cubic-bezier(.65,0,.35,1),left .72s cubic-bezier(.65,0,.35,1)!important}
-    body.drawer-open .bottom-zone .dock-group .more-btn{z-index:4;left:calc(100% - 64px)!important;top:7px!important;opacity:1!important;pointer-events:auto!important;transform:translateZ(0) scale(1)!important;transition:transform .72s cubic-bezier(.65,0,.35,1),left .72s cubic-bezier(.65,0,.35,1),top .72s cubic-bezier(.65,0,.35,1),width .72s cubic-bezier(.65,0,.35,1),height .72s cubic-bezier(.65,0,.35,1),opacity .25s ease!important}
-    body.drawer-open .bottom-zone .dock-group .more-btn .back-icon{display:block!important;visibility:visible!important;opacity:1!important;color:#ff4060!important;top:13px!important;transform:translateX(-50%) scale(1) rotate(0)!important}
-    body.drawer-open .bottom-zone .dock-group .more-btn .more-icon{opacity:0!important;visibility:hidden!important}
-    body.drawer-open .bottom-zone .dock-group .more-btn .dock-label{display:block!important;visibility:visible!important;opacity:1!important;color:#ff4060!important}
-    body.drawer-open .bottom-zone .dock-group .more-btn::before{content:"‹";position:absolute;z-index:3;left:50%;top:5px;transform:translateX(-50%);color:#ff4060;font-size:35px;font-weight:300;line-height:32px;opacity:1;pointer-events:none}
-    body.drawer-open .bottom-zone .dock-group .more-btn::after{content:"Назад";position:absolute;z-index:3;left:50%;bottom:7px;transform:translateX(-50%);color:#ff4060;font-size:10px;line-height:1;white-space:nowrap;opacity:1;pointer-events:none}
+    body.drawer-open .bottom-zone{z-index:52}
+    body.drawer-open .quick-entry-shell,body.drawer-open .dock-indicator,body.drawer-open .bottom-zone .dock-group button:not(.more-btn){pointer-events:none}
+    body.drawer-open .bottom-zone .dock-group .more-btn{z-index:4;pointer-events:auto}
+    .more-btn .more-icon,.more-btn .back-icon{position:absolute;left:50%;top:13px;width:25px;height:25px;transform:translateX(-50%);transition:opacity .25s ease,transform .3s cubic-bezier(.65,0,.35,1)}
+    .more-btn .back-icon{opacity:0;transform:translateX(-50%) scale(.65) rotate(-24deg)}
+    .more-btn .dock-label{position:absolute;left:50%;bottom:8px;transform:translateX(-50%)}
+    body.drawer-open .more-btn .more-icon{opacity:0;transform:translateX(-50%) scale(.65) rotate(24deg)}
+    body.drawer-open .more-btn .back-icon{opacity:1;transform:translateX(-50%) scale(1) rotate(0)}
     .drawer-title{font-size:28px;margin:0 0 5px}.drawer-sub{color:var(--muted);font-size:13px;margin-bottom:22px}.drawer-section-head{display:flex;align-items:center;justify-content:space-between;margin:18px 3px 10px}.drawer-section-head h2{font-size:18px;margin:0}.drawer-section-head button{border:0;background:transparent;color:var(--muted);padding:5px}.drawer-settings{width:100%;margin-top:16px;border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.045);padding:15px;display:flex;justify-content:space-between;align-items:center;text-align:left}.profile-drawer .category-grid{border-radius:24px}.profile-drawer .category{grid-template-columns:39px minmax(0,1fr) auto;padding-inline:9px}.profile-drawer .cat-icon{width:34px;height:34px}.profile-drawer .cat-name,.profile-drawer .cat-sum{font-size:14px}
     .person-status{font-size:12px;font-weight:650}.person-status.paid{color:var(--green)}.person-status.unpaid{color:var(--accent-strong)}.person-back{border:0;background:transparent;color:var(--muted);padding:5px 0 15px;font-size:15px}.person-summary{margin-bottom:14px}.person-list .tx{grid-template-columns:42px minmax(0,1fr) auto}.person-list .debt-amount{grid-row:1 / span 2;grid-column:3;align-self:center}
     .market-picker{margin-top:18px}.market-search{height:48px;border:1px solid var(--line);border-radius:24px;background:rgba(255,255,255,.045);padding:0 15px;color:var(--text);width:100%;outline:0}.market-list{max-height:290px;overflow:auto;margin-top:10px;border:1px solid var(--line);border-radius:20px}.market-option{display:flex;align-items:center;gap:11px;padding:12px 14px;border-bottom:1px solid var(--line)}.market-option:last-child{border-bottom:0}.market-option input{accent-color:#ff4060}.market-option small{margin-left:auto;color:var(--muted)}.data-note{font-size:12px;color:var(--muted);line-height:1.45;margin-top:10px}.empty-chart{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);padding:28px}.detail-title{margin:2px 0 18px}.detail-title h1{font-size:30px}.account-picker{margin:0 0 14px}.account-picker select{width:100%;height:48px;border:1px solid var(--line);border-radius:18px;background:var(--panel);color:var(--text);padding:0 14px}
@@ -362,8 +353,7 @@
       <defs>
         <linearGradient id="dockGlassFill" x1="0" y1="0" x2="0.82" y2="1"><stop offset="0" stop-color="#3b3b40" stop-opacity=".82"/><stop offset=".44" stop-color="#232327" stop-opacity=".88"/><stop offset="1" stop-color="#151518" stop-opacity=".94"/></linearGradient>
         <linearGradient id="dockGlassRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".42"/><stop offset=".42" stop-color="#ffffff" stop-opacity=".08"/><stop offset=".78" stop-color="#ffffff" stop-opacity=".02"/><stop offset="1" stop-color="#ffffff" stop-opacity=".22"/></linearGradient>
-        <filter id="dockLiquidGlass" x="-22%" y="-36%" width="144%" height="172%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="4.2" result="blur"/><feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8.2" result="goo"/><feGaussianBlur in="goo" stdDeviation=".34" result="soft"/><feSpecularLighting in="soft" surfaceScale="2.2" specularConstant=".32" specularExponent="18" lighting-color="#ffffff" result="spec"><feDistantLight azimuth="235" elevation="48"/></feSpecularLighting><feComposite in="spec" in2="soft" operator="in" result="specClip"/><feBlend in="soft" in2="specClip" mode="screen"/></filter>
-        <filter id="dockEntryGlass" x="-8%" y="-30%" width="116%" height="160%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation=".28" result="base"/><feSpecularLighting in="base" surfaceScale="1.8" specularConstant=".22" specularExponent="20" lighting-color="#ffffff" result="entrySpec"><feDistantLight azimuth="235" elevation="50"/></feSpecularLighting><feComposite in="entrySpec" in2="base" operator="in" result="entryClip"/><feBlend in="base" in2="entryClip" mode="screen"/></filter>
+        <filter id="dockLiquidGlass" x="-22%" y="-36%" width="144%" height="172%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="3.6" result="blur"/><feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8.2" result="goo"/></filter>
         <filter id="dockRimSoft" x="-15%" y="-20%" width="130%" height="140%"><feGaussianBlur stdDeviation=".22"/></filter><filter id="dockShineSoft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="1.8"/></filter>
       </defs>
       <g class="dock-entry-glass"><rect id="liquidEntry"/><ellipse id="liquidEntryBulge"/></g><g class="dock-liquid-mass"><rect id="liquidNav"/><rect id="liquidActive"/><ellipse id="liquidNeck"/><ellipse id="liquidDrop"/><ellipse id="liquidDrop2"/><ellipse id="liquidDrop3"/></g>
@@ -554,15 +544,13 @@ let dockTouchAtBottom=false;
 let dockBoundaryHandled=false;
 let dockInteractionsReady=false;
 let dockIgnoreScrollUntil=0;
-let dockIndicatorIndex=0;
-let dockIndicatorAnimation=null;
 let dockLiquidFrame=null;
 let dockLiquidCurrent=null;
 let dockLiquidMode='expanded';
+let dockRenderedWidth=0;
 let dockMotionToken=0;
 let dockMotionNodes=null;
 let dockLiquidNodes=null;
-let dockPhaseTimer=null;
 let accountsExpanded=false;
 let analysisPeriod='1M';
 let accountPeriod='1M';
@@ -927,23 +915,23 @@ function openAllTx(){
 }
 function switchScreen(id){
   if(!document.getElementById(id)?.classList.contains('screen'))id='home';
-  const buttons=[...document.querySelectorAll('.dock [data-screen]')],navId=(id==='people'||id==='person')?'debts':['balanceAnalysis','accountDetail','flowDetail','marketDetail'].includes(id)?'home':id,nextIndex=Math.max(0,buttons.findIndex(b=>b.dataset.screen===navId));
+  const buttons=[...document.querySelectorAll('.dock [data-screen]')],navId=(id==='people'||id==='person')?'debts':['balanceAnalysis','accountDetail','flowDetail','marketDetail'].includes(id)?'home':id;
   closeProfileDrawer();
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   buttons.forEach(b=>b.classList.toggle('active',b.dataset.screen===navId));
   const compactActive=document.querySelector('#compactActiveBtn'),compactSource=buttons.find(b=>b.dataset.screen===(navId==='home'?'debts':navId));
   if(compactActive&&compactSource){compactActive.innerHTML=compactSource.innerHTML;compactActive.dataset.compactScreen=compactSource.dataset.screen;compactActive.setAttribute('aria-label',navId==='home'?'Відкрити Борги':`${compactSource.getAttribute('aria-label')||'Активна сторінка'} · розгорнути док`)}
   document.querySelector('#bottomZone')?.classList.toggle('compact-home',navId==='home');
-  moveDockIndicator(nextIndex);
+  if(dockLiquidCurrent)animateDockLiquid(dockCompact);
   if(location.hash!==`#${id}`)history.replaceState(null,'',`#${id}`);
   if(id==='home')requestAnimationFrame(fitBalanceText);if(id==='balanceAnalysis')renderBalanceAnalysis();if(id==='accountDetail')renderAccountDetail();if(id==='flowDetail')renderFlowDetail();if(id==='marketDetail')renderMarketDetail();
-  dockIgnoreScrollUntil=performance.now()+550;window.scrollTo({top:0,behavior:'auto'});lastPageScrollY=0;
+  dockIgnoreScrollUntil=performance.now()+1300;window.scrollTo({top:0,behavior:'auto'});lastPageScrollY=0;
   requestAnimationFrame(refreshJellyItems);
 }
 function lockDrawerPage(){if(document.body.classList.contains('drawer-scroll-locked'))return;drawerLockedScrollY=window.scrollY;document.body.classList.add('drawer-scroll-locked');document.documentElement.style.overflow='hidden';document.body.style.overflow='hidden'}
 function unlockDrawerPage(){if(!document.body.classList.contains('drawer-scroll-locked'))return;document.body.classList.remove('drawer-scroll-locked');document.documentElement.style.overflow='';document.body.style.overflow='';if(Math.abs(window.scrollY-drawerLockedScrollY)>1)window.scrollTo(0,drawerLockedScrollY);lastPageScrollY=drawerLockedScrollY}
-function openProfileDrawer(){lockDrawerPage();document.body.classList.add('drawer-open');animateDockLiquid('drawer');const drawer=document.querySelector('#profileDrawer');drawer.scrollTop=0;document.querySelector('#profileDrawerBackdrop').classList.add('open');const button=document.querySelector('#moreBtn');button.classList.add('active');button.setAttribute('aria-label','Назад')}
-function closeProfileDrawer(){const wasOpen=document.body.classList.contains('drawer-open');document.body.classList.remove('drawer-open');document.querySelector('#profileDrawerBackdrop')?.classList.remove('open');const button=document.querySelector('#moreBtn');button?.classList.remove('active');button?.setAttribute('aria-label','Додатково');if(wasOpen){dockCompact=false;clearTimeout(dockPhaseTimer);document.querySelector('#bottomZone')?.classList.remove('dock-collapsing','dock-expanding');animateDockLiquid(false);unlockDrawerPage()}}
+function openProfileDrawer(){lockDrawerPage();document.body.classList.add('drawer-open');const button=document.querySelector('#moreBtn');button.classList.add('active');button.setAttribute('aria-label','Назад');button.querySelector('.dock-label').textContent='Назад';animateDockLiquid('drawer');const drawer=document.querySelector('#profileDrawer');drawer.scrollTop=0;document.querySelector('#profileDrawerBackdrop').classList.add('open')}
+function closeProfileDrawer(){const wasOpen=document.body.classList.contains('drawer-open');document.body.classList.remove('drawer-open');document.querySelector('#profileDrawerBackdrop')?.classList.remove('open');const button=document.querySelector('#moreBtn');button?.classList.remove('active');button?.setAttribute('aria-label','Додатково');if(button)button.querySelector('.dock-label').textContent='Додатково';if(wasOpen){dockCompact=false;animateDockLiquid(false);unlockDrawerPage()}}
 function toggleProfileDrawer(){document.body.classList.contains('drawer-open')?closeProfileDrawer():openProfileDrawer()}
 const liquidMix=(a,b,t)=>a+(b-a)*t;
 const liquidEase=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
@@ -955,7 +943,7 @@ function dockLiquidTargets(mode){
   const expandedButtons=buttons.map((_,index)=>[6+unit*index,6,unit,64,31,1,1,1]);
   if(mode==='drawer'){
     const x=w-64,sx=pad+x,sy=pad+50;
-    return{mode,w,entry:[sx,sy,64,64,32,0],entryBulge:[sx+32,sy+32,1,1,0],nav:[sx,sy,64,64,32,1],active:[sx,sy,64,64,32,0],navRim:[sx,sy,64,64,32,1],activeRim:[sx,sy,64,64,32,0],neck:[sx+32,sy+32,1,1,0],drop:[sx+32,sy+32,1,1,0],drop2:[sx+32,sy+32,1,1,0],drop3:[sx+32,sy+32,1,1,0],shine:[sx+13,sy+8,34,7,.5],entryHtml:[x,57,64,64,32,0,.28,0,0,0,0,38,19],buttons:buttons.map((_,index)=>[x,7,64,64,32,index===4?1:0,index===4?1:.28,0]),indicator:[x,7,64,64,32,0]};
+    return{mode,w,entry:[sx,sy,64,64,32,0],entryBulge:[sx+32,sy+32,1,1,0],nav:[sx,sy,64,64,32,1],active:[sx,sy,64,64,32,0],navRim:[sx,sy,64,64,32,1],activeRim:[sx,sy,64,64,32,0],neck:[sx+32,sy+32,1,1,0],drop:[sx+32,sy+32,1,1,0],drop2:[sx+32,sy+32,1,1,0],drop3:[sx+32,sy+32,1,1,0],shine:[sx+13,sy+8,34,7,.5],entryHtml:[x,57,64,64,32,0,.28,0,0,0,0,38,19],buttons:buttons.map((_,index)=>[x,7,64,64,32,index===4?1:0,index===4?1:.28,index===4?1:0]),indicator:[x,7,64,64,32,0]};
   }
   if(mode==='compact'){
     const compactButtons=buttons.map((_,index)=>{const visible=index===leftIndex||index===3||index===4,x=index===3?w-124:index===4?w-62:0;return[x,6,64,64,32,visible?1:0,visible?1:.72,0]});
@@ -980,16 +968,12 @@ function getDockMotionNodes(){
 function renderDockChrome(s){
   const{zone,entry,entryIcon,send,sendIcon,buttons,labels,indicator}=getDockMotionNodes(),e=s.entryHtml;
   zone?.classList.add('dock-motion');
+  dockRenderedWidth=s.w;
   if(entry&&e){setDockStyle(entry,'left',e[0]);setDockStyle(entry,'top',e[1]);setDockStyle(entry,'width',e[2]);setDockStyle(entry,'height',e[3]);setDockStyle(entry,'border-radius',e[4]);setDockStyle(entry,'opacity',e[5],'');entry.style.setProperty('transform',`translateZ(0) scale(${e[6]})`,'important');entry.style.setProperty('padding',`0 ${e[8]}px 0 ${e[7]}px`,'important')}
   if(entryIcon&&e){setDockStyle(entryIcon,'opacity',e[9],'');setDockStyle(entryIcon,'width',e[10]);setDockStyle(entryIcon,'height',e[10])}
   if(send&&e){setDockStyle(send,'width',e[11]);setDockStyle(send,'height',e[11])}if(sendIcon&&e){setDockStyle(sendIcon,'width',e[12]);setDockStyle(sendIcon,'height',e[12])}
   buttons.forEach((button,index)=>{const v=s.buttons?.[index];if(!v)return;setDockStyle(button,'left',v[0]);setDockStyle(button,'top',v[1]);setDockStyle(button,'width',v[2]);setDockStyle(button,'height',v[3]);setDockStyle(button,'border-radius',v[4]);setDockStyle(button,'opacity',v[5],'');button.style.setProperty('transform',`translateZ(0) scale(${v[6]})`,'important');if(labels[index])setDockStyle(labels[index],'opacity',v[7],'')});
   if(indicator&&s.indicator){const v=s.indicator;setDockStyle(indicator,'left',v[0]);setDockStyle(indicator,'top',v[1]);setDockStyle(indicator,'width',v[2]);setDockStyle(indicator,'height',v[3]);setDockStyle(indicator,'border-radius',v[4]);setDockStyle(indicator,'opacity',v[5],'');indicator.style.setProperty('transform','translateZ(0)','important')}
-}
-function clearDockChrome(){
-  const{zone,entry,entryIcon,send,sendIcon,buttons,labels,indicator}=getDockMotionNodes(),nodes=[entry,entryIcon,send,sendIcon,indicator,...buttons,...labels];
-  nodes.filter(Boolean).forEach(el=>['left','top','width','height','border-radius','opacity','transform','padding'].forEach(prop=>el.style.removeProperty(prop)));
-  zone?.classList.remove('dock-motion');
 }
 function mixDockArray(from,to,t){return to.map((value,index)=>liquidMix(from?.[index]??value,value,t))}
 // The six drawings are actual geometry waypoints, not independent entrance/exit fades.
@@ -1014,7 +998,7 @@ function dockMorphWaypoint(upper,lowerLeft,lowerRight,bridge,ui,from,to){
     return s;
 }
 function dockExpansionFrames(start,target){
-  const w=target.w,compact=dockLiquidTargets('compact'),frame=(...args)=>dockMorphWaypoint(...args,compact,target);
+  const w=target.w,frame=(...args)=>dockMorphWaypoint(...args,start,target);
   const frames=[
     start,
     frame([w*.40,-9,w*.20,96,46,.18,44,44,.52,.23],[0,w*.36,64,32,1,.18],[w-124,124,64,32,1,.7],[w*.61,82,1,1,0],.22),
@@ -1024,15 +1008,15 @@ function dockExpansionFrames(start,target){
     {...target,entryRim:[...target.entry]}
   ];
   // Do not restart from the nominal compact shape if a previous transition was interrupted.
-  frames[0]=start;
+  frames[0]={...start,entryRim:[...(start.entryRim||start.entry)]};
   return frames;
 }
 // Collapse is deliberately not the expansion played backwards: these are the
 // six different outlines in the second set of drawings, in their own order.
 function dockCollapseFrames(start,target){
-  const w=target.w,expanded=dockLiquidTargets('expanded'),frame=(...args)=>dockMorphWaypoint(...args,expanded,target);
+  const w=target.w,frame=(...args)=>dockMorphWaypoint(...args,start,target);
   return [
-    start,
+    {...start,entryRim:[...(start.entryRim||start.entry)]},
     frame([0,0,w,42,21,.78,1,1,0,1],[0,w-105,92,46,1,.04],[0,w,78,39,1,.04],[w-123,90,112,38,1],.16),
     frame([w*.025,0,w*.90,42,21,.54,1,1,0,1],[0,w-122,98,48,1,.03],[w-124,124,76,38,1,.03],[w-123,90,84,22,1],.36),
     frame([w*.16,0,w*.73,44,22,.32,10,9,.2,.84],[0,w-145,96,46,1,.03],[w-124,124,76,38,1,.03],[w-132,90,64,12,1],.59),
@@ -1063,41 +1047,36 @@ function sampleDockExpansion(frames,progress,stops=[0,.18,.39,.61,.80,1]){
   return s;
 }
 function animateDockLiquid(mode){
-  const nextMode=mode==='drawer'?'drawer':mode?'compact':'expanded',previousMode=dockLiquidMode||'expanded',drawerTransition=nextMode==='drawer'||previousMode==='drawer';dockLiquidMode=nextMode;
-  const motionToken=++dockMotionToken;cancelAnimationFrame(dockLiquidFrame);const target=dockLiquidTargets(nextMode),start=dockLiquidCurrent||dockLiquidTargets(previousMode),expanding=nextMode==='expanded'&&previousMode==='compact',collapsing=nextMode==='compact'&&previousMode==='expanded',morphFrames=expanding?dockExpansionFrames(start,target):collapsing?dockCollapseFrames(start,target):null,morphStops=collapsing?[0,.2,.4,.62,.82,1]:[0,.18,.39,.61,.80,1],began=performance.now(),duration=drawerTransition?920:expanding?1120:collapsing?1060:980,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,clamp=value=>Math.max(0,Math.min(1,value));
-  const finish=()=>{if(motionToken!==dockMotionToken)return;dockLiquidCurrent=target;renderDockLiquid(target);renderDockChrome(target);const zone=document.querySelector('#bottomZone');if(nextMode!=='drawer')zone?.classList.toggle('compact',nextMode==='compact');requestAnimationFrame(()=>{if(motionToken!==dockMotionToken)return;clearDockChrome();moveDockIndicator(dockIndicatorIndex,false)});dockLiquidFrame=null};
+  const nextMode=mode==='drawer'?'drawer':mode?'compact':'expanded',previousMode=dockLiquidMode||'expanded',drawerTransition=nextMode==='drawer'||previousMode==='drawer',sameMode=nextMode===previousMode;dockLiquidMode=nextMode;
+  const motionToken=++dockMotionToken;cancelAnimationFrame(dockLiquidFrame);const target=dockLiquidTargets(nextMode),start=dockLiquidCurrent||dockLiquidTargets(previousMode),expanding=nextMode==='expanded'&&previousMode==='compact',collapsing=nextMode==='compact'&&previousMode==='expanded',morphFrames=expanding?dockExpansionFrames(start,target):collapsing?dockCollapseFrames(start,target):null,morphStops=collapsing?[0,.2,.4,.62,.82,1]:[0,.18,.39,.61,.80,1],began=performance.now(),duration=sameMode?500:drawerTransition?920:expanding?1120:collapsing?1060:980,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,clamp=value=>Math.max(0,Math.min(1,value));
+  const finish=()=>{if(motionToken!==dockMotionToken)return;dockLiquidCurrent=target;renderDockLiquid(target);renderDockChrome(target);const zone=document.querySelector('#bottomZone');if(nextMode!=='drawer')zone?.classList.toggle('compact',nextMode==='compact');dockLiquidFrame=null};
   if(reduced){finish();return}
   renderDockChrome(start);
   const tick=now=>{const raw=Math.min(1,(now-began)/duration);
     if(morphFrames){const state=sampleDockExpansion(morphFrames,liquidEase(raw),morphStops);dockLiquidCurrent=state;renderDockLiquid(state);renderDockChrome(state);if(raw<1)dockLiquidFrame=requestAnimationFrame(tick);else finish();return}
     const mainT=liquidEase(raw),entrySizeT=nextMode==='compact'?liquidEase(clamp((raw-.28)/.48)):nextMode==='expanded'?liquidEase(clamp((raw-.2)/.8)):mainT,entryMoveT=nextMode==='compact'?liquidEase(clamp((raw-.52)/.48)):nextMode==='expanded'?liquidEase(clamp(raw/.5)):mainT,state={mode:nextMode,w:target.w};
     for(const key of ['nav','active','navRim','activeRim','shine','indicator'])state[key]=mixDockArray(start[key],target[key],mainT);
+    if(sameMode&&nextMode==='expanded'){
+      const distance=Math.abs(target.indicator[0]-start.indicator[0])/Math.max(1,target.indicator[2]),squeeze=Math.min(18,5+distance*3)*Math.sin(Math.PI*mainT);
+      state.indicator[1]+=squeeze/2;state.indicator[3]-=squeeze;
+    }
     state.entry=mixDockArray(start.entry,target.entry,entrySizeT);state.entry[1]=liquidMix(start.entry[1],target.entry[1],entryMoveT);state.entry[3]=liquidMix(start.entry[3],target.entry[3],entryMoveT);
+    state.entryRim=mixDockArray(start.entryRim||start.entry,target.entryRim||target.entry,entrySizeT);state.entryRim[1]=liquidMix((start.entryRim||start.entry)[1],(target.entryRim||target.entry)[1],entryMoveT);state.entryRim[3]=liquidMix((start.entryRim||start.entry)[3],(target.entryRim||target.entry)[3],entryMoveT);
     state.entryHtml=mixDockArray(start.entryHtml,target.entryHtml,entrySizeT);state.entryHtml[1]=liquidMix(start.entryHtml[1],target.entryHtml[1],entryMoveT);state.entryHtml[3]=liquidMix(start.entryHtml[3],target.entryHtml[3],entryMoveT);
     state.buttons=target.buttons.map((values,index)=>mixDockArray(start.buttons?.[index],values,mainT));
     if(nextMode==='compact'&&previousMode!=='drawer'){const reveal=liquidEase(clamp(raw/.2));state.active[5]=liquidMix(start.active?.[5]??0,1,reveal);state.activeRim[5]=state.active[5]}
     if(nextMode==='expanded'&&previousMode!=='drawer'){const release=liquidEase(clamp((raw-.82)/.18));state.active[5]=liquidMix(start.active?.[5]??1,0,release);state.activeRim[5]=state.active[5]}
-    const fieldTension=Math.sin(Math.PI*entrySizeT),entryCenterX=state.entry[0]+state.entry[2]*.5,entryBottom=state.entry[1]+state.entry[3],direction=nextMode==='expanded'?-1:1;state.entry[1]-=fieldTension*5;state.entry[3]+=fieldTension*10;state.entryHtml[1]-=fieldTension*5;state.entryHtml[3]+=fieldTension*10;state.entryBulge=[entryCenterX+direction*fieldTension*16,entryBottom,12+fieldTension*30,8+fieldTension*22,fieldTension*.86];
+    const fieldTension=sameMode?0:Math.sin(Math.PI*entrySizeT),entryCenterX=state.entry[0]+state.entry[2]*.5,entryBottom=state.entry[1]+state.entry[3],direction=nextMode==='expanded'?-1:1;state.entry[1]-=fieldTension*5;state.entry[3]+=fieldTension*10;state.entryHtml[1]-=fieldTension*5;state.entryHtml[3]+=fieldTension*10;state.entryBulge=[entryCenterX+direction*fieldTension*16,entryBottom,12+fieldTension*30,8+fieldTension*22,fieldTension*.86];
     const pad=14,w=target.w,leftEdge=state.active[0]+state.active[2],rightEdge=state.nav[0],gap=Math.max(0,rightEdge-leftEdge),maxGap=Math.max(1,w-188),separation=clamp(gap/maxGap);
     if(drawerTransition){const flow=Math.sin(Math.PI*raw),sinkX=pad+w-32,sourceX=liquidMix(start.nav[0]+start.nav[2]*.5,sinkX,mainT),width=28+flow*116,height=10+flow*38;state.neck=[sourceX,pad+82,width,height,flow*.98];state.drop=[liquidMix(start.active[0]+start.active[2]*.5,sinkX,mainT),pad+82,12+flow*31,14+flow*34,flow*.94];state.drop2=[liquidMix(start.entry[0]+start.entry[2]*.5,sinkX,entrySizeT),pad+74,9+flow*25,11+flow*28,flow*.88];state.drop3=[liquidMix(start.nav[0]+start.nav[2]*.72,sinkX,mainT),pad+91,7+flow*20,9+flow*23,flow*.8]}
+    else if(sameMode){for(const key of ['neck','drop','drop2','drop3','entryBulge'])state[key]=mixDockArray(start[key],target[key],mainT)}
     else{const bridge=Math.pow(1-separation,.66),cx=(leftEdge+rightEdge)*.5,tear=Math.sin(Math.PI*clamp((separation-.62)/.38));state.neck=[cx,pad+82,gap+42,Math.max(2,60*bridge),separation<.985?1:0];state.drop=[cx-8,pad+82,8+tear*24,10+tear*29,tear*.94];state.drop2=[cx+gap*.14,pad+73,7+tear*18,9+tear*22,tear*.82];state.drop3=[cx-gap*.17,pad+91,6+tear*15,8+tear*18,tear*.72]}
     dockLiquidCurrent=state;renderDockLiquid(state);renderDockChrome(state);if(raw<1)dockLiquidFrame=requestAnimationFrame(tick);else finish()}
   dockLiquidFrame=requestAnimationFrame(tick);
 }
 function setDockCompact(compact){
   if(dockCompact===compact)return;
-  dockCompact=compact;if(!compact)dockIgnoreScrollUntil=performance.now()+1050;const zone=document.querySelector('#bottomZone'),indicator=document.querySelector('.dock-indicator');dockIndicatorAnimation?.cancel();dockIndicatorAnimation=null;indicator?.classList.remove('moving');clearTimeout(dockPhaseTimer);zone.classList.remove('dock-collapsing','dock-expanding');animateDockLiquid(compact);
-}
-function moveDockIndicator(nextIndex,animate=true){
-  const indicator=document.querySelector('.dock-indicator'),group=document.querySelector('.dock-group');if(!indicator||!group)return;
-  const unit=(group.clientWidth-12)/5,to=nextIndex*unit,matrix=new DOMMatrixReadOnly(getComputedStyle(indicator).transform),from=Number.isFinite(matrix.m41)?matrix.m41:dockIndicatorIndex*unit,distance=Math.abs(to-from)/Math.max(1,unit);
-  dockIndicatorAnimation?.cancel();dockIndicatorAnimation=null;indicator.classList.remove('moving');indicator.style.transform=`translateX(${from}px) scaleY(1)`;
-  if(animate&&distance>.01&&!dockCompact&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
-    const squeeze=Math.max(.62,1-distance*.085),middle=from+(to-from)*.5;
-    dockIndicatorAnimation=indicator.animate([{transform:`translateX(${from}px) scaleY(1)`},{transform:`translateX(${middle}px) scaleY(${squeeze})`,offset:.5},{transform:`translateX(${to}px) scaleY(1)`}],{duration:700,easing:'cubic-bezier(.65,0,.35,1)',fill:'forwards'});
-    const active=dockIndicatorAnimation;active.onfinish=()=>{if(dockIndicatorAnimation!==active)return;indicator.style.transform=`translateX(${to}px) scaleY(1)`;active.cancel();dockIndicatorAnimation=null};
-  }else indicator.style.transform=`translateX(${to}px) scaleY(1)`;
-  dockIndicatorIndex=nextIndex;
+  dockCompact=compact;if(!compact)dockIgnoreScrollUntil=performance.now()+1250;animateDockLiquid(compact);
 }
 function refreshJellyItems(){
   jellyItems=[...document.querySelectorAll('.screen.active .card,.screen.active .transactions,.screen.active .goal-card,.screen.active .insight-card,.screen.active .debt-total,.screen.active .debt-section')];
@@ -1481,7 +1460,7 @@ window.visualViewport?.addEventListener('scroll',positionVoicePopover);
 window.visualViewport?.addEventListener('resize',positionQuickEntry);
 window.visualViewport?.addEventListener('scroll',positionQuickEntry);
 addEventListener('orientationchange',()=>{if(document.activeElement!==document.querySelector('#voiceTestInput'))stableViewportHeight=Math.max(window.innerHeight,window.visualViewport?.height||0)});
-addEventListener('resize',()=>requestAnimationFrame(()=>{fitBalanceText();updateTickerSpeed();dockLiquidCurrent=dockLiquidTargets(dockCompact);renderDockLiquid(dockLiquidCurrent)}));
+addEventListener('resize',()=>requestAnimationFrame(()=>{fitBalanceText();updateTickerSpeed();const width=document.querySelector('.dock-layout')?.clientWidth||0;if(Math.abs(width-dockRenderedWidth)>1)animateDockLiquid(document.body.classList.contains('drawer-open')?'drawer':dockCompact)}));
 addEventListener('scroll',handlePageScroll,{passive:true});
 addEventListener('touchstart',e=>{if(e.touches.length!==1)return;dockBoundaryHandled=false;dockTouchStartY=e.touches[0].clientY;const maxScroll=Math.max(0,document.documentElement.scrollHeight-window.innerHeight);dockTouchAtTop=window.scrollY<=2;dockTouchAtBottom=maxScroll<2||window.scrollY>=maxScroll-2},{passive:true});
 addEventListener('touchmove',handleDockTouchMove,{passive:true});
@@ -1491,7 +1470,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=58',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=59',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1502,7 +1481,7 @@ try{
   render();
   loadMarketData();
   const initialScreen=location.hash.slice(1)||'home';switchScreen(initialScreen==='marketDetail'&&!selectedMarketId?'home':initialScreen);if(initialScreen==='marketDetail'&&selectedMarketId)loadMarketDetail(selectedMarketId);
-  dockLiquidCurrent=dockLiquidTargets(false);renderDockLiquid(dockLiquidCurrent);
+  dockLiquidCurrent=dockLiquidTargets(false);renderDockLiquid(dockLiquidCurrent);renderDockChrome(dockLiquidCurrent);
   addEventListener('hashchange',()=>switchScreen(location.hash.slice(1)||'home'));
   setTimeout(()=>{window.scrollTo(0,0);lastPageScrollY=0;setDockCompact(false);dockInteractionsReady=true},900);
   window.__VOICE_FINANCE_READY__=true;

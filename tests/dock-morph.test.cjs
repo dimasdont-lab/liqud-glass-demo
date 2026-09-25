@@ -42,6 +42,10 @@ const interrupted = api.sampleDockExpansion(frames, .47);
 const resumed = api.dockExpansionFrames(interrupted, expanded);
 assert.deepEqual(resumed[0], interrupted, 'an interrupted animation resumes from its current geometry');
 assert.deepEqual(api.sampleDockExpansion(resumed, 0), interrupted);
+for (let i = 0; i < interrupted.buttons.length; i++) {
+  const expected = interrupted.buttons[i][0] + (expanded.buttons[i][0] - interrupted.buttons[i][0]) * .22;
+  assert.ok(Math.abs(resumed[1].buttons[i][0] - expected) < 1e-6, `resumed button ${i} uses the live position`);
+}
 
 let previous = null;
 for (let step = 0; step <= 1000; step++) {
@@ -80,6 +84,14 @@ for (let i = 0; i <= 3; i++) {
 const interruptedCollapse = api.sampleDockExpansion(collapse, .53, collapseStops);
 const resumedCollapse = api.dockCollapseFrames(interruptedCollapse, compact);
 assert.deepEqual(resumedCollapse[0], interruptedCollapse, 'reverse animation resumes from the interrupted shape');
+for (let i = 0; i < interruptedCollapse.buttons.length; i++) {
+  const expected = interruptedCollapse.buttons[i][0] + (compact.buttons[i][0] - interruptedCollapse.buttons[i][0]) * .16;
+  assert.ok(Math.abs(resumedCollapse[1].buttons[i][0] - expected) < 1e-6, `reverse button ${i} uses the live position`);
+}
+const reversedMidFlight = api.dockCollapseFrames(interrupted, compact);
+assert.deepEqual(reversedMidFlight[0], interrupted, 'changing direction keeps the exact current shape');
+const expandedAgain = api.dockExpansionFrames(interruptedCollapse, expanded);
+assert.deepEqual(expandedAgain[0], interruptedCollapse, 'reverse direction also keeps the current shape');
 
 previous = null;
 for (let step = 0; step <= 1000; step++) {
