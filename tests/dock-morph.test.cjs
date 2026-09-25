@@ -37,6 +37,11 @@ assert.ok(frames[2].entry[2] > frames[1].entry[2], 'input stretches into upper p
 assert.ok(frames[2].active[2] > frames[1].active[2], 'left lower mass grows to the right');
 assert.ok(frames[3].neck[4] > 0, 'two lower shapes join through a narrow neck');
 assert.ok(frames[4].neck[3] > frames[3].neck[3], 'the neck swells before settling');
+assert.equal(frames[4].active[0], expanded.active[0], 'left mass stays anchored after joining');
+assert.equal(frames[4].active[2], expanded.w, 'left mass covers the whole row before fading');
+assert.equal(frames[4].active[5], 1, 'left mass remains visible until the right mass has filled it');
+assert.equal(frames[4].nav[0], expanded.nav[0], 'right mass reaches the left edge underneath the left mass');
+assert.equal(frames[4].nav[2], expanded.w, 'right mass reaches full width before the handoff');
 assert.equal(frames[5].nav[2], expanded.w, 'final lower capsule fills the width');
 const interrupted = api.sampleDockExpansion(frames, .47);
 const resumed = api.dockExpansionFrames(interrupted, expanded);
@@ -53,6 +58,14 @@ for (let step = 0; step <= 1000; step++) {
   for (const key of ['entry', 'nav', 'active', 'neck', 'entryHtml', 'indicator']) {
     assert.ok(current[key].every(Number.isFinite), `${key} has finite values at ${step}`);
     if (previous) assert.ok(Math.abs(current[key][0] - previous[key][0]) < 6, `${key} jumps horizontally at ${step}`);
+  }
+  if (current.active[5] < .99) {
+    assert.ok(Math.abs(current.nav[0] - expanded.nav[0]) < 1e-6, `right mass is anchored before left fades at ${step}`);
+    assert.ok(Math.abs(current.nav[2] - expanded.w) < 1e-6, `right mass already fills row before left fades at ${step}`);
+  }
+  if (previous) {
+    assert.ok(current.active[2] >= previous.active[2] - 1e-6, `left mass does not retract before joining at ${step}`);
+    assert.ok(current.nav[0] <= previous.nav[0] + 1e-6, `right mass never shoots back right at ${step}`);
   }
   assert.ok(current.buttons.every((button, index) => Math.abs(button[1] - compact.buttons[index][1]) < 1e-6), 'buttons never jump vertically');
   previous = current;
