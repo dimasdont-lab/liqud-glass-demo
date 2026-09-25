@@ -967,7 +967,7 @@ function dockLiquidTargets(mode){
 function getDockLiquidNodes(){if(dockLiquidNodes?.nav?.isConnected)return dockLiquidNodes;dockLiquidNodes={entry:document.querySelector('#liquidEntry'),nav:document.querySelector('#liquidNav'),active:document.querySelector('#liquidActive'),entryRim:document.querySelector('#liquidEntryRim'),navRim:document.querySelector('#liquidNavRim'),activeRim:document.querySelector('#liquidActiveRim'),neck:document.querySelector('#liquidNeck'),drop:document.querySelector('#liquidDrop'),drop2:document.querySelector('#liquidDrop2'),drop3:document.querySelector('#liquidDrop3'),entryBulge:document.querySelector('#liquidEntryBulge'),shine:document.querySelector('#liquidShine')};return dockLiquidNodes}
 function setLiquidRect(el,v){if(!el)return;el.setAttribute('x',v[0]);el.setAttribute('y',v[1]);el.setAttribute('width',Math.max(.1,v[2]));el.setAttribute('height',Math.max(.1,v[3]));el.setAttribute('rx',Math.max(0,v[4]));el.style.opacity=v[5]}
 function renderDockLiquid(s){
-  const{entry,nav,active,entryRim,navRim,activeRim,neck,drop,drop2,drop3,entryBulge,shine}=getDockLiquidNodes();setLiquidRect(entry,s.entry);setLiquidRect(nav,s.nav);setLiquidRect(active,s.active);setLiquidRect(entryRim,s.entry);setLiquidRect(navRim,s.navRim||s.nav);setLiquidRect(activeRim,s.activeRim||s.active);
+  const{entry,nav,active,entryRim,navRim,activeRim,neck,drop,drop2,drop3,entryBulge,shine}=getDockLiquidNodes();setLiquidRect(entry,s.entry);setLiquidRect(nav,s.nav);setLiquidRect(active,s.active);setLiquidRect(entryRim,s.entryRim||s.entry);setLiquidRect(navRim,s.navRim||s.nav);setLiquidRect(activeRim,s.activeRim||s.active);
   [[neck,s.neck],[drop,s.drop],[drop2,s.drop2],[drop3,s.drop3],[entryBulge,s.entryBulge],[shine,s.shine]].forEach(([el,v])=>{if(!el||!v)return;el.setAttribute('cx',v[0]+(v.length===6?v[2]/2:0));el.setAttribute('cy',v[1]+(v.length===6?v[3]/2:0));el.setAttribute('rx',Math.max(.1,v[2]/2));el.setAttribute('ry',Math.max(.1,v[3]/2));el.style.opacity=v[v.length-1]});
 }
 function setDockStyle(el,name,value,unit='px'){if(!el)return;el.style.setProperty(name,`${value}${unit}`,'important')}
@@ -992,13 +992,72 @@ function clearDockChrome(){
   zone?.classList.remove('dock-motion');
 }
 function mixDockArray(from,to,t){return to.map((value,index)=>liquidMix(from?.[index]??value,value,t))}
+// The six drawings are actual geometry waypoints, not independent entrance/exit fades.
+// Every shape keeps its identity until the two lower masses have physically joined.
+function dockExpansionFrames(start,target){
+  const w=target.w,pad=14,compact=dockLiquidTargets('compact');
+  const frame=(upper,lowerLeft,lowerRight,bridge,ui)=>{
+    const s={mode:'expanded',w};
+    for(const key of ['entry','entryBulge','nav','active','navRim','activeRim','neck','drop','drop2','drop3','shine','entryHtml','indicator'])s[key]=[...(target[key]||[])];
+    s.buttons=target.buttons.map((values,index)=>mixDockArray(compact.buttons[index],values,ui));
+    s.indicator=mixDockArray(compact.indicator,target.indicator,ui);
+    s.entry=[pad+upper[0],pad+upper[1],upper[2],upper[3],upper[4],1];
+    s.entryRim=[...s.entry];s.entryRim[5]=upper[5];
+    s.entryBulge=[pad+upper[0]+upper[2]*.5,pad+upper[1]+upper[3]*.78,Math.max(1,upper[6]),Math.max(1,upper[7]),upper[8]];
+    s.entryHtml=mixDockArray(compact.entryHtml,target.entryHtml,ui);
+    for(const [i,value] of [upper[0],upper[1],upper[2],upper[3],upper[4]].entries())s.entryHtml[i]=value;
+    s.entryHtml[5]=upper[9];
+    s.active=[pad+lowerLeft[0],pad+50,lowerLeft[1],lowerLeft[2],lowerLeft[3],lowerLeft[4]];
+    s.nav=[pad+lowerRight[0],pad+50,lowerRight[1],lowerRight[2],lowerRight[3],lowerRight[4]];
+    s.activeRim=[...s.active];s.activeRim[5]=lowerLeft[5];
+    s.navRim=[...s.nav];s.navRim[5]=lowerRight[5];
+    s.neck=[pad+bridge[0],pad+bridge[1],Math.max(1,bridge[2]),Math.max(1,bridge[3]),bridge[4]];
+    s.drop=[pad+w*.5,pad+82,1,1,0];s.drop2=[...s.drop];s.drop3=[...s.drop];
+    return s;
+  };
+  const frames=[
+    start,
+    frame([w*.40,-9,w*.20,96,46,.18,44,44,.52,.23],[0,w*.36,64,32,1,.18],[w-124,124,64,32,1,.7],[w*.61,82,1,1,0],.22),
+    frame([w*.15,-2,w*.70,49,25,.36,30,19,.25,.62],[0,w*.70,64,32,1,.12],[w-124,124,64,32,1,.45],[w*.72,82,1,1,0],.53),
+    frame([0,0,w,42,21,.62,1,1,0,1],[0,w-120,64,32,1,.04],[w-124,124,64,32,1,.08],[w-122,82,42,15,1],.77),
+    frame([0,0,w,42,21,.88,1,1,0,1],[0,w-120,64,32,1,.02],[w-124,124,64,32,1,.04],[w*.74,82,w*.30,103,1],.92),
+    {...target,entryRim:[...target.entry]}
+  ];
+  // Do not restart from the nominal compact shape if a previous transition was interrupted.
+  frames[0]=start;
+  return frames;
+}
+function sampleDockExpansion(frames,progress){
+  const stops=[0,.18,.39,.61,.80,1],last=stops.length-1;
+  if(progress<=0)return frames[0];if(progress>=1)return frames[last];
+  let i=0;while(i<last-1&&progress>stops[i+1])i++;
+  const local=(progress-stops[i])/(stops[i+1]-stops[i]);
+  // Non-zero tangents at intermediate drawings keep the motion continuous there.
+  const interpolate=(key,index)=>{
+    const a=frames[i][key]?.[index],b=frames[i+1][key]?.[index];if(!Number.isFinite(a)||!Number.isFinite(b))return b??a;
+    const prev=frames[Math.max(0,i-1)][key]?.[index]??a,next=frames[Math.min(last,i+2)][key]?.[index]??b;
+    const span=stops[i+1]-stops[i],m0=i===0?b-a:(b-prev)*span/(stops[i+1]-stops[i-1]),m1=i+1===last?b-a:(next-a)*span/(stops[i+2]-stops[i]);
+    const t=local,t2=t*t,t3=t2*t,value=(2*t3-3*t2+1)*a+(t3-2*t2+t)*m0+(-2*t3+3*t2)*b+(t3-t2)*m1;
+    return Math.max(Math.min(a,b),Math.min(Math.max(a,b),value));
+  };
+  const s={mode:'expanded',w:frames[last].w};
+  for(const key of ['entry','entryRim','entryBulge','nav','active','navRim','activeRim','neck','drop','drop2','drop3','shine','entryHtml','indicator'])s[key]=frames[i+1][key].map((_,index)=>interpolate(key,index));
+  s.buttons=frames[i+1].buttons.map((values,buttonIndex)=>values.map((_,index)=>{
+    const a=frames[i].buttons[buttonIndex][index],b=values[index],prev=frames[Math.max(0,i-1)].buttons[buttonIndex][index],next=frames[Math.min(last,i+2)].buttons[buttonIndex][index];
+    const span=stops[i+1]-stops[i],m0=i===0?b-a:(b-prev)*span/(stops[i+1]-stops[i-1]),m1=i+1===last?b-a:(next-a)*span/(stops[i+2]-stops[i]),t=local,t2=t*t,t3=t2*t;
+    return Math.max(Math.min(a,b),Math.min(Math.max(a,b),(2*t3-3*t2+1)*a+(t3-2*t2+t)*m0+(-2*t3+3*t2)*b+(t3-t2)*m1));
+  }));
+  return s;
+}
 function animateDockLiquid(mode){
   const nextMode=mode==='drawer'?'drawer':mode?'compact':'expanded',previousMode=dockLiquidMode||'expanded',drawerTransition=nextMode==='drawer'||previousMode==='drawer';dockLiquidMode=nextMode;
-  const motionToken=++dockMotionToken;cancelAnimationFrame(dockLiquidFrame);const target=dockLiquidTargets(nextMode),start=dockLiquidCurrent||dockLiquidTargets(previousMode),began=performance.now(),duration=drawerTransition?920:980,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,clamp=value=>Math.max(0,Math.min(1,value));
+  const motionToken=++dockMotionToken;cancelAnimationFrame(dockLiquidFrame);const target=dockLiquidTargets(nextMode),start=dockLiquidCurrent||dockLiquidTargets(previousMode),expanding=nextMode==='expanded'&&previousMode==='compact',expansionFrames=expanding?dockExpansionFrames(start,target):null,began=performance.now(),duration=drawerTransition?920:expanding?1120:980,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,clamp=value=>Math.max(0,Math.min(1,value));
   const finish=()=>{if(motionToken!==dockMotionToken)return;dockLiquidCurrent=target;renderDockLiquid(target);renderDockChrome(target);const zone=document.querySelector('#bottomZone');if(nextMode!=='drawer')zone?.classList.toggle('compact',nextMode==='compact');requestAnimationFrame(()=>{if(motionToken!==dockMotionToken)return;clearDockChrome();moveDockIndicator(dockIndicatorIndex,false)});dockLiquidFrame=null};
   if(reduced){finish();return}
   renderDockChrome(start);
-  const tick=now=>{const raw=Math.min(1,(now-began)/duration),mainT=liquidEase(raw),entrySizeT=nextMode==='compact'?liquidEase(clamp((raw-.28)/.48)):nextMode==='expanded'?liquidEase(clamp((raw-.2)/.8)):mainT,entryMoveT=nextMode==='compact'?liquidEase(clamp((raw-.52)/.48)):nextMode==='expanded'?liquidEase(clamp(raw/.5)):mainT,state={mode:nextMode,w:target.w};
+  const tick=now=>{const raw=Math.min(1,(now-began)/duration);
+    if(expansionFrames){const state=sampleDockExpansion(expansionFrames,liquidEase(raw));dockLiquidCurrent=state;renderDockLiquid(state);renderDockChrome(state);if(raw<1)dockLiquidFrame=requestAnimationFrame(tick);else finish();return}
+    const mainT=liquidEase(raw),entrySizeT=nextMode==='compact'?liquidEase(clamp((raw-.28)/.48)):nextMode==='expanded'?liquidEase(clamp((raw-.2)/.8)):mainT,entryMoveT=nextMode==='compact'?liquidEase(clamp((raw-.52)/.48)):nextMode==='expanded'?liquidEase(clamp(raw/.5)):mainT,state={mode:nextMode,w:target.w};
     for(const key of ['nav','active','navRim','activeRim','shine','indicator'])state[key]=mixDockArray(start[key],target[key],mainT);
     state.entry=mixDockArray(start.entry,target.entry,entrySizeT);state.entry[1]=liquidMix(start.entry[1],target.entry[1],entryMoveT);state.entry[3]=liquidMix(start.entry[3],target.entry[3],entryMoveT);
     state.entryHtml=mixDockArray(start.entryHtml,target.entryHtml,entrySizeT);state.entryHtml[1]=liquidMix(start.entryHtml[1],target.entryHtml[1],entryMoveT);state.entryHtml[3]=liquidMix(start.entryHtml[3],target.entryHtml[3],entryMoveT);
@@ -1419,7 +1478,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=56',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=57',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
