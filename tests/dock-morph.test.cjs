@@ -20,6 +20,12 @@ const context = {
 const api = vm.runInNewContext(`${source}\n({dockLiquidTargets,dockExpansionFrames,dockCollapseFrames,sampleDockExpansion,getDockCanonicalMorph,rejoinDockMorph,liquidEase})`, context);
 const compact = api.dockLiquidTargets('compact');
 const expanded = api.dockLiquidTargets('expanded');
+const compactButtonCenter = 14 + 50 + compact.buttons[3][1] + compact.buttons[3][3] / 2;
+assert.equal(compact.entry[1] + compact.entry[3] / 2, compactButtonCenter, 'compact text glass is vertically centered with the buttons');
+assert.equal(14 + compact.entryHtml[1] + compact.entryHtml[3] / 2, compactButtonCenter, 'compact text input is vertically centered with the buttons');
+assert.equal(compact.nav[1] + compact.nav[3] / 2, compactButtonCenter, 'compact right glass is vertically centered with the buttons');
+assert.equal(compact.active[1] + compact.active[3] / 2, compactButtonCenter, 'compact left glass is vertically centered with the buttons');
+assert.equal(14 + 50 + compact.indicator[1] + compact.indicator[3] / 2, compactButtonCenter, 'compact black indicator is vertically centered with the buttons');
 const frames = api.getDockCanonicalMorph('compact', 'expanded');
 const stops = [0, .18, .39, .61, .80, 1];
 assert.strictEqual(api.getDockCanonicalMorph('compact', 'expanded'), frames, 'every complete expansion reuses the same keyframes');
