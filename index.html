@@ -896,7 +896,8 @@ function switchScreen(id){
   closeProfileDrawer();
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   buttons.forEach(b=>b.classList.toggle('active',b.dataset.screen===navId));
-  const compactActive=document.querySelector('#compactActiveBtn'),compactSource=buttons.find(b=>b.dataset.screen===(navId==='home'?'debts':navId));if(compactActive&&compactSource){compactActive.innerHTML=compactSource.innerHTML;compactActive.dataset.compactScreen=compactSource.dataset.screen;compactActive.setAttribute('aria-label',`${compactSource.getAttribute('aria-label')||'Активна сторінка'} · розгорнути док`)}
+  const compactActive=document.querySelector('#compactActiveBtn'),compactSource=buttons.find(b=>b.dataset.screen===(navId==='home'?'debts':navId));
+  if(compactActive&&compactSource){compactActive.innerHTML=compactSource.innerHTML;compactActive.dataset.compactScreen=compactSource.dataset.screen;compactActive.setAttribute('aria-label',navId==='home'?'Відкрити Борги':`${compactSource.getAttribute('aria-label')||'Активна сторінка'} · розгорнути док`)}
   document.querySelector('#bottomZone')?.classList.toggle('compact-home',navId==='home');
   moveDockIndicator(nextIndex);
   if(location.hash!==`#${id}`)history.replaceState(null,'',`#${id}`);
@@ -915,12 +916,12 @@ function dockLiquidTargets(compact){
   const layer=document.querySelector('#dockLiquidLayer'),layout=document.querySelector('.dock-layout'),w=layout?.clientWidth||450,pad=14;
   const unit=(w-12)/5,split=pad+6+unit*3;
   layer?.setAttribute('viewBox',`0 0 ${w+pad*2} ${128+pad*2}`);
-  if(!compact)return{entry:[pad,pad,w,42,21,1],entryBulge:[pad+w*.5,pad+42,1,1,0],nav:[split-12,pad+50,pad+w-(split-12),78,39,1],active:[pad,pad+50,split-pad+12,78,39,1],neck:[split,pad+82,2,2,0],drop:[split,pad+82,1,1,0],shine:[pad+w*.2,pad+4,w*.56,8,.52]};
-  return{entry:[pad+68,pad+59,w-200,60,30,1],entryBulge:[pad+68+(w-200)*.5,pad+119,1,1,0],nav:[pad+w-124,pad+50,124,64,32,1],active:[pad,pad+50,64,64,32,1],neck:[pad+64,pad+82,1,1,0],drop:[pad+64,pad+82,1,1,0],shine:[pad+80,pad+63,Math.max(34,w-234),7,.42]};
+  if(!compact)return{entry:[pad,pad,w,42,21,1],entryBulge:[pad+w*.5,pad+42,1,1,0],nav:[pad,pad+50,w,78,39,1],active:[pad,pad+50,split-pad+12,78,39,0],navRim:[pad,pad+50,w,78,39,1],activeRim:[pad,pad+50,split-pad+12,78,39,0],neck:[split,pad+82,2,2,0],drop:[split,pad+82,1,1,0],shine:[pad+w*.2,pad+4,w*.56,8,.52]};
+  return{entry:[pad+68,pad+59,w-200,60,30,1],entryBulge:[pad+68+(w-200)*.5,pad+119,1,1,0],nav:[pad+w-124,pad+50,124,64,32,1],active:[pad,pad+50,64,64,32,1],navRim:[pad+w-124,pad+50,124,64,32,1],activeRim:[pad,pad+50,64,64,32,1],neck:[pad+64,pad+82,1,1,0],drop:[pad+64,pad+82,1,1,0],shine:[pad+80,pad+63,Math.max(34,w-234),7,.42]};
 }
 function setLiquidRect(id,v){const el=document.querySelector(id);if(!el)return;el.setAttribute('x',v[0]);el.setAttribute('y',v[1]);el.setAttribute('width',Math.max(.1,v[2]));el.setAttribute('height',Math.max(.1,v[3]));el.setAttribute('rx',Math.max(0,v[4]));el.style.opacity=v[5]}
 function renderDockLiquid(s){
-  setLiquidRect('#liquidEntry',s.entry);setLiquidRect('#liquidNav',s.nav);setLiquidRect('#liquidActive',s.active);setLiquidRect('#liquidEntryRim',s.entry);setLiquidRect('#liquidNavRim',s.nav);setLiquidRect('#liquidActiveRim',s.active);
+  setLiquidRect('#liquidEntry',s.entry);setLiquidRect('#liquidNav',s.nav);setLiquidRect('#liquidActive',s.active);setLiquidRect('#liquidEntryRim',s.entry);setLiquidRect('#liquidNavRim',s.navRim||s.nav);setLiquidRect('#liquidActiveRim',s.activeRim||s.active);
   const neck=document.querySelector('#liquidNeck'),drop=document.querySelector('#liquidDrop'),entryBulge=document.querySelector('#liquidEntryBulge'),shine=document.querySelector('#liquidShine');
   [[neck,s.neck],[drop,s.drop],[entryBulge,s.entryBulge],[shine,s.shine]].forEach(([el,v])=>{if(!el)return;el.setAttribute('cx',v[0]+(v.length===6?v[2]/2:0));el.setAttribute('cy',v[1]+(v.length===6?v[3]/2:0));el.setAttribute('rx',Math.max(.1,v[2]/2));el.setAttribute('ry',Math.max(.1,v[3]/2));el.style.opacity=v[v.length-1]});
 }
@@ -928,7 +929,7 @@ function animateDockLiquid(compact){
   cancelAnimationFrame(dockLiquidFrame);const target=dockLiquidTargets(compact),start=dockLiquidCurrent||dockLiquidTargets(!compact),began=performance.now(),duration=840,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(reduced){dockLiquidCurrent=target;renderDockLiquid(target);return}
   const tick=now=>{const raw=Math.min(1,(now-began)/duration),clamp=n=>Math.max(0,Math.min(1,n)),navT=liquidEase(clamp(raw/(compact?.58:1))),sizeT=liquidEase(clamp((raw-(compact?.3:.3))/(compact?.4:.48))),moveT=liquidEase(clamp((raw-(compact?.62:0))/(compact?.38:.36))),state={};
-    for(const key of ['nav','active','neck','drop'])state[key]=target[key].map((v,i)=>liquidMix(start[key][i],v,navT));
+    for(const key of ['nav','active','navRim','activeRim','neck','drop'])state[key]=target[key].map((v,i)=>liquidMix((start[key]||start[key==='navRim'?'nav':'active'])[i],v,navT));
     state.entry=target.entry.map((v,i)=>liquidMix(start.entry[i],v,i===1?moveT:sizeT));state.shine=target.shine.map((v,i)=>liquidMix(start.shine[i],v,sizeT));
     const fieldTension=Math.sin(Math.PI*sizeT),fieldDirection=compact?1:-1,entryCenterX=state.entry[0]+state.entry[2]*.5,entryBottom=state.entry[1]+state.entry[3];state.entry[3]+=fieldTension*9;state.entry[1]-=fieldTension*4.5;state.entryBulge=[entryCenterX+fieldDirection*fieldTension*12,entryBottom-fieldTension*3,12+fieldTension*22,8+fieldTension*17,fieldTension*.72];
     const w=document.querySelector('.dock-layout')?.clientWidth||450,pad=14,split=pad+6+((w-12)/5)*3,tearT=Math.max(0,Math.min(1,compact?navT/.52:(1-navT)/.52)),tension=Math.sin(Math.PI*tearT),leftEdge=state.active[0]+state.active[2],tearX=liquidMix(split,leftEdge,tearT);state.neck=[tearX-13-tension*9,state.active[1]+state.active[3]*.5,26+tension*18,Math.max(2,22*(1-tearT)+tension*5),tension*.94];state.drop=[liquidMix(split,leftEdge-3,tearT),state.active[1]+state.active[3]*.5,5+tension*12,8+tension*17,tension*.86];
@@ -1238,7 +1239,7 @@ function saveManualAccount(){const name=document.querySelector('#manualAccountNa
 async function connectMonobank(){const input=document.querySelector('#monobankToken'),token=input.value.trim();if(!token)return showToast('Встав особистий токен');if(!BANKING_API_BASE){input.value='';return showToast('Backend ще не налаштований. Токен не збережено')}try{const r=await fetch(`${BANKING_API_BASE}/api/banks/monobank/connect`,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});input.value='';if(!r.ok)throw new Error('Monobank не підтвердив токен');closeSheet('#monobankBackdrop');showToast('Monobank підключено')}catch(e){input.value='';showToast(e.message)}}
 document.querySelectorAll('.dock [data-screen]').forEach(b=>b.onclick=()=>{if(dockCompact&&b.classList.contains('active'))setDockCompact(false);else switchScreen(b.dataset.screen)});
 document.querySelector('#moreBtn').onclick=toggleProfileDrawer;
-document.querySelector('#compactActiveBtn').onclick=()=>setDockCompact(false);
+document.querySelector('#compactActiveBtn').onclick=()=>{const button=document.querySelector('#compactActiveBtn');if(button.dataset.compactScreen==='debts'&&document.querySelector('.dock [data-screen="home"]')?.classList.contains('active'))switchScreen('debts');else setDockCompact(false)};
 document.querySelector('#profileDrawerBackdrop').onclick=e=>{if(e.target.id==='profileDrawerBackdrop')closeProfileDrawer()};
 document.querySelector('#profileDrawer').onclick=e=>e.stopPropagation();
 document.querySelector('#openSettings').onclick=()=>{closeProfileDrawer();openSheet('#settingsBackdrop')};
@@ -1342,7 +1343,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=49',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=50',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
