@@ -1054,14 +1054,34 @@ function sampleDockExpansion(frames,progress,stops=[0,.18,.39,.61,.80,1]){
   )));
   return s;
 }
+const dockCanonicalMorphs=new Map();
+function getDockCanonicalMorph(fromMode,toMode){
+  const from=dockLiquidTargets(fromMode),to=dockLiquidTargets(toMode);
+  const key=JSON.stringify([fromMode,toMode,from.w,from.buttons,from.indicator,to.buttons,to.indicator]);
+  let frames=dockCanonicalMorphs.get(key);
+  if(!frames){frames=toMode==='expanded'?dockExpansionFrames(from,to):dockCollapseFrames(from,to);dockCanonicalMorphs.set(key,frames)}
+  return frames;
+}
+function rejoinDockMorph(canonical,current,origin,weight){
+  if(weight<=0)return canonical;
+  if(weight>=1)return current;
+  const state={...canonical};
+  const keys=['entry','entryRim','entryBulge','nav','active','navRim','activeRim','neck','drop','drop2','drop3','shine','entryHtml','indicator'];
+  for(const key of keys){
+    const live=current[key]||current.entry,baseline=origin[key]||origin.entry;
+    state[key]=canonical[key].map((value,index)=>value+((live[index]??value)-(baseline[index]??value))*weight);
+  }
+  state.buttons=canonical.buttons.map((button,index)=>button.map((value,part)=>value+(current.buttons[index][part]-origin.buttons[index][part])*weight));
+  return state;
+}
 function animateDockLiquid(mode){
   const nextMode=mode==='drawer'?'drawer':mode?'compact':'expanded',previousMode=dockLiquidMode||'expanded',drawerTransition=nextMode==='drawer'||previousMode==='drawer',sameMode=nextMode===previousMode;dockLiquidMode=nextMode;
-  const motionToken=++dockMotionToken;cancelAnimationFrame(dockLiquidFrame);const target=dockLiquidTargets(nextMode),start=dockLiquidCurrent||dockLiquidTargets(previousMode),expanding=nextMode==='expanded'&&previousMode==='compact',collapsing=nextMode==='compact'&&previousMode==='expanded',morphFrames=expanding?dockExpansionFrames(start,target):collapsing?dockCollapseFrames(start,target):null,morphStops=collapsing?[0,.2,.4,.62,.82,1]:[0,.18,.39,.61,.80,1],began=performance.now(),duration=sameMode?500:drawerTransition?920:expanding?1120:collapsing?1060:980,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,clamp=value=>Math.max(0,Math.min(1,value));
+  const interrupted=dockLiquidFrame!==null,motionToken=++dockMotionToken;cancelAnimationFrame(dockLiquidFrame);const target=dockLiquidTargets(nextMode),canonicalStart=dockLiquidTargets(previousMode),start=interrupted?dockLiquidCurrent||canonicalStart:canonicalStart,expanding=nextMode==='expanded'&&previousMode==='compact',collapsing=nextMode==='compact'&&previousMode==='expanded',morphFrames=expanding||collapsing?getDockCanonicalMorph(previousMode,nextMode):null,morphStops=collapsing?[0,.2,.4,.62,.82,1]:[0,.18,.39,.61,.80,1],began=performance.now(),duration=sameMode?500:drawerTransition?920:expanding?1120:collapsing?1060:980,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,clamp=value=>Math.max(0,Math.min(1,value));
   const finish=()=>{if(motionToken!==dockMotionToken)return;dockLiquidCurrent=target;renderDockLiquid(target);renderDockChrome(target);const zone=document.querySelector('#bottomZone');if(nextMode!=='drawer')zone?.classList.toggle('compact',nextMode==='compact');dockLiquidFrame=null};
   if(reduced){finish();return}
   renderDockChrome(start);
   const tick=now=>{const raw=Math.min(1,(now-began)/duration);
-    if(morphFrames){const state=sampleDockExpansion(morphFrames,liquidEase(raw),morphStops);dockLiquidCurrent=state;renderDockLiquid(state);renderDockChrome(state);if(raw<1)dockLiquidFrame=requestAnimationFrame(tick);else finish();return}
+    if(morphFrames){const canonical=sampleDockExpansion(morphFrames,liquidEase(raw),morphStops),rejoin=interrupted?1-liquidEase(clamp(raw/.42)):0,state=rejoinDockMorph(canonical,start,morphFrames[0],rejoin);dockLiquidCurrent=state;renderDockLiquid(state);renderDockChrome(state);if(raw<1)dockLiquidFrame=requestAnimationFrame(tick);else finish();return}
     const mainT=liquidEase(raw),entrySizeT=nextMode==='compact'?liquidEase(clamp((raw-.28)/.48)):nextMode==='expanded'?liquidEase(clamp((raw-.2)/.8)):mainT,entryMoveT=nextMode==='compact'?liquidEase(clamp((raw-.52)/.48)):nextMode==='expanded'?liquidEase(clamp(raw/.5)):mainT,state={mode:nextMode,w:target.w};
     for(const key of ['nav','active','navRim','activeRim','shine','indicator'])state[key]=mixDockArray(start[key],target[key],mainT);
     if(sameMode&&nextMode==='expanded'){
@@ -1478,7 +1498,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=60',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=61',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';

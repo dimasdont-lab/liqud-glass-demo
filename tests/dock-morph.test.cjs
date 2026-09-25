@@ -17,11 +17,12 @@ const context = {
     querySelectorAll: () => buttons
   }
 };
-const api = vm.runInNewContext(`${source}\n({dockLiquidTargets,dockExpansionFrames,dockCollapseFrames,sampleDockExpansion,liquidEase})`, context);
+const api = vm.runInNewContext(`${source}\n({dockLiquidTargets,dockExpansionFrames,dockCollapseFrames,sampleDockExpansion,getDockCanonicalMorph,rejoinDockMorph,liquidEase})`, context);
 const compact = api.dockLiquidTargets('compact');
 const expanded = api.dockLiquidTargets('expanded');
-const frames = api.dockExpansionFrames(compact, expanded);
+const frames = api.getDockCanonicalMorph('compact', 'expanded');
 const stops = [0, .18, .39, .61, .80, 1];
+assert.strictEqual(api.getDockCanonicalMorph('compact', 'expanded'), frames, 'every complete expansion reuses the same keyframes');
 
 assert.equal(frames.length, 6);
 for (let i = 0; i < 6; i++) {
@@ -47,6 +48,8 @@ const interrupted = api.sampleDockExpansion(frames, .47);
 const resumed = api.dockExpansionFrames(interrupted, expanded);
 assert.deepEqual(resumed[0], interrupted, 'an interrupted animation resumes from its current geometry');
 assert.deepEqual(api.sampleDockExpansion(resumed, 0), interrupted);
+assert.deepEqual(api.rejoinDockMorph(frames[0], interrupted, frames[0], 1), interrupted, 'interruption starts at the live shape');
+assert.strictEqual(api.rejoinDockMorph(frames[2], interrupted, frames[0], 0), frames[2], 'interruption rejoins the fixed path');
 for (let i = 0; i < interrupted.buttons.length; i++) {
   const expected = interrupted.buttons[i][0] + (expanded.buttons[i][0] - interrupted.buttons[i][0]) * .22;
   assert.ok(Math.abs(resumed[1].buttons[i][0] - expected) < 1e-6, `resumed button ${i} uses the live position`);
@@ -72,8 +75,9 @@ for (let step = 0; step <= 1000; step++) {
 }
 console.log('Six dock keyframes and 1,001 interpolated samples passed.');
 
-const collapse = api.dockCollapseFrames(expanded, compact);
+const collapse = api.getDockCanonicalMorph('expanded', 'compact');
 const collapseStops = [0, .2, .4, .62, .82, 1];
+assert.strictEqual(api.getDockCanonicalMorph('expanded', 'compact'), collapse, 'every complete collapse reuses the same keyframes');
 assert.equal(collapse.length, 6);
 for (let i = 0; i < 6; i++) {
   const sampled = api.sampleDockExpansion(collapse, collapseStops[i], collapseStops);
