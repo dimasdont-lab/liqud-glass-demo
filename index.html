@@ -114,6 +114,26 @@
     .bottom-zone.compact.compact-home .quick-entry-shell{left:68px;width:calc(100% - 200px)}.bottom-zone.compact.compact-home .dock-indicator{opacity:1}.bottom-zone.compact .dock-group button.active:not([data-screen="home"]){opacity:0;pointer-events:none;transform:translateX(0) scale(.72)}.bottom-zone.compact .dock-group .compact-active-btn{display:flex;left:0;top:6px;width:64px;height:64px;border-radius:50%;transform:none;opacity:1;pointer-events:auto;color:#ff4060}.bottom-zone.compact .compact-active-btn .dock-label{display:none}
     .bottom-zone.compact .quick-entry-shell{transition:left .28s cubic-bezier(.2,.72,.18,1) .2s,width .28s cubic-bezier(.2,.72,.18,1) .2s,height .28s cubic-bezier(.2,.72,.18,1) .2s,border-radius .28s cubic-bezier(.2,.72,.18,1) .2s,padding .28s cubic-bezier(.2,.72,.18,1) .2s,top .28s cubic-bezier(.2,.72,.18,1) .42s,opacity .28s ease}
     .bottom-zone.compact .dock-layout{height:128px}.bottom-zone.compact .dock{top:50px}.bottom-zone.compact .quick-entry-shell{top:59px;transition:left .36s cubic-bezier(.2,.72,.18,1) .28s,width .36s cubic-bezier(.2,.72,.18,1) .28s,height .36s cubic-bezier(.2,.72,.18,1) .28s,border-radius .36s cubic-bezier(.2,.72,.18,1) .28s,padding .36s cubic-bezier(.2,.72,.18,1) .28s,top .34s cubic-bezier(.2,.72,.18,1) .52s,opacity .28s ease}.dock-indicator{transition-duration:.84s}.dock-group button{transition-duration:.84s,.58s,.38s,.84s,.84s,.84s,.84s}
+    /* One horizontal coordinate system prevents width-dependent translateX overshoot. */
+    .dock-group button{left:6px;transform:translateZ(0) scale(1);will-change:left,width,transform,opacity;backface-visibility:hidden;transition:transform .84s cubic-bezier(.65,0,.35,1),opacity .58s ease,color .38s ease,width .84s cubic-bezier(.65,0,.35,1),height .84s cubic-bezier(.65,0,.35,1),top .84s cubic-bezier(.65,0,.35,1),left .84s cubic-bezier(.65,0,.35,1)}
+    .dock-group button:nth-of-type(2){left:calc(20% + 3.6px)}
+    .dock-group button:nth-of-type(3){left:calc(40% + 1.2px)}
+    .dock-group button:nth-of-type(4){left:calc(60% - 1.2px)}
+    .dock-group button:nth-of-type(5){left:calc(80% - 3.6px)}
+    .dock-group .compact-active-btn{display:none!important}
+    .bottom-zone.compact .dock-group button{left:0;transform:translateZ(0) scale(.72)}
+    .bottom-zone.compact .dock-group button[data-screen="home"]{left:calc(100% - 124px);transform:translateZ(0) scale(1)}
+    .bottom-zone.compact .dock-group .more-btn{left:calc(100% - 62px);transform:translateZ(0) scale(1)}
+    .bottom-zone.compact.compact-home .dock-group button[data-screen="debts"],
+    .bottom-zone.compact:not(.compact-home) .dock-group button.active:not([data-screen="home"]){left:0;transform:translateZ(0) scale(1);opacity:1;pointer-events:auto}
+    .bottom-zone.dock-collapsing .dock-group button{transition-duration:.49s,.22s,.38s,.49s,.49s,.49s,.49s}
+    .bottom-zone.dock-collapsing.compact-home .dock-group button[data-screen="goals"],
+    .bottom-zone.dock-collapsing.compact-home .dock-group button[data-screen="insights"],
+    .bottom-zone.dock-collapsing:not(.compact-home) .dock-group button:not(.active):not([data-screen="home"]):not(.more-btn){transition-duration:.84s,.14s,.38s,.84s,.84s,.84s,.84s}
+    .bottom-zone.dock-expanding.compact-home .dock-group button[data-screen="goals"],
+    .bottom-zone.dock-expanding.compact-home .dock-group button[data-screen="insights"],
+    .bottom-zone.dock-expanding:not(.compact-home) .dock-group button:not(.active):not([data-screen="home"]):not(.more-btn){transition-delay:0s,.25s,0s,0s,0s,0s,0s}
+    .dock-liquid-layer{transform:translateZ(0);backface-visibility:hidden}
     .topline{padding-left:0}.page-search{height:41px;margin:0 0 18px;border:1px solid rgba(255,255,255,.1);border-radius:21px;background:#1c1c1e;display:flex;align-items:center;padding:0 16px}.page-search svg{width:20px;height:20px;flex:none}.page-search input{width:100%;height:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--text);padding:0 12px;font-size:17px}.page-search input::placeholder{color:#77777f}
     .home-topline{min-height:72px;align-items:flex-start}.home-topline h1{font-size:31px;margin-bottom:7px}.home-topline .sub{margin:0;font-size:16px;text-transform:capitalize}
     .profile-drawer-backdrop{position:fixed;inset:0;z-index:29;background:rgba(0,0,0,0);pointer-events:none;transition:background .46s ease}
@@ -528,6 +548,7 @@ let dockIndicatorIndex=0;
 let dockIndicatorAnimation=null;
 let dockLiquidFrame=null;
 let dockLiquidCurrent=null;
+let dockPhaseTimer=null;
 let accountsExpanded=false;
 let analysisPeriod='1M';
 let accountPeriod='1M';
@@ -938,7 +959,7 @@ function animateDockLiquid(compact){
 }
 function setDockCompact(compact){
   if(dockCompact===compact)return;
-  dockCompact=compact;if(!compact)dockIgnoreScrollUntil=performance.now()+980;const zone=document.querySelector('#bottomZone'),indicator=document.querySelector('.dock-indicator');dockIndicatorAnimation?.cancel();dockIndicatorAnimation=null;indicator?.classList.remove('moving');animateDockLiquid(compact);zone.classList.toggle('compact',compact);
+  dockCompact=compact;if(!compact)dockIgnoreScrollUntil=performance.now()+980;const zone=document.querySelector('#bottomZone'),indicator=document.querySelector('.dock-indicator');dockIndicatorAnimation?.cancel();dockIndicatorAnimation=null;indicator?.classList.remove('moving');clearTimeout(dockPhaseTimer);zone.classList.remove('dock-collapsing','dock-expanding');zone.classList.add(compact?'dock-collapsing':'dock-expanding');animateDockLiquid(compact);zone.classList.toggle('compact',compact);dockPhaseTimer=setTimeout(()=>zone.classList.remove('dock-collapsing','dock-expanding'),900);
 }
 function moveDockIndicator(nextIndex,animate=true){
   const indicator=document.querySelector('.dock-indicator'),group=document.querySelector('.dock-group');if(!indicator||!group)return;
@@ -1343,7 +1364,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=50',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=51',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
