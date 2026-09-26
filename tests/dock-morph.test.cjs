@@ -20,6 +20,13 @@ const context = {
 const api = vm.runInNewContext(`${source}\n({dockLiquidTargets,dockExpansionFrames,dockCollapseFrames,sampleDockExpansion,getDockCanonicalMorph,rejoinDockMorph,liquidEase})`, context);
 const compact = api.dockLiquidTargets('compact');
 const expanded = api.dockLiquidTargets('expanded');
+const activeButton = expanded.buttons[3];
+assert.equal(expanded.indicator[2], activeButton[2] + 32, 'expanded indicator is 32 px wider');
+assert.equal(expanded.indicator[3], activeButton[3] + 15, 'expanded indicator is 15 px taller');
+assert.equal(expanded.indicator[0] + expanded.indicator[2] / 2, activeButton[0] + activeButton[2] / 2, 'expanded indicator stays horizontally centered');
+assert.equal(expanded.indicator[1] + expanded.indicator[3] / 2, activeButton[1] + activeButton[3] / 2, 'expanded indicator stays vertically centered');
+assert.equal(compact.indicator[2], 64, 'compact indicator keeps its circular width');
+assert.equal(compact.indicator[3], 64, 'compact indicator keeps its circular height');
 const compactButtonCenter = 14 + 50 + compact.buttons[3][1] + compact.buttons[3][3] / 2;
 assert.equal(compact.entry[1] + compact.entry[3] / 2, compactButtonCenter, 'compact text glass is vertically centered with the buttons');
 assert.equal(14 + compact.entryHtml[1] + compact.entryHtml[3] / 2, compactButtonCenter, 'compact text input is vertically centered with the buttons');
