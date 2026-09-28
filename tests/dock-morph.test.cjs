@@ -17,7 +17,7 @@ const context = {
     querySelectorAll: () => buttons
   }
 };
-const api = vm.runInNewContext(`${source}\n({dockLiquidTargets,dockExpansionFrames,dockCollapseFrames,sampleDockExpansion,getDockCanonicalMorph,rejoinDockMorph,liquidEase})`, context);
+const api = vm.runInNewContext(`${source}\n({dockLiquidTargets,dockExpansionFrames,dockCollapseFrames,sampleDockExpansion,getDockCanonicalMorph,rejoinDockMorph,liquidEase,dockReferencePress,dockNeckPath,dockSelectionTailPath})`, context);
 const compact = api.dockLiquidTargets('compact');
 const expanded = api.dockLiquidTargets('expanded');
 const activeButton = expanded.buttons[3];
@@ -38,6 +38,20 @@ const stops = [0, .18, .39, .61, .80, 1];
 assert.strictEqual(api.getDockCanonicalMorph('compact', 'expanded'), frames, 'every complete expansion reuses the same keyframes');
 
 assert.equal(frames.length, 6);
+assert.ok(frames[1].nav[2] > compact.nav[2], 'pressed right pill swells before merging');
+assert.ok(frames[1].nav[3] > compact.nav[3], 'pressed right pill swells vertically');
+assert.ok(frames[2].neck[4] > 0, 'a narrow bridge forms after the press');
+assert.match(api.dockNeckPath(frames[2]), / C /, 'the bridge has concave Bezier shoulders');
+assert.equal(frames[2].neck[1], frames[2].active[1] + frames[2].active[3] / 2, 'joining neck stays on the lower-row center');
+assert.equal(api.dockNeckPath(compact), '', 'there is no visible bridge at rest');
+assert.equal(api.dockReferencePress(0), 0);
+assert.ok(api.dockReferencePress(.32) > .99, 'press reaches its held shape');
+assert.equal(api.dockReferencePress(1), 0, 'press fully releases');
+const connectedTail=api.dockSelectionTailPath([60,38,34,35],[180,0,100,76]);
+assert.match(connectedTail,/ C /,'moving selection has a narrow liquid bridge');
+assert.ok(!connectedTail.includes('NaN'),'selection bridge has valid geometry');
+assert.ok(!api.dockSelectionTailPath([180,38,34,35],[0,0,100,76]).includes('NaN'),'reverse-direction bridge has valid geometry');
+assert.equal(api.dockSelectionTailPath([60,38,0,0],[180,0,100,76]),'','released selection leaves no detached blob');
 for (let i = 0; i < 6; i++) {
   const sampled = api.sampleDockExpansion(frames, stops[i]);
   for (const key of ['entry', 'nav', 'active', 'neck']) {
@@ -102,6 +116,7 @@ for (let i = 0; i < 6; i++) {
 }
 assert.ok(collapse[1].active[3] > expanded.active[3], 'lower left mass swells');
 assert.ok(collapse[3].neck[4] > 0, 'lower masses retain a thin connection');
+assert.equal(collapse[3].neck[1], collapse[3].active[1] + collapse[3].active[3] / 2, 'separating neck stays on the lower-row center');
 assert.equal(collapse[4].neck[4], 0, 'the connection then tears');
 assert.ok(collapse[4].entry[0] > collapse[3].entry[0], 'input shifts right while descending');
 assert.equal(collapse[5].nav[2], 124, 'final right two-button pill has compact width');

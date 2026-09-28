@@ -104,8 +104,9 @@
     .dock-group{position:relative;isolation:isolate;width:100%;height:78px;border:0;border-radius:39px;background:transparent;box-shadow:none;overflow:visible;transition:height .62s cubic-bezier(.2,.72,.18,1)}.dock-group::before{content:none}
     .profile-drawer::before{content:"";position:absolute;pointer-events:none;inset:1px;border-radius:inherit;background:linear-gradient(100deg,rgba(255,255,255,.07),transparent 18% 82%,rgba(255,255,255,.055));opacity:.5}
     .dock-group::after{content:none}
-    .dock-indicator{position:absolute;z-index:0;left:6px;top:6px;width:calc((100% - 12px)/5);height:64px;border-radius:31px;transform:translateX(0);will-change:transform,width,height,left,top;transition:left .8s cubic-bezier(.65,0,.35,1),top .8s cubic-bezier(.65,0,.35,1),width .8s cubic-bezier(.65,0,.35,1),height .8s cubic-bezier(.65,0,.35,1),border-radius .8s cubic-bezier(.65,0,.35,1)}.dock-indicator::before{content:"";position:absolute;inset:0;border-radius:inherit;background:#09090a;transform-origin:center}
-    .dock button{border:0;color:#f1f1f3}.dock-group button{--i:0;position:absolute;z-index:1;left:6px;top:6px;width:calc((100% - 12px)/5);height:64px;border-radius:31px;background:transparent;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:5px 2px;transform:translateX(calc(var(--i) * 100%));transition:transform .8s cubic-bezier(.22,.72,.18,1),opacity .55s ease,color .35s ease,width .8s cubic-bezier(.22,.72,.18,1),height .8s cubic-bezier(.22,.72,.18,1),top .8s cubic-bezier(.22,.72,.18,1),left .8s cubic-bezier(.22,.72,.18,1)}.dock-group button:nth-of-type(2){--i:1}.dock-group button:nth-of-type(3){--i:2}.dock-group button:nth-of-type(4){--i:3}.dock-group button:nth-of-type(5){--i:4}.dock-group button.active{color:#ff4060}.dock-group button:active{filter:brightness(.82)}.dock svg{width:25px;height:25px}.dock-label{font-size:10px;line-height:1;white-space:nowrap;letter-spacing:-.1px;transition:opacity .35s ease}
+    .dock-indicator{position:absolute;z-index:0;left:6px;top:6px;width:calc((100% - 12px)/5);height:64px;border-radius:31px;transform:translateX(0);will-change:transform,width,height,left,top;transition:left .8s cubic-bezier(.65,0,.35,1),top .8s cubic-bezier(.65,0,.35,1),width .8s cubic-bezier(.65,0,.35,1),height .8s cubic-bezier(.65,0,.35,1),border-radius .8s cubic-bezier(.65,0,.35,1)}.dock-indicator::before{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--dock-indicator-fill,#09090a);transform-origin:center}
+    .dock-selection-fluid{position:absolute;inset:0;z-index:0;width:100%;height:100%;overflow:visible;pointer-events:none}.dock-selection-fluid path{fill:var(--dock-indicator-fill,#09090a)}
+    .dock button{border:0;color:#f1f1f3}.dock-group button{--i:0;position:absolute;z-index:1;left:6px;top:6px;width:calc((100% - 12px)/5);height:64px;border-radius:31px;background:transparent;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:5px 2px;transform:translateX(calc(var(--i) * 100%));transition:transform .8s cubic-bezier(.22,.72,.18,1),opacity .55s ease,color .35s ease,width .8s cubic-bezier(.22,.72,.18,1),height .8s cubic-bezier(.22,.72,.18,1),top .8s cubic-bezier(.22,.72,.18,1),left .8s cubic-bezier(.22,.72,.18,1)}.dock-group button:nth-of-type(2){--i:1}.dock-group button:nth-of-type(3){--i:2}.dock-group button:nth-of-type(4){--i:3}.dock-group button:nth-of-type(5){--i:4}.dock-group button.active{color:#ff4060}.dock svg{width:25px;height:25px}.dock-label{font-size:10px;line-height:1;white-space:nowrap;letter-spacing:-.1px;transition:opacity .35s ease}
     .dock-group .compact-active-btn{display:none;opacity:0;pointer-events:none}
     .bottom-zone.compact .dock-layout{height:78px}.bottom-zone.compact .quick-entry-shell{left:68px;top:9px;width:calc(100% - 200px);height:60px;border-radius:30px;padding:0 9px 0 14px}.bottom-zone.compact .dock{top:0;height:78px}.bottom-zone.compact .dock-group{height:78px;border-color:transparent;background:transparent;box-shadow:none;overflow:visible}.bottom-zone.compact .dock-group::before{opacity:1;transform:scaleX(1)}.bottom-zone.compact .dock-group::after{opacity:0}.bottom-zone.compact .dock-indicator{left:0;top:6px;width:64px;height:64px;border-radius:50%;transform:translateX(0)!important;border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px rgba(255,255,255,.12)}.bottom-zone.compact.compact-home .dock-indicator{opacity:0}.bottom-zone.compact .dock-indicator::before{background:rgba(31,31,33,.96)}.bottom-zone.compact .dock-group button{left:0;top:6px;width:64px;height:64px;border-radius:50%;transform:translateX(0) scale(.72);opacity:0;pointer-events:none}.bottom-zone.compact .dock-group button.active:not([data-screen="home"]){transform:translateX(0) scale(1);opacity:1;pointer-events:auto}.bottom-zone.compact .dock-group button[data-screen="home"]{left:calc(100% - 124px);transform:translateX(0) scale(1);opacity:1;pointer-events:auto}.bottom-zone.compact .dock-group button[data-screen="home"].active{background:#09090a}.bottom-zone.compact .dock-group .more-btn{left:calc(100% - 62px);transform:translateX(0) scale(1);opacity:1;pointer-events:auto;background:transparent;border:0;box-shadow:none}.bottom-zone.compact .dock-label{opacity:0}.bottom-zone.compact .quick-entry-shell>svg{width:0;opacity:0}.bottom-zone.compact .quick-send{width:38px;height:38px}.bottom-zone.compact .quick-send svg{width:19px;height:19px}
     .dock-indicator{transition-duration:.784s}.dock-group button{transition-duration:.784s,.546s,.35s,.784s,.784s,.784s,.784s}.dock-label{transition-duration:.35s}.bottom-zone.compact .dock-layout{transition:height .476s cubic-bezier(.22,.72,.18,1)}.bottom-zone.compact .quick-entry-shell{transition:top .476s cubic-bezier(.65,0,.35,1),left .476s cubic-bezier(.65,0,.35,1),width .476s cubic-bezier(.65,0,.35,1),height .476s cubic-bezier(.65,0,.35,1),border-radius .476s cubic-bezier(.65,0,.35,1),padding .476s cubic-bezier(.65,0,.35,1),opacity .35s ease}
@@ -356,11 +357,11 @@
         <filter id="dockLiquidGlass" x="-22%" y="-36%" width="144%" height="172%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="3.6" result="blur"/><feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8.2" result="goo"/></filter>
         <filter id="dockRimSoft" x="-15%" y="-20%" width="130%" height="140%"><feGaussianBlur stdDeviation=".22"/></filter><filter id="dockShineSoft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="1.8"/></filter>
       </defs>
-      <g class="dock-entry-glass"><rect id="liquidEntry"/><ellipse id="liquidEntryBulge"/></g><g class="dock-liquid-mass"><rect id="liquidNav"/><rect id="liquidActive"/><ellipse id="liquidNeck"/><ellipse id="liquidDrop"/><ellipse id="liquidDrop2"/><ellipse id="liquidDrop3"/></g>
+      <g class="dock-entry-glass"><rect id="liquidEntry"/><ellipse id="liquidEntryBulge"/></g><g class="dock-liquid-mass"><rect id="liquidNav"/><rect id="liquidActive"/><path id="liquidNeck"/><ellipse id="liquidDrop"/><ellipse id="liquidDrop2"/><ellipse id="liquidDrop3"/></g>
       <g class="dock-liquid-rim"><rect id="liquidEntryRim"/><rect id="liquidNavRim"/><rect id="liquidActiveRim"/></g><ellipse class="dock-liquid-shine" id="liquidShine"/>
     </svg>
     <div class="quick-entry-shell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M12 5v14"/></svg><input class="quick-entry-input" id="quickEntryInput" placeholder="Введи операцію або борг" autocomplete="off" enterkeyhint="done"><button class="quick-send" id="quickSend" aria-label="Розпізнати фразу"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6.5 10.5 12 5l5.5 5.5"/></svg></button></div>
-    <nav class="dock" aria-label="Головна навігація"><div class="dock-group"><div class="dock-indicator" aria-hidden="true"></div>
+    <nav class="dock" aria-label="Головна навігація"><div class="dock-group"><div class="dock-indicator" aria-hidden="true"></div><svg class="dock-selection-fluid" id="dockSelectionFluid" aria-hidden="true"><path id="dockSelectionTail"/></svg>
       <button data-screen="goals" aria-label="Цілі"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="m14 10 5-5"/></svg><span class="dock-label">Цілі</span></button>
       <button data-screen="insights" aria-label="Аналітика"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M5 20V11M10 20V5M15 20v-8M20 20V8"/></svg><span class="dock-label">Аналітика</span></button>
       <button data-screen="debts" aria-label="Борги"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><span class="dock-label">Борги</span></button>
@@ -549,6 +550,7 @@ let dockLiquidCurrent=null;
 let dockLiquidMode='expanded';
 let dockRenderedWidth=0;
 let dockMotionToken=0;
+let dockPressRequested=false;
 let dockMotionNodes=null;
 let dockLiquidNodes=null;
 let accountsExpanded=false;
@@ -935,6 +937,8 @@ function closeProfileDrawer(){const wasOpen=document.body.classList.contains('dr
 function toggleProfileDrawer(){document.body.classList.contains('drawer-open')?closeProfileDrawer():openProfileDrawer()}
 const liquidMix=(a,b,t)=>a+(b-a)*t;
 const liquidEase=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const dockSmoothStep=t=>{const p=Math.max(0,Math.min(1,t));return p*p*(3-2*p)};
+function dockReferencePress(t){return dockSmoothStep((t-.04)/.24)*(1-dockSmoothStep((t-.68)/.2))}
 function dockLiquidTargets(mode){
   mode=mode===true?'compact':mode===false?'expanded':mode;
   const layer=document.querySelector('#dockLiquidLayer'),layout=document.querySelector('.dock-layout'),w=layout?.clientWidth||450,pad=14,unit=(w-12)/5;
@@ -955,25 +959,52 @@ function dockLiquidTargets(mode){
 }
 function getDockLiquidNodes(){if(dockLiquidNodes?.nav?.isConnected)return dockLiquidNodes;dockLiquidNodes={entry:document.querySelector('#liquidEntry'),nav:document.querySelector('#liquidNav'),active:document.querySelector('#liquidActive'),entryRim:document.querySelector('#liquidEntryRim'),navRim:document.querySelector('#liquidNavRim'),activeRim:document.querySelector('#liquidActiveRim'),neck:document.querySelector('#liquidNeck'),drop:document.querySelector('#liquidDrop'),drop2:document.querySelector('#liquidDrop2'),drop3:document.querySelector('#liquidDrop3'),entryBulge:document.querySelector('#liquidEntryBulge'),shine:document.querySelector('#liquidShine')};return dockLiquidNodes}
 function setLiquidRect(el,v){if(!el)return;el.setAttribute('x',v[0]);el.setAttribute('y',v[1]);el.setAttribute('width',Math.max(.1,v[2]));el.setAttribute('height',Math.max(.1,v[3]));el.setAttribute('rx',Math.max(0,v[4]));el.style.opacity=v[5]}
+function dockNeckPath(s){
+  const [cx,cy,width,height,opacity]=s.neck||[];
+  if(!opacity||width<1||height<1)return'';
+  const halfWidth=width/2,halfHeight=height/2,left=cx-halfWidth,right=cx+halfWidth;
+  const leftShoulder=Math.max(halfHeight+5,Math.min(42,(s.active?.[3]||64)*.43));
+  const rightShoulder=Math.max(halfHeight+5,Math.min(42,(s.nav?.[3]||64)*.43));
+  const waist=Math.min(halfHeight,leftShoulder-2,rightShoulder-2),q=width*.28;
+  return`M ${left} ${cy-leftShoulder} C ${left+q} ${cy-leftShoulder} ${cx-q*.56} ${cy-waist} ${cx} ${cy-waist} C ${cx+q*.56} ${cy-waist} ${right-q} ${cy-rightShoulder} ${right} ${cy-rightShoulder} L ${right} ${cy+rightShoulder} C ${right-q} ${cy+rightShoulder} ${cx+q*.56} ${cy+waist} ${cx} ${cy+waist} C ${cx-q*.56} ${cy+waist} ${left+q} ${cy+leftShoulder} ${left} ${cy+leftShoulder} Z`;
+}
+function dockSelectionTailPath(tail,indicator){
+  const [cx,cy,rx,ry]=tail;
+  if(rx<.5||ry<.5)return'';
+  const radius=Math.min(rx,ry),left=cx-rx,right=cx+rx,top=cy-ry,bottom=cy+ry;
+  const pill=`M ${left+radius} ${top} H ${right-radius} Q ${right} ${top} ${right} ${top+radius} V ${bottom-radius} Q ${right} ${bottom} ${right-radius} ${bottom} H ${left+radius} Q ${left} ${bottom} ${left} ${bottom-radius} V ${top+radius} Q ${left} ${top} ${left+radius} ${top} Z`;
+  const targetCx=indicator[0]+indicator[2]/2,targetCy=indicator[1]+indicator[3]/2,sign=Math.sign(targetCx-cx);
+  if(!sign)return pill;
+  const x1=cx+sign*rx*.82,x2=targetCx-sign*indicator[2]*.41,gap=(x2-x1)*sign;
+  if(gap<=1)return pill;
+  const y=(cy+targetCy)/2,sourceShoulder=Math.min(ry*.72,32),targetShoulder=Math.min(indicator[3]*.36,32),waist=Math.max(1.5,Math.min(sourceShoulder,targetShoulder)*.33),q=(x2-x1)*.28,m=(x1+x2)/2;
+  return`${pill} M ${x1} ${y-sourceShoulder} C ${x1+q} ${y-sourceShoulder} ${m-q*.5} ${y-waist} ${m} ${y-waist} C ${m+q*.5} ${y-waist} ${x2-q} ${y-targetShoulder} ${x2} ${y-targetShoulder} L ${x2} ${y+targetShoulder} C ${x2-q} ${y+targetShoulder} ${m+q*.5} ${y+waist} ${m} ${y+waist} C ${m-q*.5} ${y+waist} ${x1+q} ${y+sourceShoulder} ${x1} ${y+sourceShoulder} Z`;
+}
 function renderDockLiquid(s){
   const{entry,nav,active,entryRim,navRim,activeRim,neck,drop,drop2,drop3,entryBulge,shine}=getDockLiquidNodes();setLiquidRect(entry,s.entry);setLiquidRect(nav,s.nav);setLiquidRect(active,s.active);setLiquidRect(entryRim,s.entryRim||s.entry);setLiquidRect(navRim,s.navRim||s.nav);setLiquidRect(activeRim,s.activeRim||s.active);
-  [[neck,s.neck],[drop,s.drop],[drop2,s.drop2],[drop3,s.drop3],[entryBulge,s.entryBulge],[shine,s.shine]].forEach(([el,v])=>{if(!el||!v)return;el.setAttribute('cx',v[0]+(v.length===6?v[2]/2:0));el.setAttribute('cy',v[1]+(v.length===6?v[3]/2:0));el.setAttribute('rx',Math.max(.1,v[2]/2));el.setAttribute('ry',Math.max(.1,v[3]/2));el.style.opacity=v[v.length-1]});
+  if(neck){neck.setAttribute('d',dockNeckPath(s));neck.style.opacity=s.neck?.[4]||0}
+  [[drop,s.drop],[drop2,s.drop2],[drop3,s.drop3],[entryBulge,s.entryBulge],[shine,s.shine]].forEach(([el,v])=>{if(!el||!v)return;el.setAttribute('cx',v[0]+(v.length===6?v[2]/2:0));el.setAttribute('cy',v[1]+(v.length===6?v[3]/2:0));el.setAttribute('rx',Math.max(.1,v[2]/2));el.setAttribute('ry',Math.max(.1,v[3]/2));el.style.opacity=v[v.length-1]});
 }
 function setDockStyle(el,name,value,unit='px'){if(!el)return;el.style.setProperty(name,`${value}${unit}`,'important')}
 function getDockMotionNodes(){
   if(dockMotionNodes?.zone?.isConnected)return dockMotionNodes;
   const entry=document.querySelector('.quick-entry-shell'),send=document.querySelector('.quick-send');
-  dockMotionNodes={zone:document.querySelector('#bottomZone'),entry,entryIcon:entry?.querySelector(':scope>svg'),send,sendIcon:send?.querySelector('svg'),buttons:[...document.querySelectorAll('.dock-group>button:not(.compact-active-btn)')],indicator:document.querySelector('.dock-indicator')};
+  dockMotionNodes={zone:document.querySelector('#bottomZone'),group:document.querySelector('.dock-group'),entry,entryIcon:entry?.querySelector(':scope>svg'),send,sendIcon:send?.querySelector('svg'),buttons:[...document.querySelectorAll('.dock-group>button:not(.compact-active-btn)')],indicator:document.querySelector('.dock-indicator')};
   dockMotionNodes.labels=dockMotionNodes.buttons.map(button=>button.querySelector('.dock-label'));return dockMotionNodes;
 }
 function renderDockChrome(s){
-  const{zone,entry,entryIcon,send,sendIcon,buttons,labels,indicator}=getDockMotionNodes(),e=s.entryHtml;
+  const{zone,group,entry,entryIcon,send,sendIcon,buttons,labels,indicator}=getDockMotionNodes(),e=s.entryHtml;
   zone?.classList.add('dock-motion');
   dockRenderedWidth=s.w;
+  const pressShade=Math.max(0,Math.min(1,s.pressVisual||0));
+  group?.style.setProperty('--dock-indicator-fill',`rgb(${Math.round(9+28*pressShade)} ${Math.round(9+14*pressShade)} ${Math.round(10+21*pressShade)})`);
+  const selectionFluid=document.querySelector('#dockSelectionFluid'),selectionTail=document.querySelector('#dockSelectionTail');
+  selectionFluid?.setAttribute('viewBox',`0 0 ${s.w} 78`);
+  selectionTail?.setAttribute('d',(s.selectionTails||[]).map(tail=>dockSelectionTailPath(tail,s.indicator)).join(' '));
   if(entry&&e){setDockStyle(entry,'left',e[0]);setDockStyle(entry,'top',e[1]);setDockStyle(entry,'width',e[2]);setDockStyle(entry,'height',e[3]);setDockStyle(entry,'border-radius',e[4]);setDockStyle(entry,'opacity',e[5],'');entry.style.setProperty('transform',`translateZ(0) scale(${e[6]})`,'important');entry.style.setProperty('padding',`0 ${e[8]}px 0 ${e[7]}px`,'important')}
   if(entryIcon&&e){setDockStyle(entryIcon,'opacity',e[9],'');setDockStyle(entryIcon,'width',e[10]);setDockStyle(entryIcon,'height',e[10])}
   if(send&&e){setDockStyle(send,'width',e[11]);setDockStyle(send,'height',e[11])}if(sendIcon&&e){setDockStyle(sendIcon,'width',e[12]);setDockStyle(sendIcon,'height',e[12])}
-  buttons.forEach((button,index)=>{const v=s.buttons?.[index];if(!v)return;setDockStyle(button,'left',v[0]);setDockStyle(button,'top',v[1]);setDockStyle(button,'width',v[2]);setDockStyle(button,'height',v[3]);setDockStyle(button,'border-radius',v[4]);setDockStyle(button,'opacity',v[5],'');button.style.setProperty('transform',`translateZ(0) scale(${v[6]})`,'important');if(labels[index])setDockStyle(labels[index],'opacity',v[7],'')});
+  buttons.forEach((button,index)=>{const v=s.buttons?.[index];if(!v)return;setDockStyle(button,'left',v[0]);setDockStyle(button,'top',v[1]);setDockStyle(button,'width',v[2]);setDockStyle(button,'height',v[3]);setDockStyle(button,'border-radius',v[4]);setDockStyle(button,'opacity',v[5],'');button.style.setProperty('transform',`translateZ(0) scale(${v[6]})`,'important');if(labels[index])setDockStyle(labels[index],'opacity',v[7]*(1-.48*(s.buttonPress?.[index]||0)),'')});
   if(indicator&&s.indicator){const v=s.indicator;setDockStyle(indicator,'left',v[0]);setDockStyle(indicator,'top',v[1]);setDockStyle(indicator,'width',v[2]);setDockStyle(indicator,'height',v[3]);setDockStyle(indicator,'border-radius',v[4]);setDockStyle(indicator,'opacity',v[5],'');indicator.style.setProperty('transform','translateZ(0)','important')}
 }
 function mixDockArray(from,to,t){return to.map((value,index)=>liquidMix(from?.[index]??value,value,t))}
@@ -990,12 +1021,12 @@ function dockMorphWaypoint(upper,lowerLeft,lowerRight,bridge,ui,from,to){
     s.entryHtml=mixDockArray(from.entryHtml,to.entryHtml,ui);
     for(const [i,value] of [upper[0],upper[1],upper[2],upper[3],upper[4]].entries())s.entryHtml[i]=value;
     s.entryHtml[5]=upper[9];
-    const lowerY=liquidMix(from.active[1],to.active[1],ui);
-    s.active=[pad+lowerLeft[0],lowerY,lowerLeft[1],lowerLeft[2],lowerLeft[3],lowerLeft[4]];
-    s.nav=[pad+lowerRight[0],lowerY,lowerRight[1],lowerRight[2],lowerRight[3],lowerRight[4]];
+    const lowerCenter=liquidMix(from.active[1]+from.active[3]/2,to.active[1]+to.active[3]/2,ui);
+    s.active=[pad+lowerLeft[0],lowerCenter-lowerLeft[2]/2,lowerLeft[1],lowerLeft[2],lowerLeft[3],lowerLeft[4]];
+    s.nav=[pad+lowerRight[0],lowerCenter-lowerRight[2]/2,lowerRight[1],lowerRight[2],lowerRight[3],lowerRight[4]];
     s.activeRim=[...s.active];s.activeRim[5]=lowerLeft[5];
     s.navRim=[...s.nav];s.navRim[5]=lowerRight[5];
-    s.neck=[pad+bridge[0],pad+bridge[1],Math.max(1,bridge[2]),Math.max(1,bridge[3]),bridge[4]];
+    s.neck=[pad+bridge[0],lowerCenter+(bridge[1]-82),Math.max(1,bridge[2]),Math.max(1,bridge[3]),bridge[4]];
     s.drop=[pad+w*.5,pad+82,1,1,0];s.drop2=[...s.drop];s.drop3=[...s.drop];
     return s;
 }
@@ -1003,12 +1034,12 @@ function dockExpansionFrames(start,target){
   const w=target.w,frame=(...args)=>dockMorphWaypoint(...args,start,target);
   const frames=[
     start,
-    frame([w*.40,-9,w*.20,96,46,.18,44,44,.52,.23],[0,w*.36,64,32,1,.18],[w-124,124,64,32,1,.7],[w*.61,82,1,1,0],.22),
-    frame([w*.15,-2,w*.70,49,25,.36,30,19,.25,.62],[0,w*.70,64,32,1,.12],[w-124,124,64,32,1,.45],[w*.72,82,1,1,0],.53),
-    frame([0,0,w,42,21,.62,1,1,0,1],[0,w-120,64,32,1,.04],[w-124,124,64,32,1,.08],[w-122,82,42,15,1],.77),
+    frame([w*.40,-9,w*.20,96,46,.18,44,44,.52,.23],[0,w*.36,64,32,1,.18],[w-132,132,74,37,1,.7],[w*.61,82,1,1,0],.22),
+    frame([w*.15,-2,w*.70,49,25,.36,30,19,.25,.62],[0,w*.67,68,34,1,.12],[w-132,132,74,37,1,.45],[w*.68,82,38,12,.74],.53),
+    frame([0,0,w,42,21,.62,1,1,0,1],[0,w-120,64,32,1,.04],[w-132,132,64,32,1,.08],[w-122,82,42,15,1],.77),
     // Once joined, the left mass keeps covering the row while the right mass
     // fills it from underneath. The visible silhouette never changes owners.
-    frame([0,0,w,42,21,.88,1,1,0,1],[0,w,78,39,1,0],[0,w,78,39,1,0],[w*.74,82,w*.30,103,1],.92),
+    frame([0,0,w,42,21,.88,1,1,0,1],[0,w,78,39,1,0],[0,w,78,39,1,0],[w*.74,82,w*.22,24,.2],.92),
     {...target,entryRim:[...target.entry]}
   ];
   // Do not restart from the nominal compact shape if a previous transition was interrupted.
@@ -1021,10 +1052,10 @@ function dockCollapseFrames(start,target){
   const w=target.w,frame=(...args)=>dockMorphWaypoint(...args,start,target);
   return [
     {...start,entryRim:[...(start.entryRim||start.entry)]},
-    frame([0,0,w,42,21,.78,1,1,0,1],[0,w-105,92,46,1,.04],[0,w,78,39,1,.04],[w-123,90,112,38,1],.16),
-    frame([w*.025,0,w*.90,42,21,.54,1,1,0,1],[0,w-122,98,48,1,.03],[w-124,124,76,38,1,.03],[w-123,90,84,22,1],.36),
-    frame([w*.16,0,w*.73,44,22,.32,10,9,.2,.84],[0,w-145,96,46,1,.03],[w-124,124,76,38,1,.03],[w-132,90,64,12,1],.59),
-    frame([w*.38,13,w*.52,58,29,.18,36,25,.45,.52],[0,w*.56,84,42,1,.18],[w-124,124,72,36,1,.45],[w*.68,88,1,1,0],.80),
+    frame([0,0,w,42,21,.78,1,1,0,1],[0,w-105,92,46,1,.04],[0,w,78,39,1,.04],[w-123,82,112,38,1],.16),
+    frame([w*.025,0,w*.90,42,21,.54,1,1,0,1],[0,w-122,98,48,1,.03],[w-124,124,76,38,1,.03],[w-123,82,84,22,1],.36),
+    frame([w*.16,0,w*.73,44,22,.32,10,9,.2,.84],[0,w-145,96,46,1,.03],[w-124,124,76,38,1,.03],[w-132,82,64,12,1],.59),
+    frame([w*.38,13,w*.52,58,29,.18,36,25,.45,.52],[0,w*.56,84,42,1,.18],[w-124,124,72,36,1,.45],[w*.68,82,1,1,0],.80),
     {...target,entryRim:[...target.entry]}
   ];
 }
@@ -1078,17 +1109,33 @@ function rejoinDockMorph(canonical,current,origin,weight){
 }
 function animateDockLiquid(mode){
   const nextMode=mode==='drawer'?'drawer':mode?'compact':'expanded',previousMode=dockLiquidMode||'expanded',drawerTransition=nextMode==='drawer'||previousMode==='drawer',sameMode=nextMode===previousMode;dockLiquidMode=nextMode;
-  const interrupted=dockLiquidFrame!==null,motionToken=++dockMotionToken;cancelAnimationFrame(dockLiquidFrame);const target=dockLiquidTargets(nextMode),canonicalStart=dockLiquidTargets(previousMode),start=interrupted?dockLiquidCurrent||canonicalStart:canonicalStart,expanding=nextMode==='expanded'&&previousMode==='compact',collapsing=nextMode==='compact'&&previousMode==='expanded',morphFrames=expanding||collapsing?getDockCanonicalMorph(previousMode,nextMode):null,morphStops=collapsing?[0,.2,.4,.62,.82,1]:[0,.18,.39,.61,.80,1],began=performance.now(),duration=sameMode?500:drawerTransition?920:expanding?1120:collapsing?1060:980,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,clamp=value=>Math.max(0,Math.min(1,value));
+  const interrupted=dockLiquidFrame!==null,pressRequested=dockPressRequested;dockPressRequested=false;
+  const motionToken=++dockMotionToken;cancelAnimationFrame(dockLiquidFrame);const target=dockLiquidTargets(nextMode),canonicalStart=dockLiquidTargets(previousMode),start=dockLiquidCurrent&&Math.abs(dockLiquidCurrent.w-target.w)<1?dockLiquidCurrent:canonicalStart,expanding=nextMode==='expanded'&&previousMode==='compact',collapsing=nextMode==='compact'&&previousMode==='expanded',morphFrames=expanding||collapsing?getDockCanonicalMorph(previousMode,nextMode):null,morphStops=collapsing?[0,.2,.4,.62,.82,1]:[0,.18,.39,.61,.80,1],began=performance.now(),duration=sameMode?(pressRequested?820:500):drawerTransition?920:expanding?1120:collapsing?1060:980,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,clamp=value=>Math.max(0,Math.min(1,value));
   const finish=()=>{if(motionToken!==dockMotionToken)return;dockLiquidCurrent=target;renderDockLiquid(target);renderDockChrome(target);const zone=document.querySelector('#bottomZone');if(nextMode!=='drawer')zone?.classList.toggle('compact',nextMode==='compact');dockLiquidFrame=null};
   if(reduced){finish();return}
   renderDockChrome(start);
   const tick=now=>{const raw=Math.min(1,(now-began)/duration);
-    if(morphFrames){const canonical=sampleDockExpansion(morphFrames,liquidEase(raw),morphStops),rejoin=interrupted?1-liquidEase(clamp(raw/.42)):0,state=rejoinDockMorph(canonical,start,morphFrames[0],rejoin);dockLiquidCurrent=state;renderDockLiquid(state);renderDockChrome(state);if(raw<1)dockLiquidFrame=requestAnimationFrame(tick);else finish();return}
+    if(morphFrames){const canonical=sampleDockExpansion(morphFrames,liquidEase(raw),morphStops),rejoin=interrupted?1-liquidEase(clamp(raw/.42)):0,state=rejoinDockMorph(canonical,start,morphFrames[0],rejoin);state.selectionTails=(start.selectionTails||[]).map(tail=>[tail[0],tail[1],tail[2]*(1-dockSmoothStep(raw/.28)),tail[3]*(1-dockSmoothStep(raw/.28))]);state.pressVisual=(start.pressVisual||0)*(1-dockSmoothStep(raw/.22));dockLiquidCurrent=state;renderDockLiquid(state);renderDockChrome(state);if(raw<1)dockLiquidFrame=requestAnimationFrame(tick);else finish();return}
     const mainT=liquidEase(raw),entrySizeT=nextMode==='compact'?liquidEase(clamp((raw-.28)/.48)):nextMode==='expanded'?liquidEase(clamp((raw-.2)/.8)):mainT,entryMoveT=nextMode==='compact'?liquidEase(clamp((raw-.52)/.48)):nextMode==='expanded'?liquidEase(clamp(raw/.5)):mainT,state={mode:nextMode,w:target.w};
     for(const key of ['nav','active','navRim','activeRim','shine','indicator'])state[key]=mixDockArray(start[key],target[key],mainT);
+    state.selectionTails=(start.selectionTails||[]).map(tail=>[tail[0],tail[1],tail[2]*(1-dockSmoothStep(raw/.22)),tail[3]*(1-dockSmoothStep(raw/.22))]);
+    state.pressVisual=(start.pressVisual||0)*(1-dockSmoothStep(raw/.22));
     if(sameMode&&nextMode==='expanded'){
-      const distance=Math.abs(target.indicator[0]-start.indicator[0])/Math.max(1,target.indicator[2]),squeeze=Math.min(18,5+distance*3)*Math.sin(Math.PI*mainT);
-      state.indicator[1]+=squeeze/2;state.indicator[3]-=squeeze;
+      const slideT=liquidEase(clamp(raw/.72));
+      state.indicator=mixDockArray(start.indicator,target.indicator,slideT);
+      const activeIndex=Math.max(0,Math.min(3,Math.round((target.indicator[0]+target.indicator[2]/2-6)/((target.w-12)/5)-.5)));
+      state.buttonPress=target.buttons.map((_,index)=>(start.buttonPress?.[index]||0)*(1-dockSmoothStep(raw/.22))+(pressRequested&&index===activeIndex?dockReferencePress(raw):0));
+      const press=pressRequested?dockReferencePress(raw):0,stretch=press*12,height=press*10;
+      state.pressVisual=Math.max(state.pressVisual,press);
+      state.indicator[0]-=stretch/2;state.indicator[2]+=stretch;
+      state.indicator[1]-=height/2;state.indicator[3]+=height;
+      state.indicator[4]=state.indicator[3]/2;
+      if(pressRequested&&Math.abs(target.indicator[0]-start.indicator[0])>2){const keep=1-dockSmoothStep((raw-.48)/.42);state.selectionTails.push([start.indicator[0]+start.indicator[2]/2,start.indicator[1]+start.indicator[3]/2,start.indicator[2]*.5*keep,start.indicator[3]*.5*keep])}
+    }
+    if(sameMode&&nextMode==='compact'&&pressRequested){
+      const press=dockReferencePress(raw),bulge=press*8;
+      state.pressVisual=Math.max(state.pressVisual,press);
+      for(const key of ['active','activeRim']){state[key][0]-=bulge/2;state[key][1]-=bulge/2;state[key][2]+=bulge;state[key][3]+=bulge;state[key][4]=state[key][3]/2}
     }
     state.entry=mixDockArray(start.entry,target.entry,entrySizeT);state.entry[1]=liquidMix(start.entry[1],target.entry[1],entryMoveT);state.entry[3]=liquidMix(start.entry[3],target.entry[3],entryMoveT);
     state.entryRim=mixDockArray(start.entryRim||start.entry,target.entryRim||target.entry,entrySizeT);state.entryRim[1]=liquidMix((start.entryRim||start.entry)[1],(target.entryRim||target.entry)[1],entryMoveT);state.entryRim[3]=liquidMix((start.entryRim||start.entry)[3],(target.entryRim||target.entry)[3],entryMoveT);
@@ -1394,9 +1441,9 @@ function openProvider(provider){if(provider==='MONOBANK'){closeSheet('#accountAd
 function openManualAccount(type){closeSheet('#accountAddBackdrop');document.querySelector('#manualAccountTitle').textContent=type==='cash'?'Додати готівку':'Новий ручний рахунок';document.querySelector('#manualAccountName').value=type==='cash'?'Готівка':'';document.querySelector('#manualAccountBalance').value='';document.querySelector('#manualAccountBackdrop').dataset.type=type;openSheet('#manualAccountBackdrop')}
 function saveManualAccount(){const name=document.querySelector('#manualAccountName').value.trim(),amount=parseFloat(document.querySelector('#manualAccountBalance').value.replace(',','.')),currency=document.querySelector('#manualAccountCurrency').value,type=document.querySelector('#manualAccountBackdrop').dataset.type||'manual';if(!name)return showToast('Вкажи назву рахунку');if(!Number.isFinite(amount))return showToast('Вкажи баланс');state.accounts.push({id:uid(),provider:type==='cash'?'CASH':'MANUAL',bankName:name,displayName:name,shortName:name.slice(0,5).toUpperCase(),currency,currentBalance:amount,availableBalance:amount,isActive:true,source:type});state.balanceSnapshots.push({id:uid(),timestamp:new Date().toISOString(),totalBalance:totals().balance,convertedTotalBalance:totals().balance,baseCurrency:'PLN',accountBalances:Object.fromEntries(state.accounts.map(a=>[a.id,a.currentBalance])),source:'manual'});closeSheet('#manualAccountBackdrop');saveState();showToast('Рахунок додано')}
 async function connectMonobank(){const input=document.querySelector('#monobankToken'),token=input.value.trim();if(!token)return showToast('Встав особистий токен');if(!BANKING_API_BASE){input.value='';return showToast('Backend ще не налаштований. Токен не збережено')}try{const r=await fetch(`${BANKING_API_BASE}/api/banks/monobank/connect`,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});input.value='';if(!r.ok)throw new Error('Monobank не підтвердив токен');closeSheet('#monobankBackdrop');showToast('Monobank підключено')}catch(e){input.value='';showToast(e.message)}}
-document.querySelectorAll('.dock [data-screen]').forEach(b=>b.onclick=()=>{if(dockCompact&&b.classList.contains('active'))setDockCompact(false);else switchScreen(b.dataset.screen)});
-document.querySelector('#moreBtn').onclick=toggleProfileDrawer;
-document.querySelector('#compactActiveBtn').onclick=()=>{const button=document.querySelector('#compactActiveBtn');if(button.dataset.compactScreen==='debts'&&document.querySelector('.dock [data-screen="home"]')?.classList.contains('active'))switchScreen('debts');else setDockCompact(false)};
+document.querySelectorAll('.dock [data-screen]').forEach(b=>b.onclick=()=>{dockPressRequested=true;if(dockCompact&&b.classList.contains('active'))setDockCompact(false);else switchScreen(b.dataset.screen)});
+document.querySelector('#moreBtn').onclick=()=>{dockPressRequested=true;toggleProfileDrawer()};
+document.querySelector('#compactActiveBtn').onclick=()=>{dockPressRequested=true;const button=document.querySelector('#compactActiveBtn');if(button.dataset.compactScreen==='debts'&&document.querySelector('.dock [data-screen="home"]')?.classList.contains('active'))switchScreen('debts');else setDockCompact(false)};
 document.querySelector('#profileDrawerBackdrop').onclick=e=>{if(e.target.id==='profileDrawerBackdrop')closeProfileDrawer()};
 document.querySelector('#profileDrawer').onclick=e=>e.stopPropagation();
 document.querySelector('#openSettings').onclick=()=>{closeProfileDrawer();openSheet('#settingsBackdrop')};
@@ -1500,7 +1547,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=63',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=64',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
