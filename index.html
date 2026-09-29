@@ -95,6 +95,7 @@
     .bottom-zone{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(480px,100%);padding:8px 15px calc(11px + env(safe-area-inset-bottom));background:linear-gradient(0deg,#050505 0 48%,transparent);z-index:30;transition:transform .5s cubic-bezier(.22,.82,.22,1),bottom .22s ease}
     .dock-layout{position:relative;height:128px;transition:height .62s cubic-bezier(.2,.72,.18,1)}
     .dock-liquid-layer{position:absolute;z-index:1;left:-14px;top:-14px;display:block;width:calc(100% + 28px);height:156px;overflow:visible;pointer-events:none;contain:layout paint;will-change:contents}
+    .dock-liquid-rim-layer{position:absolute;z-index:2;left:-14px;top:-14px;display:block;width:calc(100% + 28px);height:156px;overflow:visible;pointer-events:none}
     .dock-liquid-mass{fill:url(#dockGlassFill);filter:url(#dockLiquidGlass)}
     .dock-entry-glass{fill:url(#dockGlassFill)}
     .dock-liquid-rim{fill:none;stroke:url(#dockGlassRim);stroke-width:1.05;opacity:.78;filter:url(#dockRimSoft)}
@@ -363,14 +364,14 @@
     <svg class="dock-liquid-layer" id="dockLiquidLayer" aria-hidden="true" preserveAspectRatio="none">
       <defs>
         <linearGradient id="dockGlassFill" x1="0" y1="0" x2="0.82" y2="1"><stop offset="0" stop-color="#3b3b40"/><stop offset=".44" stop-color="#232327"/><stop offset="1" stop-color="#151518"/></linearGradient>
-        <linearGradient id="dockGlassRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".42"/><stop offset=".42" stop-color="#ffffff" stop-opacity=".08"/><stop offset=".78" stop-color="#ffffff" stop-opacity=".02"/><stop offset="1" stop-color="#ffffff" stop-opacity=".22"/></linearGradient>
         <filter id="dockLiquidGlass" x="-22%" y="-36%" width="144%" height="172%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="3.6" result="blur"/><feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8.2" result="goo"/></filter>
-        <filter id="dockRimSoft" x="-15%" y="-20%" width="130%" height="140%"><feGaussianBlur stdDeviation=".22"/></filter><filter id="dockShineSoft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="1.8"/></filter>
+        <filter id="dockShineSoft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="1.8"/></filter>
       </defs>
       <g class="dock-entry-glass"><rect id="liquidEntry"/><ellipse id="liquidEntryBulge"/></g><g class="dock-liquid-mass"><rect id="liquidNav"/><rect id="liquidActive"/><path id="liquidNeck"/><ellipse id="liquidDrop"/><ellipse id="liquidDrop2"/><ellipse id="liquidDrop3"/></g>
-      <g class="dock-liquid-rim"><rect id="liquidEntryRim"/><rect id="liquidNavRim"/><rect id="liquidActiveRim"/></g><ellipse class="dock-liquid-shine" id="liquidShine"/>
+      <ellipse class="dock-liquid-shine" id="liquidShine"/>
     </svg>
     <div id="dockMaterialSurfaces" aria-hidden="true"><div id="dockMaterialNav" class="dock-material-surface"></div><div id="dockMaterialActive" class="dock-material-surface"></div></div>
+    <svg class="dock-liquid-rim-layer" id="dockLiquidRimLayer" aria-hidden="true" preserveAspectRatio="none"><defs><linearGradient id="dockGlassRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset=".42" stop-color="#fff" stop-opacity=".08"/><stop offset=".78" stop-color="#fff" stop-opacity=".02"/><stop offset="1" stop-color="#fff" stop-opacity=".22"/></linearGradient><filter id="dockRimSoft" x="-15%" y="-20%" width="130%" height="140%"><feGaussianBlur stdDeviation=".22"/></filter></defs><g class="dock-liquid-rim"><rect id="liquidEntryRim"/><rect id="liquidNavRim"/><rect id="liquidActiveRim"/></g></svg>
     <div class="quick-entry-shell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M12 5v14"/></svg><input class="quick-entry-input" id="quickEntryInput" placeholder="Введи операцію або борг" autocomplete="off" enterkeyhint="done"><button class="quick-send" id="quickSend" aria-label="Розпізнати фразу"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6.5 10.5 12 5l5.5 5.5"/></svg></button></div>
     <nav class="dock" aria-label="Головна навігація"><div class="dock-group"><div class="dock-indicator" aria-hidden="true"></div><svg class="dock-selection-fluid" id="dockSelectionFluid" aria-hidden="true"><path id="dockSelectionTail"/></svg>
       <button data-screen="goals" aria-label="Цілі"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="m14 10 5-5"/></svg><span class="dock-label">Цілі</span></button>
@@ -953,9 +954,9 @@ const dockSmoothStep=t=>{const p=Math.max(0,Math.min(1,t));return p*p*(3-2*p)};
 function dockReferencePress(t){return dockSmoothStep((t-.04)/.24)*(1-dockSmoothStep((t-.68)/.2))}
 function dockLiquidTargets(mode){
   mode=mode===true?'compact':mode===false?'expanded':mode;
-  const layer=document.querySelector('#dockLiquidLayer'),layout=document.querySelector('.dock-layout'),w=layout?.clientWidth||450,pad=14,unit=(w-12)/5;
+  const layer=document.querySelector('#dockLiquidLayer'),rimLayer=document.querySelector('#dockLiquidRimLayer'),layout=document.querySelector('.dock-layout'),w=layout?.clientWidth||450,pad=14,unit=(w-12)/5;
   const buttons=[...document.querySelectorAll('.dock-group>button:not(.compact-active-btn)')],activeIndex=Math.max(0,buttons.findIndex(button=>button.classList.contains('active')&&button.dataset.screen)),leftIndex=activeIndex===3?2:Math.min(activeIndex,2);
-  layer?.setAttribute('viewBox',`0 0 ${w+pad*2} ${128+pad*2}`);
+  layer?.setAttribute('viewBox',`0 0 ${w+pad*2} ${128+pad*2}`);rimLayer?.setAttribute('viewBox',`0 0 ${w+pad*2} ${128+pad*2}`);
   const expandedButtons=buttons.map((_,index)=>[6+unit*index,6,unit,64,31,1,1,1]);
   if(mode==='drawer'){
     const x=w-64,sx=pad+x,sy=pad+50;
@@ -1558,7 +1559,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=74',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=75',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
