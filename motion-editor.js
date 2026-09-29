@@ -53,6 +53,7 @@ function showSettings(button){
  if(!profile)return;
  stop();render();
  document.querySelectorAll('[data-section]').forEach(s=>s.hidden=s.id!==button.dataset.panel);
+ settingsPanel.scrollTop=0;
  document.querySelectorAll('[data-panel]').forEach(b=>{const active=b===button;b.classList.toggle('active-category',active);b.setAttribute('aria-pressed',String(active))});
  $('#panelTitle').textContent=panelNames[button.dataset.panel];
  const mobile=matchMedia('(max-width:849px)').matches;
