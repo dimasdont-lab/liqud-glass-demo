@@ -123,6 +123,16 @@
     .dock-group button:nth-of-type(5){left:calc(80% - 3.6px)}
     .dock-group .compact-active-btn{display:none!important}
     .bottom-zone.compact .dock-group button{left:0;transform:translateZ(0) scale(.72)}
+    /* Render shared dock glass on HTML surfaces so backdrop blur works in iOS Safari. */
+    #bottomZone .dock-group{background:var(--dock-glass-bg,rgba(36,36,40,.9));border:var(--dock-glass-border,1px) solid rgba(255,255,255,var(--dock-glass-border-opacity,.3));backdrop-filter:blur(var(--dock-glass-blur,15px)) saturate(var(--dock-glass-lens,1.2));-webkit-backdrop-filter:blur(var(--dock-glass-blur,15px)) saturate(var(--dock-glass-lens,1.2))}
+    #bottomZone .dock-group::before,#bottomZone .dock-group::after{content:"";position:absolute;top:6px;height:64px;pointer-events:none;opacity:0;background:var(--dock-glass-bg,rgba(36,36,40,.9));border:var(--dock-glass-border,1px) solid rgba(255,255,255,var(--dock-glass-border-opacity,.3));backdrop-filter:blur(var(--dock-glass-blur,15px)) saturate(var(--dock-glass-lens,1.2));-webkit-backdrop-filter:blur(var(--dock-glass-blur,15px)) saturate(var(--dock-glass-lens,1.2))}
+    #bottomZone .dock-group::before{left:0;width:64px;border-radius:50%}#bottomZone .dock-group::after{right:0;width:124px;border-radius:34px}
+    #bottomZone.compact .dock-group{background:transparent;border-color:transparent;backdrop-filter:none;-webkit-backdrop-filter:none}
+    #bottomZone.compact .dock-group::before,#bottomZone.compact .dock-group::after{opacity:1}
+    #bottomZone .dock-indicator::before{background:var(--dock-indicator-bg,rgba(9,9,10,.8));backdrop-filter:blur(var(--dock-indicator-blur,8px)) saturate(var(--dock-indicator-lens,1));-webkit-backdrop-filter:blur(var(--dock-indicator-blur,8px)) saturate(var(--dock-indicator-lens,1))}
+    #bottomZone.compact .dock-indicator{border:var(--dock-indicator-border,1px) solid rgba(255,255,255,var(--dock-indicator-border-opacity,.28));box-shadow:inset 0 1px rgba(255,255,255,.12)}
+    #bottomZone.compact .dock-indicator::before{background:var(--dock-indicator-bg,rgba(9,9,10,.8))}
+    #bottomZone.compact .dock-group button[data-screen="home"].active{background:transparent}
     .bottom-zone.compact .dock-group button[data-screen="home"]{left:calc(100% - 124px);transform:translateZ(0) scale(1)}
     .bottom-zone.compact .dock-group .more-btn{left:calc(100% - 62px);transform:translateZ(0) scale(1)}
     .bottom-zone.compact.compact-home .dock-group button[data-screen="debts"],
@@ -998,8 +1008,6 @@ function renderDockChrome(s){
   const{zone,group,entry,entryIcon,send,sendIcon,buttons,labels,indicator}=getDockMotionNodes(),e=s.entryHtml;
   zone?.classList.add('dock-motion');
   dockRenderedWidth=s.w;
-  const pressShade=Math.max(0,Math.min(1,s.pressVisual||0));
-  group?.style.setProperty('--dock-indicator-fill',`rgb(${Math.round(9+28*pressShade)} ${Math.round(9+14*pressShade)} ${Math.round(10+21*pressShade)})`);
   const selectionFluid=document.querySelector('#dockSelectionFluid'),selectionTail=document.querySelector('#dockSelectionTail');
   selectionFluid?.setAttribute('viewBox',`0 0 ${s.w} 78`);
   selectionTail?.setAttribute('d',(s.selectionTails||[]).map(tail=>dockSelectionTailPath(tail,s.indicator)).join(' '));
@@ -1549,7 +1557,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=72',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=73',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1571,6 +1579,6 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="motion-runtime.js?v=72"></script>
+<script src="motion-runtime.js?v=73"></script>
 </body>
 </html>

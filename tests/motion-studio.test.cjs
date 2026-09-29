@@ -2,7 +2,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const html=fs.readFileSync('index.html','utf8');
 const buttons=['goals','insights','debts','home','more'].map(screen=>({style:{},dataset:{screen},classList:{contains:()=>screen==='home'}}));
 const node={clientWidth:420,setAttribute(){},style:{setProperty(){}},classList:{remove(){},toggle(){}}};
-const context={console,URLSearchParams,location:{search:'?studio=1',origin:'http://localhost'},localStorage:{getItem(){return null}},window:{},parent:{postMessage(){}},document:{querySelector:()=>node,querySelectorAll:s=>s.includes('button')?buttons:[],documentElement:node},setTimeout(){},addEventListener(){},animateDockLiquid(){},openSheet(){},closeSheet(){}};
+const context={console,URLSearchParams,location:{search:'?studio=1',origin:'http://localhost'},localStorage:{getItem(){return null}},window:{},parent:{postMessage(){}},document:{body:{classList:{add(){}}},querySelector:()=>node,querySelectorAll:s=>s.includes('button')?buttons:[],documentElement:node},setTimeout(){},addEventListener(){},animateDockLiquid(){},openSheet(){},closeSheet(){}};
 vm.createContext(context);
 vm.runInContext(html.slice(html.indexOf('const liquidMix='),html.indexOf('function animateDockLiquid(mode)')),context);
 vm.runInContext(fs.readFileSync('motion-runtime.js','utf8'),context);
@@ -12,6 +12,8 @@ for(const name of Object.keys(p.transitions)){
  for(const f of p.transitions[name].frames){const s=api.sample(name,f.t);assert.ok(Math.abs(s.entry[3]-f.state.entry[3])<.0001,'key time matches exact geometry')}
 }
 const round=JSON.parse(JSON.stringify(p));assert.deepEqual(api.validate(round),api.validate(p));
+const legacyMaterial=JSON.parse(JSON.stringify(p));legacyMaterial.material.indicator='#202124';delete legacyMaterial.indicatorMaterial;const migrated=api.validate(legacyMaterial);assert.equal(migrated.indicatorMaterial.color,'#202124');assert.equal(Object.hasOwn(migrated.material,'indicator'),false,'indicator material is separate from shared glass');
+const staleMaterial=api.upgradeTracks(JSON.parse(JSON.stringify(p)));staleMaterial.transitions.expand.frames[0].state.material={opacity:.1};staleMaterial.transitions.expand.tracks.entry.frames[0].state.material={blur:99};const normalized=api.validate(staleMaterial);assert.equal(Object.hasOwn(normalized.transitions.expand.frames[0].state,'material'),false,'global material cannot remain in transition keyframes');assert.equal(Object.hasOwn(normalized.transitions.expand.tracks.entry.frames[0].state,'material'),false,'global material cannot remain in element keyframes');
 const bad=JSON.parse(JSON.stringify(p));bad.transitions.expand.frames[1].t=0;assert.throws(()=>api.validate(bad));
 const invalid=JSON.parse(JSON.stringify(p));invalid.transitions.expand.frames[0].state.nav[0]=null;assert.throws(()=>api.validate(invalid));
 for(let i=0;i<=100;i++){const v=api.ease(i/100,[.42,0,.58,1]);assert.ok(v>=0&&v<=1)}
