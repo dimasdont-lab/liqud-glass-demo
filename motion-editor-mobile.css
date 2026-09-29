@@ -39,3 +39,36 @@ body.preview-focus .previewExpand{right:12px;top:calc(env(safe-area-inset-top) +
   .track{height:28px}
   .toolstrip{padding-top:3px;padding-bottom:calc(3px + env(safe-area-inset-bottom))}
 }
+
+/* Mobile inspector: keep the live canvas and category rail visible while editing. */
+.panelGrabber{display:none}
+.toolstrip button.active-category{color:#ff829a;background:#ffffff0d;border-radius:12px}
+.toolstrip button.active-category span{color:#ff5879}
+@media(max-width:849px){
+  body.inspector-open{--inspector-height:clamp(205px,40dvh,340px)}
+  body.inspector-open main{margin-bottom:var(--inspector-height);transition:margin-bottom .18s ease-out}
+  body.inspector-open .timeline{display:none}
+  body.inspector-open .stage{min-height:110px;flex:1 1 auto}
+  body.inspector-open dialog#settingsPanel{
+    position:fixed;z-index:30;left:0;right:0;bottom:var(--toolstrip-height,64px);margin:0 auto;
+    width:100%;height:var(--inspector-height);max-height:none;padding:8px 16px calc(14px + env(safe-area-inset-bottom));
+    overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+    border-radius:19px 19px 0 0;border-color:#50505b;background:#202027;
+    box-shadow:0 -12px 36px #0008;scrollbar-width:thin
+  }
+  body.inspector-open dialog#settingsPanel::backdrop{background:transparent}
+  .panelGrabber{display:block;width:38px;height:4px;border-radius:99px;background:#777783;margin:1px auto 7px;opacity:.8}
+  body.inspector-open dialog#settingsPanel .panelHead{top:-8px;margin:0 -2px;padding:3px 2px;background:#202027}
+  body.inspector-open dialog#settingsPanel .panelHead h2{font-size:16px;margin:6px 0}
+  body.inspector-open dialog#settingsPanel .panelHead button{min-width:38px;min-height:38px;padding:6px}
+  body.inspector-open dialog#settingsPanel .hint{margin:5px 0 9px}
+  body.inspector-open dialog#settingsPanel .control{margin:10px 0}
+  body.inspector-open dialog#settingsPanel .control input[type=range]{min-height:28px}
+  body.inspector-open dialog#settingsPanel .buttons{margin:8px 0;gap:6px}
+  body.inspector-open dialog#settingsPanel .buttons button{min-height:38px}
+}
+@media(max-height:620px) and (max-width:849px){
+  body.inspector-open{--inspector-height:clamp(185px,43dvh,255px)}
+  body.inspector-open .stage{min-height:92px}
+  body.inspector-open dialog#settingsPanel{padding-top:5px}
+}

@@ -48,8 +48,22 @@ $('#dockTab').onclick=()=>setTab('dock');$('#popupTab').onclick=()=>setTab('popu
 $('#add').onclick=()=>{if(!profile)return;const local=(t*scene().duration-(track().delay||0))/track().duration;if(local<=0||local>=1){status('Обери час усередині доріжки елемента');return}if(track().frames.some(f=>Math.abs(f.t-local)<.005)){status('У цього елемента тут уже є ключ');return}change(()=>{let f;if(tab==='dock'){const api=iframe.contentWindow.VFMotion;api.set(profile);const s=api.sample(transition,t),r=profile.referenceWidth/s.w;for(const k of ['entry','entryRim','entryBulge','nav','active','navRim','activeRim','neck','drop','drop2','drop3','shine','entryHtml','indicator']){s[k][0]*=r;s[k][2]*=r}for(const b of s.buttons){b[0]*=r;b[2]*=r}s.w=profile.referenceWidth;f={t:local,state:s}}else{const fs=track().frames;let i=0;while(i<fs.length-2&&fs[i+1].t<local)i++;const a=fs[i],b=fs[i+1],u=iframe.contentWindow.VFMotion.ease((local-a.t)/(b.t-a.t),track().curve);f={t:local,v:a.v.map((v,j)=>v+(b.v[j]-v)*u)}}track().frames.push(f);track().frames.sort((a,b)=>a.t-b.t);selected=track().frames.indexOf(f)},true)};
 $('#remove').onclick=()=>{if(selected===0||selected===track().frames.length-1)return;change(()=>{track().frames.splice(selected,1);selected--;t=keyMs(track().frames[selected])/scene().duration},true)};
 const panelNames={geometry:'Форма та позиція',timing:'Тривалість і ключі',curvePanel:'Крива цього елемента',material:'Скло',liquid:'Рідина',project:'Проєкт'};
-document.querySelectorAll('[data-panel]').forEach(b=>b.onclick=()=>{if(!profile)return;stop();render();document.querySelectorAll('[data-section]').forEach(s=>s.hidden=s.id!==b.dataset.panel);$('#panelTitle').textContent=panelNames[b.dataset.panel];$('#settingsPanel').showModal()});
-$('#closePanel').onclick=()=>$('#settingsPanel').close();$('#settingsPanel').onclick=e=>{if(e.target.id!=='settingsPanel')return;const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close()};
+const settingsPanel=$('#settingsPanel'),toolstrip=document.querySelector('.toolstrip');
+function showSettings(button){
+ if(!profile)return;
+ stop();render();
+ document.querySelectorAll('[data-section]').forEach(s=>s.hidden=s.id!==button.dataset.panel);
+ document.querySelectorAll('[data-panel]').forEach(b=>{const active=b===button;b.classList.toggle('active-category',active);b.setAttribute('aria-pressed',String(active))});
+ $('#panelTitle').textContent=panelNames[button.dataset.panel];
+ const mobile=matchMedia('(max-width:849px)').matches;
+ document.body.classList.toggle('inspector-open',mobile);
+ if(mobile){document.body.style.setProperty('--toolstrip-height',`${toolstrip.getBoundingClientRect().height}px`);if(!settingsPanel.open)settingsPanel.show()}
+ else if(!settingsPanel.open)settingsPanel.showModal();
+}
+document.querySelectorAll('[data-panel]').forEach(b=>b.onclick=()=>showSettings(b));
+$('#closePanel').onclick=()=>settingsPanel.close();
+settingsPanel.addEventListener('close',()=>{document.body.classList.remove('inspector-open');document.body.style.removeProperty('--toolstrip-height')});
+settingsPanel.onclick=e=>{if(e.target!==settingsPanel||!settingsPanel.matches(':modal'))return;const r=settingsPanel.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)settingsPanel.close()};
 document.querySelectorAll('[data-curve]').forEach(b=>b.onclick=()=>change(()=>track().curve=b.dataset.curve.split(',').map(Number),true));
 $('#undo').onclick=()=>{if(!history.length)return;future.push(JSON.stringify(profile));profile=JSON.parse(history.pop());selected=0;persist();render()};$('#redo').onclick=()=>{if(!future.length)return;history.push(JSON.stringify(profile));profile=JSON.parse(future.pop());selected=0;persist();render()};
 $('#width').onchange=e=>{iframe.style.width=e.target.value+'px';setTimeout(()=>send('preset',{profile}),100)};
