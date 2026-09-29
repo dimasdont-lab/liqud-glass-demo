@@ -384,6 +384,7 @@
     <div class="profile-card profile-actions">
       <button id="manageCategories">Керувати категоріями</button>
       <button id="exportData">Експорт JSON</button>
+      <a href="motion-editor.html" style="display:block;padding:18px;color:var(--accent)">Редактор дока · Liquid Studio ↗</a>
       <button id="clearData" style="color:var(--accent)">Очистити всі дані</button>
     </div>
     <div class="profile-card">
@@ -965,7 +966,7 @@ function dockNeckPath(s){
   const halfWidth=width/2,halfHeight=height/2,left=cx-halfWidth,right=cx+halfWidth;
   const leftShoulder=Math.max(halfHeight+5,Math.min(42,(s.active?.[3]||64)*.43));
   const rightShoulder=Math.max(halfHeight+5,Math.min(42,(s.nav?.[3]||64)*.43));
-  const waist=Math.min(halfHeight,leftShoulder-2,rightShoulder-2),q=width*.28;
+  const waist=Math.min(halfHeight,leftShoulder-2,rightShoulder-2),q=width*(typeof window!=='undefined'?(window.VFMotion?.tension??.28):.28);
   return`M ${left} ${cy-leftShoulder} C ${left+q} ${cy-leftShoulder} ${cx-q*.56} ${cy-waist} ${cx} ${cy-waist} C ${cx+q*.56} ${cy-waist} ${right-q} ${cy-rightShoulder} ${right} ${cy-rightShoulder} L ${right} ${cy+rightShoulder} C ${right-q} ${cy+rightShoulder} ${cx+q*.56} ${cy+waist} ${cx} ${cy+waist} C ${cx-q*.56} ${cy+waist} ${left+q} ${cy+leftShoulder} ${left} ${cy+leftShoulder} Z`;
 }
 function dockSelectionTailPath(tail,indicator){
@@ -1547,7 +1548,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=64',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=65',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1569,5 +1570,6 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
+<script src="motion-runtime.js"></script>
 </body>
 </html>
