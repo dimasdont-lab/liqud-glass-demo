@@ -2,6 +2,7 @@
 (()=>{'use strict';
 const KEY='vf-liquid-motion-v1',draftKey=KEY+'-draft',clone=x=>JSON.parse(JSON.stringify(x));
 const studio=new URLSearchParams(location.search).has('studio');
+if(studio)document.body.classList.add('studio-preview');
 let profile=null,frame=null,live=null;
 const baseAnimate=animateDockLiquid,baseOpen=openSheet,baseClose=closeSheet;
 const geometry=['entry','entryRim','entryBulge','nav','active','navRim','activeRim','neck','drop','drop2','drop3','shine','entryHtml','indicator'];
