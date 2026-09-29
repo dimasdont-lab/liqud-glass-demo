@@ -61,7 +61,7 @@ function material(){const m=profile.material,i=profile.indicatorMaterial,root=do
  root.style.setProperty('--accent',m.accent);root.style.setProperty('--dock-glass-bg',rgba(m.color,m.opacity));root.style.setProperty('--dock-glass-border',m.border+'px');root.style.setProperty('--dock-glass-border-opacity',m.borderOpacity);root.style.setProperty('--dock-glass-blur',m.blur+'px');root.style.setProperty('--dock-glass-lens',m.lens);
  root.style.setProperty('--dock-indicator-fill',rgba(i.color,i.opacity));root.style.setProperty('--dock-indicator-bg',rgba(i.color,i.opacity));root.style.setProperty('--dock-indicator-border',i.border+'px');root.style.setProperty('--dock-indicator-border-opacity',i.borderOpacity);root.style.setProperty('--dock-indicator-blur',i.blur+'px');root.style.setProperty('--dock-indicator-lens',i.lens);
  document.querySelectorAll('#dockGlassFill stop').forEach(n=>n.setAttribute('stop-color',m.color));
- // SVG goo geometry is retained for liquid motion; actual glass/refraction is rendered by HTML layers for iOS Safari.
+ // SVG paints the shared glass silhouette; transparent HTML layers provide iOS Safari backdrop blur.
  // Keep the liquid SVG as the visible glass silhouette. The HTML surfaces above it
  // are blur-only, so the neck/drops remain visible instead of being hidden by a plate.
  const entryGlass=document.querySelector('.dock-entry-glass'),dockGlass=document.querySelector('.dock-liquid-mass');if(entryGlass)entryGlass.style.opacity=Math.min(.22,m.opacity*.22);if(dockGlass)dockGlass.style.opacity=m.opacity;
