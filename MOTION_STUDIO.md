@@ -2,9 +2,10 @@
 
 Open `motion-editor.html` (also linked in Settings). No paid services or build step.
 
-1. Select Dock or Windows, then a transition and element.
-2. Select a diamond keyframe to edit its geometry. Scrub to a new time and use Add Key to insert a shape.
-3. Set duration and Bézier control points. Play or loop the actual app preview.
+1. Select Dock or Windows, then a transition and an element's timeline row.
+2. Each element has independent diamond keys. Add, move, or delete an interior key on that row without changing other rows.
+3. The bottom horizontally scrollable icon strip opens parameter sheets: Shape, Duration, Curve, Glass, Liquid, Project. Duration offers scene length, element length, delay, and selected key time in milliseconds. Changing scene length scales all tracks proportionally; changing element length or delay affects only that row. An element holds its first/last shape outside its active clip.
+4. Curve controls apply only to the selected element. Play or loop the actual app preview. Old presets are automatically migrated to independent tracks without deleting edits.
 4. Drafts autosave locally. Apply activates the preset in this browser's Demo after reload. Disable restores the existing animation engine without touching financial data.
 5. Export JSON for backup or another device; Import validates before replacing the draft. Undo/redo is session-local.
 

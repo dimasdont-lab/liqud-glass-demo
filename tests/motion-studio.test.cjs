@@ -16,3 +16,18 @@ const bad=JSON.parse(JSON.stringify(p));bad.transitions.expand.frames[1].t=0;ass
 const invalid=JSON.parse(JSON.stringify(p));invalid.transitions.expand.frames[0].state.nav[0]=null;assert.throws(()=>api.validate(invalid));
 for(let i=0;i<=100;i++){const v=api.ease(i/100,[.42,0,.58,1]);assert.ok(v>=0&&v<=1)}
 console.log('Motion Studio: five transitions, 505 finite samples, exact key positions, JSON round trip and invalid import checks passed.');
+const upgraded=api.upgradeTracks(p);api.validate(upgraded);api.set(upgraded);
+const baseline=Array.from({length:101},(_,i)=>api.sample('expand',i/100));
+const edit=JSON.parse(JSON.stringify(upgraded));
+edit.transitions.expand.tracks.entry.frames[2].state.entry[3]+=25;
+edit.transitions.expand.tracks.entry.frames[2].t=.47;
+edit.transitions.expand.tracks.entry.duration=600;
+edit.transitions.expand.tracks.entry.delay=100;
+api.set(edit);
+for(let i=0;i<=100;i++){const s=api.sample('expand',i/100);assert.deepEqual(s.buttons,baseline[i].buttons,'entry edit cannot change buttons');assert.deepEqual(s.nav,baseline[i].nav,'entry edit cannot change capsule');assert.deepEqual(s.indicator,baseline[i].indicator,'entry edit cannot change indicator')}
+assert.deepEqual(api.sample('expand',0).entry,api.sample('expand',.08).entry,'delay holds starting form');
+assert.deepEqual(api.sample('expand',.7).entry,api.sample('expand',1).entry,'finished element holds ending form');
+assert.notDeepEqual(api.sample('expand',.35).entry,baseline[35].entry,'entry animation changes');
+assert.equal(JSON.stringify(api.upgradeTracks(edit)),JSON.stringify(edit),'migration preserves edited tracks');
+const invalidTrack=JSON.parse(JSON.stringify(edit));invalidTrack.transitions.expand.tracks.entry.frames[2].t=0;assert.throws(()=>api.validate(invalidTrack));
+console.log('Independent tracks: isolated geometry/timing, delay/end holds, migration and validation passed.');
