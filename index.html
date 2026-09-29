@@ -95,6 +95,7 @@
     .bottom-zone{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(480px,100%);padding:8px 15px calc(11px + env(safe-area-inset-bottom));background:linear-gradient(0deg,#050505 0 48%,transparent);z-index:30;transition:transform .5s cubic-bezier(.22,.82,.22,1),bottom .22s ease}
     .dock-layout{position:relative;height:128px;transition:height .62s cubic-bezier(.2,.72,.18,1)}
     .dock-liquid-layer{position:absolute;z-index:1;left:-14px;top:-14px;display:block;width:calc(100% + 28px);height:156px;overflow:visible;pointer-events:none;contain:layout paint;will-change:contents}
+    .dock-liquid-outline-layer{position:absolute;z-index:2;left:-14px;top:-14px;display:block;width:calc(100% + 28px);height:156px;overflow:visible;pointer-events:none}
     .dock-liquid-mass{fill:url(#dockGlassFill);filter:url(#dockLiquidGlass)}
     .dock-entry-glass{fill:url(#dockGlassFill)}
     .dock-liquid-shine{fill:rgba(255,255,255,.075);opacity:.72;filter:url(#dockShineSoft)}
@@ -362,13 +363,14 @@
     <svg class="dock-liquid-layer" id="dockLiquidLayer" aria-hidden="true" preserveAspectRatio="none">
       <defs>
         <linearGradient id="dockGlassFill" x1="0" y1="0" x2="0.82" y2="1"><stop offset="0" stop-color="#3b3b40"/><stop offset=".44" stop-color="#232327"/><stop offset="1" stop-color="#151518"/></linearGradient>
-        <filter id="dockLiquidGlass" x="-22%" y="-36%" width="144%" height="172%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="3.6" result="blur"/><feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8.2" result="goo"/><feMorphology in="goo" operator="erode" radius="1" result="innerShape"/><feComposite in="goo" in2="innerShape" operator="out" result="edgeMask"/><feFlood flood-color="#fff" flood-opacity=".3" result="edgeColor"/><feComposite in="edgeColor" in2="edgeMask" operator="in" result="edge"/><feMerge><feMergeNode in="goo"/><feMergeNode in="edge"/></feMerge></filter>
+        <filter id="dockLiquidGlass" x="-22%" y="-36%" width="144%" height="172%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="3.6" result="blur"/><feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8.2" result="goo"/></filter>
         <filter id="dockShineSoft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="1.8"/></filter>
       </defs>
       <g class="dock-entry-glass"><rect id="liquidEntry"/><ellipse id="liquidEntryBulge"/></g><g class="dock-liquid-mass"><rect id="liquidNav"/><rect id="liquidActive"/><path id="liquidNeck"/><ellipse id="liquidDrop"/><ellipse id="liquidDrop2"/><ellipse id="liquidDrop3"/></g>
       <ellipse class="dock-liquid-shine" id="liquidShine"/>
     </svg>
     <div id="dockMaterialSurfaces" aria-hidden="true"><div id="dockMaterialNav" class="dock-material-surface"></div><div id="dockMaterialActive" class="dock-material-surface"></div></div>
+    <svg class="dock-liquid-outline-layer" id="dockLiquidOutlineLayer" aria-hidden="true" preserveAspectRatio="none"><defs><filter id="dockLiquidOutlineFilter" x="-22%" y="-36%" width="144%" height="172%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="3.6" result="blur"/><feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8.2" result="goo"/><feMorphology in="goo" operator="erode" radius="1" result="innerShape"/><feComposite in="goo" in2="innerShape" operator="out" result="edgeMask"/><feFlood flood-color="#fff" flood-opacity=".3" result="edgeColor"/><feComposite in="edgeColor" in2="edgeMask" operator="in" result="edge"/></filter></defs><g id="dockLiquidOutlineGroup" filter="url(#dockLiquidOutlineFilter)" fill="#fff"><rect id="liquidOutlineNav"/><rect id="liquidOutlineActive"/><path id="liquidOutlineNeck"/><ellipse id="liquidOutlineDrop"/><ellipse id="liquidOutlineDrop2"/><ellipse id="liquidOutlineDrop3"/></g></svg>
     <div class="quick-entry-shell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M12 5v14"/></svg><input class="quick-entry-input" id="quickEntryInput" placeholder="Введи операцію або борг" autocomplete="off" enterkeyhint="done"><button class="quick-send" id="quickSend" aria-label="Розпізнати фразу"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6.5 10.5 12 5l5.5 5.5"/></svg></button></div>
     <nav class="dock" aria-label="Головна навігація"><div class="dock-group"><div class="dock-indicator" aria-hidden="true"></div><svg class="dock-selection-fluid" id="dockSelectionFluid" aria-hidden="true"><path id="dockSelectionTail"/></svg>
       <button data-screen="goals" aria-label="Цілі"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="m14 10 5-5"/></svg><span class="dock-label">Цілі</span></button>
@@ -951,9 +953,9 @@ const dockSmoothStep=t=>{const p=Math.max(0,Math.min(1,t));return p*p*(3-2*p)};
 function dockReferencePress(t){return dockSmoothStep((t-.04)/.24)*(1-dockSmoothStep((t-.68)/.2))}
 function dockLiquidTargets(mode){
   mode=mode===true?'compact':mode===false?'expanded':mode;
-  const layer=document.querySelector('#dockLiquidLayer'),layout=document.querySelector('.dock-layout'),w=layout?.clientWidth||450,pad=14,unit=(w-12)/5;
+  const layer=document.querySelector('#dockLiquidLayer'),outlineLayer=document.querySelector('#dockLiquidOutlineLayer'),layout=document.querySelector('.dock-layout'),w=layout?.clientWidth||450,pad=14,unit=(w-12)/5;
   const buttons=[...document.querySelectorAll('.dock-group>button:not(.compact-active-btn)')],activeIndex=Math.max(0,buttons.findIndex(button=>button.classList.contains('active')&&button.dataset.screen)),leftIndex=activeIndex===3?2:Math.min(activeIndex,2);
-  layer?.setAttribute('viewBox',`0 0 ${w+pad*2} ${128+pad*2}`);
+  layer?.setAttribute('viewBox',`0 0 ${w+pad*2} ${128+pad*2}`);outlineLayer?.setAttribute('viewBox',`0 0 ${w+pad*2} ${128+pad*2}`);
   const expandedButtons=buttons.map((_,index)=>[6+unit*index,6,unit,64,31,1,1,1]);
   if(mode==='drawer'){
     const x=w-64,sx=pad+x,sy=pad+50;
@@ -967,7 +969,7 @@ function dockLiquidTargets(mode){
   const indicatorX=6+unit*activeIndex-(indicatorWidth-unit)/2;
   return{mode:'expanded',w,entry:[pad,pad,w,42,21,1],entryBulge:[pad+w*.5,pad+42,1,1,0],nav:[pad,pad+50,w,78,39,1],active:[pad,pad+50,w,78,39,0],navRim:[pad,pad+50,w,78,39,1],activeRim:[pad,pad+50,w,78,39,0],neck:[pad+w*.5,pad+89,1,1,0],drop:[pad+w*.5,pad+89,1,1,0],drop2:[pad+w*.5,pad+89,1,1,0],drop3:[pad+w*.5,pad+89,1,1,0],shine:[pad+w*.2,pad+4,w*.56,8,.52],entryHtml:[0,0,w,42,21,1,1,18,18,1,22,27,14],buttons:expandedButtons,indicator:[indicatorX,6-(indicatorHeight-64)/2,indicatorWidth,indicatorHeight,indicatorHeight/2,1]};
 }
-function getDockLiquidNodes(){if(dockLiquidNodes?.nav?.isConnected)return dockLiquidNodes;dockLiquidNodes={entry:document.querySelector('#liquidEntry'),nav:document.querySelector('#liquidNav'),active:document.querySelector('#liquidActive'),neck:document.querySelector('#liquidNeck'),drop:document.querySelector('#liquidDrop'),drop2:document.querySelector('#liquidDrop2'),drop3:document.querySelector('#liquidDrop3'),entryBulge:document.querySelector('#liquidEntryBulge'),shine:document.querySelector('#liquidShine'),materialNav:document.querySelector('#dockMaterialNav'),materialActive:document.querySelector('#dockMaterialActive')};return dockLiquidNodes}
+function getDockLiquidNodes(){if(dockLiquidNodes?.nav?.isConnected)return dockLiquidNodes;dockLiquidNodes={entry:document.querySelector('#liquidEntry'),nav:document.querySelector('#liquidNav'),active:document.querySelector('#liquidActive'),neck:document.querySelector('#liquidNeck'),drop:document.querySelector('#liquidDrop'),drop2:document.querySelector('#liquidDrop2'),drop3:document.querySelector('#liquidDrop3'),entryBulge:document.querySelector('#liquidEntryBulge'),shine:document.querySelector('#liquidShine'),materialNav:document.querySelector('#dockMaterialNav'),materialActive:document.querySelector('#dockMaterialActive'),outlineNav:document.querySelector('#liquidOutlineNav'),outlineActive:document.querySelector('#liquidOutlineActive'),outlineNeck:document.querySelector('#liquidOutlineNeck'),outlineDrop:document.querySelector('#liquidOutlineDrop'),outlineDrop2:document.querySelector('#liquidOutlineDrop2'),outlineDrop3:document.querySelector('#liquidOutlineDrop3'),outlineGroup:document.querySelector('#dockLiquidOutlineGroup')};return dockLiquidNodes}
 function setLiquidRect(el,v){if(!el)return;el.setAttribute('x',v[0]);el.setAttribute('y',v[1]);el.setAttribute('width',Math.max(.1,v[2]));el.setAttribute('height',Math.max(.1,v[3]));el.setAttribute('rx',Math.max(0,v[4]));el.style.opacity=v[5]}
 function dockNeckPath(s){
   const [cx,cy,width,height,opacity]=s.neck||[];
@@ -991,10 +993,12 @@ function dockSelectionTailPath(tail,indicator){
   return`${pill} M ${x1} ${y-sourceShoulder} C ${x1+q} ${y-sourceShoulder} ${m-q*.5} ${y-waist} ${m} ${y-waist} C ${m+q*.5} ${y-waist} ${x2-q} ${y-targetShoulder} ${x2} ${y-targetShoulder} L ${x2} ${y+targetShoulder} C ${x2-q} ${y+targetShoulder} ${m+q*.5} ${y+waist} ${m} ${y+waist} C ${m-q*.5} ${y+waist} ${x1+q} ${y+sourceShoulder} ${x1} ${y+sourceShoulder} Z`;
 }
 function renderDockLiquid(s){
-  const{entry,nav,active,neck,drop,drop2,drop3,entryBulge,shine}=getDockLiquidNodes();setLiquidRect(entry,s.entry);setLiquidRect(nav,s.nav);setLiquidRect(active,s.active);
+  const{entry,nav,active,neck,drop,drop2,drop3,entryBulge,shine,outlineNav,outlineActive,outlineNeck,outlineDrop,outlineDrop2,outlineDrop3}=getDockLiquidNodes();setLiquidRect(entry,s.entry);setLiquidRect(nav,s.nav);setLiquidRect(active,s.active);setLiquidRect(outlineNav,s.nav);setLiquidRect(outlineActive,s.active);
   [[dockLiquidNodes.materialNav,s.nav],[dockLiquidNodes.materialActive,s.active]].forEach(([el,v])=>{if(!el||!v)return;el.style.left=`${v[0]-14}px`;el.style.top=`${v[1]-14}px`;el.style.width=`${Math.max(.1,v[2])}px`;el.style.height=`${Math.max(.1,v[3])}px`;el.style.borderRadius=`${Math.max(0,Math.min(v[4],v[2]/2,v[3]/2))}px`;el.style.opacity=String(Math.max(0,Math.min(1,v[5])))});
   if(neck){neck.setAttribute('d',dockNeckPath(s));neck.style.opacity=s.neck?.[4]||0}
+  if(outlineNeck){outlineNeck.setAttribute('d',dockNeckPath(s));outlineNeck.style.opacity=s.neck?.[4]||0}
   [[drop,s.drop],[drop2,s.drop2],[drop3,s.drop3],[entryBulge,s.entryBulge],[shine,s.shine]].forEach(([el,v])=>{if(!el||!v)return;el.setAttribute('cx',v[0]+(v.length===6?v[2]/2:0));el.setAttribute('cy',v[1]+(v.length===6?v[3]/2:0));el.setAttribute('rx',Math.max(.1,v[2]/2));el.setAttribute('ry',Math.max(.1,v[3]/2));el.style.opacity=v[v.length-1]});
+  [[outlineDrop,s.drop],[outlineDrop2,s.drop2],[outlineDrop3,s.drop3]].forEach(([el,v])=>{if(!el||!v)return;el.setAttribute('cx',v[0]+(v.length===6?v[2]/2:0));el.setAttribute('cy',v[1]+(v.length===6?v[3]/2:0));el.setAttribute('rx',Math.max(.1,v[2]/2));el.setAttribute('ry',Math.max(.1,v[3]/2));el.style.opacity=v[v.length-1]});
 }
 function setDockStyle(el,name,value,unit='px'){if(!el)return;el.style.setProperty(name,`${value}${unit}`,'important')}
 function getDockMotionNodes(){
@@ -1556,7 +1560,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=76',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=77',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1578,6 +1582,6 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="motion-runtime.js?v=76"></script>
+<script src="motion-runtime.js?v=77"></script>
 </body>
 </html>
