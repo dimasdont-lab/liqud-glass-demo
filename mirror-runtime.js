@@ -12,16 +12,17 @@ function copySource(source){
  copy.querySelectorAll('input,button,select,textarea,a').forEach(node=>{node.tabIndex=-1});
  copy.classList.add('vf-mirror-copy');return copy;
 }
-function populate(record){
+function populate(record,templates=sourceNodes().map(source=>({source,copy:copySource(source)}))){
  const scene=document.createDocumentFragment();record.copies=[];
- for(const source of sourceNodes()){const copy=copySource(source);record.copies.push({source,copy});scene.append(copy)}
+ for(const template of templates){const copy=template.copy.cloneNode(true);record.copies.push({source:template.source,copy});scene.append(copy)}
  record.content.replaceChildren(scene);
 }
 function rebuild(){
  refreshTimer=0;
+ const templates=sourceNodes().map(source=>({source,copy:copySource(source)}));
  for(const record of mirrors.values()){
   if(!record.layer.isConnected){remove(record.layer);continue}
-  populate(record);
+  populate(record,templates);
  }
  scheduleFrame();
 }
@@ -63,7 +64,7 @@ function align(){
 }
 function positionAll(){frame=0;align();if(mirrors.size)frame=requestAnimationFrame(positionAll)}
 function scheduleFrame(){if(!frame&&mirrors.size)frame=requestAnimationFrame(positionAll)}
-function update(layer,host,scale=1,blur=0){const record=mount(layer,host);record.host=host;record.scale=scale;record.blur=blur;const overscan=Math.min(96,Math.max(24,Math.ceil(blur*2)));record.content.style.inset=`-${overscan}px`;record.content.style.filter=blur>0?`blur(${blur.toFixed(2)}px)`:'none';scheduleFrame()}
+ function update(layer,host,scale=1,blur=0,lens=1){const record=mount(layer,host);record.host=host;record.scale=scale;record.blur=blur;const overscan=Math.min(96,Math.max(24,Math.ceil(blur*2))),inset=`-${overscan}px`;if(record.content.style.inset!==inset)record.content.style.inset=inset;const optical=`saturate(${Math.max(0,lens).toFixed(2)}) contrast(${Math.max(.75,1+(lens-1)*.16).toFixed(2)}) brightness(${Math.max(.8,1+(lens-1)*.07).toFixed(2)})`,filter=`${blur>0?`blur(${blur.toFixed(2)}px) `:''}${optical}`;if(record.content.style.filter!==filter)record.content.style.filter=filter;scheduleFrame()}
 function remove(layer){const record=mirrors.get(layer);if(!record)return;record.layer.replaceChildren();mirrors.delete(layer);if(!mirrors.size&&frame){cancelAnimationFrame(frame);frame=0}}
 function releaseClosed(){
  for(const record of mirrors.values()){
