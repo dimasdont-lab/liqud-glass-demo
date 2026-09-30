@@ -99,7 +99,8 @@
     .dock-liquid-outline-layer{position:absolute;z-index:2;left:-14px;top:-14px;display:block;width:calc(100% + 28px);height:156px;overflow:visible;pointer-events:none}
     .dock-liquid-mass{fill:url(#dockGlassFill);filter:url(#dockLiquidGlass)}
     .dock-entry-glass{fill:url(#dockGlassFill)}
-    .dock-liquid-shine{fill:rgba(255,255,255,.075);opacity:.72;filter:url(#dockShineSoft)}
+    /* The old free-floating shine ellipse escapes the entry silhouette during morphs. */
+    .dock-liquid-shine{display:none}
     .quick-entry-shell{position:absolute;z-index:3;left:0;top:0;width:100%;height:42px;border:0;border-radius:21px;background:transparent;box-shadow:0 9px 20px rgba(0,0,0,var(--vf-dock-shade,.22));display:flex;align-items:center;padding:0 18px;transition:top .62s cubic-bezier(.2,.72,.18,1),left .62s cubic-bezier(.2,.72,.18,1),width .62s cubic-bezier(.2,.72,.18,1),height .62s cubic-bezier(.2,.72,.18,1),border-radius .62s cubic-bezier(.2,.72,.18,1),padding .62s cubic-bezier(.2,.72,.18,1),opacity .32s ease;overflow:hidden}
     .quick-entry-shell>svg{width:22px;height:22px;flex:none;color:#f5f5f7}.quick-entry-shell.listening{border-color:rgba(255,64,96,.6)}.quick-entry-input{min-width:0;flex:1;height:100%;border:0;outline:0;background:transparent;color:#f5f5f7;padding:0 9px 0 11px;font-size:16px}.quick-entry-input::placeholder{color:#8d8d94}.quick-send{width:27px;height:27px;flex:none;border:0;border-radius:50%;background:#ff4060;color:#fff;display:grid;place-items:center;padding:0;transition:transform .18s ease,filter .18s ease}.quick-send:active{transform:scale(.9);filter:brightness(.82)}.quick-send svg{width:14px;height:14px}
     .dock{position:absolute;z-index:2;left:0;top:50px;width:100%;height:78px;transition:top .62s cubic-bezier(.2,.72,.18,1),height .62s cubic-bezier(.2,.72,.18,1)}
@@ -1572,7 +1573,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=83',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=84',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1594,6 +1595,6 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="motion-runtime.js?v=83"></script>
+<script src="motion-runtime.js?v=84"></script>
 </body>
 </html>
