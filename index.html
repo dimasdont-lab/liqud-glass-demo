@@ -43,7 +43,7 @@
       background:#050505;transition:transform .46s cubic-bezier(.2,.8,.2,1),filter .46s ease;
     }
     .account-ticker{position:fixed;z-index:42;top:env(safe-area-inset-top);left:0;right:0;height:74px;overflow:hidden;background:rgba(5,5,5,.94);border-bottom:1px solid rgba(255,255,255,.06);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);touch-action:pan-y;cursor:grab}.account-ticker.dragging{cursor:grabbing}.account-ticker.dragging .ticker-item{pointer-events:none}
-    .studio-preview .account-ticker{display:none!important}.studio-preview .app{padding-top:calc(env(safe-area-inset-top) + 16px)}
+    .studio-preview .account-ticker{display:none!important}.studio-preview .app{padding-top:calc(env(safe-area-inset-top) + 16px)}.studio-preview .bottom-zone{bottom:0!important}
     .ticker-track{height:100%;display:flex;width:max-content;align-items:center;will-change:transform;transform:translate3d(0,0,0)}.ticker-sequence{display:flex;align-items:center;flex:none}.ticker-item{position:relative;width:126px;height:62px;display:grid;grid-template-columns:38px 1fr;grid-template-rows:1fr 1fr;column-gap:7px;align-items:center;padding:7px 8px 13px;border:0;border-right:1px solid rgba(255,255,255,.07);background:transparent;text-align:left;color:inherit}.ticker-logo{grid-row:1/3;width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#24242a,#0b0b0d);border:1px solid var(--line);display:grid;place-items:center;font-weight:750;font-size:12px}.ticker-name{font-size:10px;line-height:1;color:#f5f5f7}.ticker-value{font-size:11px;font-weight:650;white-space:nowrap}.ticker-spark{position:absolute;left:53px;bottom:1px;width:38px;height:13px}.ticker-change{position:absolute;right:5px;bottom:2px;font-size:8px;white-space:nowrap}.trend-up{color:var(--green)}.trend-down{color:#ff5364}.trend-flat{color:var(--muted)}
     @media (prefers-reduced-motion:reduce){.account-ticker{overflow-x:auto;-webkit-overflow-scrolling:touch}.ticker-track{animation:none!important}.ticker-sequence[aria-hidden="true"]{display:none}}
     .topline{display:flex;justify-content:space-between;align-items:flex-start;margin:8px 4px 5px}
@@ -139,7 +139,7 @@
     .vf-radial-blur-host.quick-entry-shell>svg,.vf-radial-blur-host.quick-entry-shell>input,.vf-radial-blur-host.quick-entry-shell>button{position:relative;z-index:2}
     .vf-radial-blur-host.quick-entry-shell::after{z-index:3}
     #dockMaterialSurfaces .vf-radial-blur-host.dock-material-surface{backdrop-filter:none;-webkit-backdrop-filter:none}
-    #bottomZone .vf-radial-blur-host.dock-indicator::before{z-index:1;backdrop-filter:none;-webkit-backdrop-filter:none}
+    #bottomZone .vf-radial-blur-host.dock-indicator::before{z-index:2;backdrop-filter:none;-webkit-backdrop-filter:none}
     #bottomZone .vf-radial-blur-host.dock-indicator>.vf-contour-zoom-stack{z-index:1}
     .vf-radial-blur-host.profile-drawer,.vf-radial-blur-host.sheet,.vf-radial-blur-host.voice-popover{backdrop-filter:none;-webkit-backdrop-filter:none}
     #profileDrawer .category-grid,#profileDrawer .drawer-settings{background:rgba(255,255,255,var(--vf-drawer-card-opacity,.045));backdrop-filter:blur(var(--vf-drawer-card-blur,8px));-webkit-backdrop-filter:blur(var(--vf-drawer-card-blur,8px));border-radius:var(--vf-drawer-card-radius,24px)}
@@ -1233,6 +1233,7 @@ function handleBoundaryWheel(e){
 }
 function positionQuickEntry(){
   const input=document.querySelector('#quickEntryInput'),zone=document.querySelector('#bottomZone'),viewport=window.visualViewport;
+  if(document.body.classList.contains('studio-preview')){zone.style.bottom='';return}
   if(document.activeElement!==input||!viewport){zone.style.bottom='';return}
   const keyboardOffset=Math.max(0,window.innerHeight-viewport.height-viewport.offsetTop);
   zone.style.bottom=keyboardOffset>80?`${keyboardOffset}px`:'';
@@ -1591,7 +1592,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:' && !['localhost','127.0.0.1'].includes(location.hostname)){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-navigator.serviceWorker.register('./sw.js?v=99',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+navigator.serviceWorker.register('./sw.js?v=100',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1613,8 +1614,8 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="mirror-runtime.js?v=99"></script>
-<script src="motion-preset.js?v=99"></script>
-<script src="motion-runtime.js?v=99"></script>
+<script src="mirror-runtime.js?v=100"></script>
+<script src="motion-preset.js?v=100"></script>
+<script src="motion-runtime.js?v=100"></script>
 </body>
 </html>
