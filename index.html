@@ -108,7 +108,7 @@
     .profile-drawer::before{content:"";position:absolute;pointer-events:none;inset:1px;border-radius:inherit;background:linear-gradient(100deg,rgba(255,255,255,.07),transparent 18% 82%,rgba(255,255,255,.055));opacity:.5}
     .dock-group::after{content:none}
     .dock-indicator{position:absolute;z-index:0;left:6px;top:6px;width:calc((100% - 12px)/5);height:64px;border-radius:31px;transform:translateX(0);will-change:transform,width,height,left,top;transition:left .8s cubic-bezier(.65,0,.35,1),top .8s cubic-bezier(.65,0,.35,1),width .8s cubic-bezier(.65,0,.35,1),height .8s cubic-bezier(.65,0,.35,1),border-radius .8s cubic-bezier(.65,0,.35,1)}.dock-indicator::before{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--dock-indicator-fill,#09090a);transform-origin:center}
-    .dock-selection-fluid{position:absolute;inset:0;z-index:0;width:100%;height:100%;overflow:visible;pointer-events:none}.dock-selection-fluid path{fill:var(--dock-indicator-fill,#09090a)}
+    .dock-selection-fluid{position:absolute;inset:0;z-index:0;width:100%;height:100%;overflow:visible;pointer-events:none}.dock-selection-fluid path{fill:var(--dock-indicator-fill,#09090a)}.dock-group{touch-action:pan-y}
     .dock button{border:0;color:#f1f1f3}.dock-group button{--i:0;position:absolute;z-index:1;left:6px;top:6px;width:calc((100% - 12px)/5);height:64px;border-radius:31px;background:transparent;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:5px 2px;transform:translateX(calc(var(--i) * 100%));transition:transform .8s cubic-bezier(.22,.72,.18,1),opacity .55s ease,color .35s ease,width .8s cubic-bezier(.22,.72,.18,1),height .8s cubic-bezier(.22,.72,.18,1),top .8s cubic-bezier(.22,.72,.18,1),left .8s cubic-bezier(.22,.72,.18,1)}.dock-group button:nth-of-type(2){--i:1}.dock-group button:nth-of-type(3){--i:2}.dock-group button:nth-of-type(4){--i:3}.dock-group button:nth-of-type(5){--i:4}.dock-group button.active{color:#ff4060}.dock svg{width:25px;height:25px}.dock-label{font-size:10px;line-height:1;white-space:nowrap;letter-spacing:-.1px;transition:opacity .35s ease}
     .dock-group .compact-active-btn{display:none;opacity:0;pointer-events:none}
     .bottom-zone.compact .dock-layout{height:78px}.bottom-zone.compact .quick-entry-shell{left:68px;top:9px;width:calc(100% - 200px);height:60px;border-radius:30px;padding:0 9px 0 14px}.bottom-zone.compact .dock{top:0;height:78px}.bottom-zone.compact .dock-group{height:78px;border-color:transparent;background:transparent;box-shadow:none;overflow:visible}.bottom-zone.compact .dock-group::before{opacity:1;transform:scaleX(1)}.bottom-zone.compact .dock-group::after{opacity:0}.bottom-zone.compact .dock-indicator{left:0;top:6px;width:64px;height:64px;border-radius:50%;transform:translateX(0)!important;border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px rgba(255,255,255,.12)}.bottom-zone.compact.compact-home .dock-indicator{opacity:0}.bottom-zone.compact .dock-indicator::before{background:rgba(31,31,33,.96)}.bottom-zone.compact .dock-group button{left:0;top:6px;width:64px;height:64px;border-radius:50%;transform:translateX(0) scale(.72);opacity:0;pointer-events:none}.bottom-zone.compact .dock-group button.active:not([data-screen="home"]){transform:translateX(0) scale(1);opacity:1;pointer-events:auto}.bottom-zone.compact .dock-group button[data-screen="home"]{left:calc(100% - 124px);transform:translateX(0) scale(1);opacity:1;pointer-events:auto}.bottom-zone.compact .dock-group button[data-screen="home"].active{background:#09090a}.bottom-zone.compact .dock-group .more-btn{left:calc(100% - 62px);transform:translateX(0) scale(1);opacity:1;pointer-events:auto;background:transparent;border:0;box-shadow:none}.bottom-zone.compact .dock-label{opacity:0}.bottom-zone.compact .quick-entry-shell>svg{width:0;opacity:0}.bottom-zone.compact .quick-send{width:38px;height:38px}.bottom-zone.compact .quick-send svg{width:19px;height:19px}
@@ -1593,7 +1593,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:' && !['localhost','127.0.0.1'].includes(location.hostname)){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=86',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=87',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1615,6 +1615,6 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="motion-runtime.js?v=86"></script>
+<script src="motion-runtime.js?v=87"></script>
 </body>
 </html>
