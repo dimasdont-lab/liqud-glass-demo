@@ -100,7 +100,8 @@
     .dock-mirror-surface{position:absolute;z-index:3;left:-14px;top:-14px;width:calc(100% + 28px);height:156px;overflow:hidden;pointer-events:none;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat;contain:paint}
     .dock-zoom-surfaces{position:absolute;z-index:2;left:-14px;top:-14px;width:calc(100% + 28px);height:156px;pointer-events:none}
     .dock-zoom-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat;contain:paint}
-    .vf-mirror-copy{position:absolute!important;max-width:none!important;margin:0!important;pointer-events:none!important;transition:none!important;animation:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transform-style:flat!important;will-change:transform}
+    .vf-mirror-content{position:absolute;inset:0;display:block;pointer-events:none;overflow:hidden;contain:paint}
+    .vf-mirror-copy{position:absolute!important;max-width:none!important;margin:0!important;pointer-events:none!important;transition:none!important;animation:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transform-style:flat!important}
     .vf-mirror-copy.account-ticker{right:auto!important;bottom:auto!important}
     .dock-liquid-mass{fill:url(#dockGlassFill);filter:url(#dockLiquidGlass)}
     .dock-entry-glass{fill:url(#dockGlassFill)}
@@ -1627,7 +1628,7 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="mirror-runtime.js?v=91"></script>
-<script src="motion-runtime.js?v=91"></script>
+<script src="mirror-runtime.js?v=92"></script>
+<script src="motion-runtime.js?v=92"></script>
 </body>
 </html>
