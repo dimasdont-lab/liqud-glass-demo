@@ -16,6 +16,8 @@ test('glass samples only the real page, never its own clones', () => {
 test('glass blurs the zoomed source without refraction', () => {
   assert.match(source, /copy\.style\.transform=transform/);
   assert.match(source, /record\.content\.style\.filter=blur>0\?`blur/);
+  assert.match(source, /const localX=contentRect\.width\/Math\.max\(1,record\.content\.offsetWidth\)/);
+  assert.match(source, /const x=\(box\.left-contentRect\.left\)\/localX/);
   assert.doesNotMatch(source, /feDisplacementMap|setDirection\(/);
   assert.match(source, /addEventListener\('scroll',align/);
 });

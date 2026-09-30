@@ -39,17 +39,21 @@ function align(){
   if(!record.layer.isConnected||getComputedStyle(record.layer).display==='none')continue;
   const hostRect=record.host.getBoundingClientRect();if(!hostRect.width||!hostRect.height)continue;
   const contentRect=record.content.getBoundingClientRect();
+  // Morphing entry pills can scale their whole subtree. Viewport distances
+  // must be converted back to that subtree's local CSS pixels before placing
+  // the mirrored page; otherwise it visibly slips during a transition.
+  const localX=contentRect.width/Math.max(1,record.content.offsetWidth),localY=contentRect.height/Math.max(1,record.content.offsetHeight);
   for(const {source,copy} of record.copies){
    const box=boxes.get(source);if(!box)continue;
-   const x=box.left-contentRect.left,y=box.top-contentRect.top;
-   const left=`${x}px`,top=`${y}px`,width=`${source.offsetWidth}px`,height=`${source.offsetHeight}px`;
+   const x=(box.left-contentRect.left)/localX,y=(box.top-contentRect.top)/localY;
+   const left=`${x}px`,top=`${y}px`,width=`${box.width/localX}px`,height=`${box.height/localY}px`;
    if(copy.style.left!==left)copy.style.left=left;
    if(copy.style.top!==top)copy.style.top=top;
    if(copy.style.width!==width)copy.style.width=width;
    if(copy.style.height!==height)copy.style.height=height;
    const transform=record.scale===1?'none':`scale(${record.scale})`;
    if(copy.style.transform!==transform)copy.style.transform=transform;
-   if(record.scale!==1)copy.style.transformOrigin=`${hostRect.left+hostRect.width/2-contentRect.left-x}px ${hostRect.top+hostRect.height/2-contentRect.top-y}px`;
+   if(record.scale!==1)copy.style.transformOrigin=`${(hostRect.left+hostRect.width/2-contentRect.left)/localX-x}px ${(hostRect.top+hostRect.height/2-contentRect.top)/localY-y}px`;
    if(source.classList.contains('account-ticker')){
     const track=copy.querySelector('.ticker-track'),original=source.querySelector('.ticker-track');
     if(track&&original){const animated=getComputedStyle(original).transform;if(track.style.transform!==animated)track.style.transform=animated}
