@@ -1493,7 +1493,7 @@ document.querySelector('#moreBtn').onclick=()=>{dockPressRequested=true;togglePr
 document.querySelector('#compactActiveBtn').onclick=()=>{dockPressRequested=true;const button=document.querySelector('#compactActiveBtn');if(button.dataset.compactScreen==='debts'&&document.querySelector('.dock [data-screen="home"]')?.classList.contains('active'))switchScreen('debts');else setDockCompact(false)};
 document.querySelector('#profileDrawerBackdrop').onclick=e=>{if(e.target.id==='profileDrawerBackdrop')closeProfileDrawer()};
 document.querySelector('#profileDrawer').onclick=e=>e.stopPropagation();
-document.querySelector('#openSettings').onclick=()=>{closeProfileDrawer();openSheet('#settingsBackdrop')};
+document.querySelector('#openSettings').onclick=()=>openSheet('#settingsBackdrop');
 document.querySelector('#incomeSummary').onclick=()=>openFlowDetail('income');
 document.querySelector('#expenseSummary').onclick=()=>openFlowDetail('expense');
 document.querySelector('#quickEntryInput').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();submitQuickEntry()}};
@@ -1594,7 +1594,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:' && !['localhost','127.0.0.1'].includes(location.hostname)){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-navigator.serviceWorker.register('./sw.js?v=88',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+navigator.serviceWorker.register('./sw.js?v=89',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1616,6 +1616,6 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="motion-runtime.js?v=88"></script>
+<script src="motion-runtime.js?v=89"></script>
 </body>
 </html>

@@ -20,11 +20,14 @@ const savedPixelBlur=JSON.parse(JSON.stringify(p));savedPixelBlur.radialBlur={ce
 const oldEnvironment=JSON.parse(JSON.stringify(p));delete oldEnvironment.environment;assert.deepEqual(JSON.parse(JSON.stringify(api.validate(oldEnvironment).environment)),{topHeight:10,topBlur:16,topShade:.2,dockShade:.22,drawerShade:.38,sheetShade:.38});
 const invalidEnvironment=JSON.parse(JSON.stringify(p));invalidEnvironment.environment.topShade=1.1;assert.throws(()=>api.validate(invalidEnvironment));
 const oldBackdropMotion=JSON.parse(JSON.stringify(p));delete oldBackdropMotion.backdropMotion;assert.equal(api.validate(oldBackdropMotion).backdropMotion.drawer.pageX,-86,'old presets keep their drawer shift');
+assert.equal(api.validate(oldBackdropMotion).backdropMotion.sheet.drawerScale,1,'old presets gain the drawer-behind-sheet controls');
+const sheetDrawerMove=JSON.parse(JSON.stringify(p));sheetDrawerMove.backdropMotion.sheet.drawerX=-24;sheetDrawerMove.backdropMotion.sheet.drawerY=12;sheetDrawerMove.backdropMotion.sheet.drawerScale=.9;assert.equal(api.validate(sheetDrawerMove).backdropMotion.sheet.drawerX,-24,'drawer motion survives preset validation');
 const invalidBackdropMotion=JSON.parse(JSON.stringify(p));invalidBackdropMotion.backdropMotion.sheet.pageScale=.2;assert.throws(()=>api.validate(invalidBackdropMotion));
 const oldContour=JSON.parse(JSON.stringify(p));delete oldContour.popupBlur;delete oldContour.innerPanels;const migratedContour=api.validate(oldContour);assert.equal(migratedContour.popupBlur.drawer.edge,8.75);assert.equal(migratedContour.innerPanels.sheet.size,1);
 const invalidContour=JSON.parse(JSON.stringify(p));invalidContour.popupBlur.drawer.feather=0;assert.throws(()=>api.validate(invalidContour));
 const invalidInnerPanel=JSON.parse(JSON.stringify(p));invalidInnerPanel.innerPanels.drawer.opacity=1.2;assert.throws(()=>api.validate(invalidInnerPanel));
 assert.match(html,/id="vfDockMaskCenter"/,'liquid dock silhouette has a contour blur mask');
+assert.match(fs.readFileSync('motion-runtime.js','utf8'),/contourMaskUrl\(w,h,corners,zone,inner,outer,soft\)/,'each dock contour blur mask uses local shape geometry');
 assert.match(html,/\.bottom-zone\{[^}]*background:transparent/,'dock container has no bottom vignette');
 const staleMaterial=api.upgradeTracks(JSON.parse(JSON.stringify(p)));staleMaterial.transitions.expand.frames[0].state.material={opacity:.1};staleMaterial.transitions.expand.tracks.entry.frames[0].state.material={blur:99};const normalized=api.validate(staleMaterial);assert.equal(Object.hasOwn(normalized.transitions.expand.frames[0].state,'material'),false,'global material cannot remain in transition keyframes');assert.equal(Object.hasOwn(normalized.transitions.expand.tracks.entry.frames[0].state,'material'),false,'global material cannot remain in element keyframes');
 const bad=JSON.parse(JSON.stringify(p));bad.transitions.expand.frames[1].t=0;assert.throws(()=>api.validate(bad));
