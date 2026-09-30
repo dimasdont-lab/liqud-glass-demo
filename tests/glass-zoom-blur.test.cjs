@@ -11,9 +11,9 @@ test('glass samples only the real page, never its own clones', () => {
   assert.doesNotMatch(source, /document\.querySelector\('\.app'\)/);
 });
 
-test('reflection displaces live pixels without rotating the whole page', () => {
-  assert.match(source, /feDisplacementMap/);
-  assert.match(source, /setDirection\(record,angle\)/);
-  assert.doesNotMatch(source, /copy\.style\.transform=`rotate/);
+test('glass blurs the zoomed source without refraction', () => {
+  assert.match(source, /copy\.style\.transform=transform/);
+  assert.match(source, /record\.content\.style\.filter=blur>0\?`blur/);
+  assert.doesNotMatch(source, /feDisplacementMap|setDirection\(/);
   assert.match(source, /addEventListener\('scroll',align/);
 });

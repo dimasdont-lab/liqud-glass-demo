@@ -24,9 +24,7 @@ assert.equal(api.validate(oldBackdropMotion).backdropMotion.sheet.drawerScale,1,
 const sheetDrawerMove=JSON.parse(JSON.stringify(p));sheetDrawerMove.backdropMotion.sheet.drawerX=-24;sheetDrawerMove.backdropMotion.sheet.drawerY=12;sheetDrawerMove.backdropMotion.sheet.drawerScale=.9;assert.equal(api.validate(sheetDrawerMove).backdropMotion.sheet.drawerX,-24,'drawer motion survives preset validation');
 const invalidBackdropMotion=JSON.parse(JSON.stringify(p));invalidBackdropMotion.backdropMotion.sheet.pageScale=.2;assert.throws(()=>api.validate(invalidBackdropMotion));
 const oldContour=JSON.parse(JSON.stringify(p));delete oldContour.popupBlur;delete oldContour.innerPanels;const migratedContour=api.validate(oldContour);assert.equal(migratedContour.popupBlur.drawer.edge,8.75);assert.equal(migratedContour.innerPanels.sheet.size,1);
-const oldReflection=JSON.parse(JSON.stringify(p));delete oldReflection.reflections;assert.equal(api.validate(oldReflection).reflections.dock.angle,180,'existing presets gain a static contour reflection');
-const percentReflection=JSON.parse(JSON.stringify(p));percentReflection.reflections.dock={enabled:true,intensity:.5,width:8,softness:2,angle:180};const convertedReflection=api.validate(percentReflection);assert.equal(convertedReflection.reflections.dock.width,5.12,'old percentage reflection becomes a fixed pixel width');assert.equal(convertedReflection.reflections.dock.softness,1.28,'old percentage softness becomes pixels');assert.equal(api.validate(convertedReflection).reflections.dock.width,5.12,'pixel width is not converted twice');
-const invalidReflection=JSON.parse(JSON.stringify(p));invalidReflection.reflections.drawer.width=33;assert.throws(()=>api.validate(invalidReflection),'reflection stays within its pixel range');
+const oldReflection=JSON.parse(JSON.stringify(p));oldReflection.reflections={dock:{enabled:true,intensity:1,width:32,softness:1,angle:180}};assert.equal(Object.hasOwn(api.validate(oldReflection),'reflections'),false,'legacy refraction is removed from saved presets');
 const oldZoom=JSON.parse(JSON.stringify(p));delete oldZoom.zoom;assert.equal(api.validate(oldZoom).zoom.dock.center,0,'older presets gain neutral contour zoom');
 const customZoom=JSON.parse(JSON.stringify(p));customZoom.zoom.dock.center=-8;customZoom.zoom.dock.middle=4;customZoom.zoom.drawer.edge=12;assert.equal(api.validate(customZoom).zoom.dock.center,-8,'signed zoom survives preset validation');
 assert.equal(api.validate(customZoom).zoom.drawer.edge,12,'popup zoom survives preset validation');
@@ -34,7 +32,7 @@ const invalidZoom=JSON.parse(JSON.stringify(p));invalidZoom.zoom.dock.edgeInset=
 const invalidContour=JSON.parse(JSON.stringify(p));invalidContour.popupBlur.drawer.feather=0;assert.throws(()=>api.validate(invalidContour));
 const invalidInnerPanel=JSON.parse(JSON.stringify(p));invalidInnerPanel.innerPanels.drawer.opacity=1.2;assert.throws(()=>api.validate(invalidInnerPanel));
 assert.match(html,/id="vfDockMaskCenter"/,'liquid dock silhouette has a contour blur mask');
-assert.match(html,/id="dockMirrorSurface"/,'one liquid silhouette carries the lower-row live reflection without capsule seams');
+assert.doesNotMatch(html,/id="dockMirrorSurface"/,'unused lower-row refraction layer is removed');
 assert.match(html,/id="dockZoomSurfaces"/,'liquid dock has a contour-clipped zoom layer');
 assert.match(fs.readFileSync('motion-runtime.js','utf8'),/contourMaskUrl\(w,h,corners,zone,inner,outer,soft\)/,'each dock contour blur mask uses local shape geometry');
 assert.match(html,/\.bottom-zone\{[^}]*background:transparent/,'dock container has no bottom vignette');

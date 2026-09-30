@@ -97,7 +97,6 @@
     .dock-layout{position:relative;height:128px;transition:height .62s cubic-bezier(.2,.72,.18,1)}
     .dock-liquid-layer{position:absolute;z-index:1;left:-14px;top:-14px;display:block;width:calc(100% + 28px);height:156px;overflow:visible;pointer-events:none;contain:layout paint;will-change:contents}
     .dock-liquid-outline-layer{position:absolute;z-index:2;left:-14px;top:-14px;display:block;width:calc(100% + 28px);height:156px;overflow:visible;pointer-events:none}
-    .dock-mirror-surface{position:absolute;z-index:3;left:-14px;top:-14px;width:calc(100% + 28px);height:156px;overflow:hidden;pointer-events:none;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat;contain:paint}
     .dock-zoom-surfaces{position:absolute;z-index:2;left:-14px;top:-14px;width:calc(100% + 28px);height:156px;pointer-events:none}
     .dock-zoom-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat;contain:paint}
     .vf-mirror-content{position:absolute;inset:0;display:block;pointer-events:none;overflow:hidden;contain:paint}
@@ -137,10 +136,8 @@
     .vf-radial-blur-stack{position:absolute;inset:0;z-index:0;border-radius:inherit;overflow:hidden;pointer-events:none}
     .vf-radial-blur-layer{position:absolute;inset:0;display:block;border-radius:inherit;pointer-events:none;background:rgba(255,255,255,.001);mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat}
     .vf-radial-blur-host> :not(.vf-radial-blur-stack){position:relative;z-index:1}
-    .vf-radial-blur-host>.vf-edge-reflection{position:absolute;inset:0;z-index:2;border-radius:inherit;pointer-events:none;overflow:hidden;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat;contain:paint}
     .vf-radial-blur-host>.vf-contour-zoom-stack{position:absolute;inset:0;z-index:1;border-radius:inherit;overflow:hidden;pointer-events:none}
     .vf-contour-zoom-layer{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat;contain:paint}
-    #dockMaterialSurfaces .dock-material-surface>.vf-edge-reflection{display:none!important}
     .vf-radial-blur-host.quick-entry-shell::after{z-index:2}
     #dockMaterialSurfaces .vf-radial-blur-host.dock-material-surface{backdrop-filter:none;-webkit-backdrop-filter:none}
     #bottomZone .vf-radial-blur-host.dock-indicator::before{z-index:1;backdrop-filter:none;-webkit-backdrop-filter:none}
@@ -416,7 +413,6 @@
     <div id="dockMaterialSurfaces" aria-hidden="true"><div id="dockMaterialNav" class="dock-material-surface"></div><div id="dockMaterialActive" class="dock-material-surface"></div><span id="vfDockBlurEdge" class="vf-dock-contour-layer"></span><span id="vfDockBlurMiddle" class="vf-dock-contour-layer"></span><span id="vfDockBlurCenter" class="vf-dock-contour-layer"></span></div>
     <svg class="dock-liquid-outline-layer" id="dockLiquidOutlineLayer" aria-hidden="true" preserveAspectRatio="none"><defs><filter id="dockLiquidOutlineFilter" x="-22%" y="-36%" width="144%" height="172%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="3.6" result="blur"/><feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8.2" result="goo"/><feMorphology in="goo" operator="erode" radius="1" result="innerShape"/><feComposite in="goo" in2="innerShape" operator="out" result="edgeMask"/><feFlood flood-color="#fff" flood-opacity=".3" result="edgeColor"/><feComposite in="edgeColor" in2="edgeMask" operator="in" result="edge"/></filter></defs><g id="dockLiquidOutlineGroup" filter="url(#dockLiquidOutlineFilter)" fill="#fff"><rect id="liquidOutlineNav"/><rect id="liquidOutlineActive"/><path id="liquidOutlineNeck"/><ellipse id="liquidOutlineDrop"/><ellipse id="liquidOutlineDrop2"/><ellipse id="liquidOutlineDrop3"/></g></svg>
     <div class="dock-zoom-surfaces" id="dockZoomSurfaces" aria-hidden="true"><span class="dock-zoom-layer" data-zone="center"></span><span class="dock-zoom-layer" data-zone="middle"></span><span class="dock-zoom-layer" data-zone="edge"></span></div>
-    <div class="dock-mirror-surface" id="dockMirrorSurface" aria-hidden="true"></div>
     <div class="quick-entry-shell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M12 5v14"/></svg><input class="quick-entry-input" id="quickEntryInput" placeholder="Введи операцію або борг" autocomplete="off" enterkeyhint="done"><button class="quick-send" id="quickSend" aria-label="Розпізнати фразу"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6.5 10.5 12 5l5.5 5.5"/></svg></button></div>
     <nav class="dock" aria-label="Головна навігація"><div class="dock-group"><div class="dock-indicator" aria-hidden="true"></div><svg class="dock-selection-fluid" id="dockSelectionFluid" aria-hidden="true"><path id="dockSelectionTail"/></svg>
       <button data-screen="goals" aria-label="Цілі"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="m14 10 5-5"/></svg><span class="dock-label">Цілі</span></button>
@@ -1628,7 +1624,7 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="mirror-runtime.js?v=92"></script>
-<script src="motion-runtime.js?v=92"></script>
+<script src="mirror-runtime.js?v=93"></script>
+<script src="motion-runtime.js?v=93"></script>
 </body>
 </html>
