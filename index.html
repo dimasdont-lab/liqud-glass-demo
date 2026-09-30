@@ -126,6 +126,13 @@
     /* One editable, directional rim for the entry field; mask fades only the rim. */
     .quick-entry-shell::after{content:"";position:absolute;inset:0;box-sizing:border-box;border-style:solid;border-width:var(--dock-glass-border,1px) var(--dock-glass-border-x,1px);border-color:rgba(255,255,255,var(--dock-glass-border-opacity,.3));border-radius:inherit;pointer-events:none;mask-image:var(--dock-outline-mask);-webkit-mask-image:var(--dock-outline-mask)}
     .quick-entry-shell.listening::after{border-color:rgba(255,64,96,.6)}
+    .vf-radial-blur-stack{position:absolute;inset:0;z-index:0;border-radius:inherit;overflow:hidden;pointer-events:none}
+    .vf-radial-blur-layer{position:absolute;inset:0;display:block;border-radius:inherit;pointer-events:none;background:rgba(255,255,255,.001)}
+    .vf-radial-blur-host> :not(.vf-radial-blur-stack){position:relative;z-index:1}
+    .vf-radial-blur-host.quick-entry-shell::after{z-index:2}
+    #dockMaterialSurfaces .vf-radial-blur-host.dock-material-surface{backdrop-filter:none;-webkit-backdrop-filter:none}
+    #bottomZone .vf-radial-blur-host.dock-indicator::before{z-index:1;backdrop-filter:none;-webkit-backdrop-filter:none}
+    .vf-radial-blur-host.profile-drawer,.vf-radial-blur-host.sheet,.vf-radial-blur-host.voice-popover{backdrop-filter:none;-webkit-backdrop-filter:none}
     /* HTML glass plates follow the two SVG liquid masses independently. */
     #dockMaterialSurfaces{position:absolute;z-index:2;inset:0;pointer-events:none;overflow:visible}
     #dockMaterialSurfaces .dock-material-surface{position:absolute;left:0;top:0;opacity:0;overflow:hidden;pointer-events:none;background:transparent;border:0;box-shadow:none;backdrop-filter:blur(var(--dock-glass-blur,15px)) saturate(var(--dock-glass-lens,1.2));-webkit-backdrop-filter:blur(var(--dock-glass-blur,15px)) saturate(var(--dock-glass-lens,1.2));will-change:left,top,width,height,border-radius,opacity}
@@ -1563,7 +1570,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=81',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=82',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1585,6 +1592,6 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="motion-runtime.js?v=81"></script>
+<script src="motion-runtime.js?v=82"></script>
 </body>
 </html>
