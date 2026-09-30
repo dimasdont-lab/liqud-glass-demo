@@ -173,6 +173,7 @@
     .profile-drawer{position:absolute;isolation:isolate;z-index:2;right:0;top:0;bottom:0;width:min(76vw,360px);height:100%;padding:calc(env(safe-area-inset-top) + 28px) 16px calc(env(safe-area-inset-bottom) + 132px);background:linear-gradient(110deg,rgba(31,31,36,.48),rgba(12,12,15,.28) 48%,rgba(35,35,41,.34));border-left:1px solid rgba(255,255,255,.18);border-radius:30px 0 0 30px;box-shadow:-26px 0 70px rgba(0,0,0,.34),inset 8px 0 24px rgba(255,255,255,.025);backdrop-filter:blur(15px) saturate(145%);-webkit-backdrop-filter:blur(15px) saturate(145%);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;transform:translateX(104%);transition:transform .4s cubic-bezier(.22,.9,.28,1)}
     .profile-drawer::before{position:fixed;inset:1px 0 1px 1px;border-radius:29px 0 0 29px;background:radial-gradient(ellipse at 12% 45%,rgba(255,255,255,.14),transparent 18%),linear-gradient(92deg,rgba(255,255,255,.1),transparent 9% 88%,rgba(255,255,255,.025));filter:saturate(130%);opacity:.58}
     .profile-drawer-backdrop.open .profile-drawer{transform:translateX(0)}
+    html.vf-motion-active .profile-drawer{transition:none}
     body.drawer-open .bottom-zone{pointer-events:none}body.drawer-open .more-btn{pointer-events:auto}
     body.drawer-open .app{transform:translateX(calc(-1 * min(22vw,105px)))}
     html.vf-motion-active body.drawer-open .app{transform:none}
@@ -974,7 +975,7 @@ function switchScreen(id){
 }
 function lockDrawerPage(){if(document.body.classList.contains('drawer-scroll-locked'))return;drawerLockedScrollY=window.scrollY;document.body.classList.add('drawer-scroll-locked');document.documentElement.style.overflow='hidden';document.body.style.overflow='hidden'}
 function unlockDrawerPage(){if(!document.body.classList.contains('drawer-scroll-locked'))return;document.body.classList.remove('drawer-scroll-locked');document.documentElement.style.overflow='';document.body.style.overflow='';if(Math.abs(window.scrollY-drawerLockedScrollY)>1)window.scrollTo(0,drawerLockedScrollY);lastPageScrollY=drawerLockedScrollY}
-function openProfileDrawer(){lockDrawerPage();document.body.classList.add('drawer-open');const button=document.querySelector('#moreBtn');button.classList.add('active');button.setAttribute('aria-label','Назад');button.querySelector('.dock-label').textContent='Назад';animateDockLiquid('drawer');const drawer=document.querySelector('#profileDrawer');drawer.scrollTop=0;document.querySelector('#profileDrawerBackdrop').classList.add('open')}
+function openProfileDrawer(){window.VFMotion?.preparePopup('drawer');lockDrawerPage();document.body.classList.add('drawer-open');const button=document.querySelector('#moreBtn');button.classList.add('active');button.setAttribute('aria-label','Назад');button.querySelector('.dock-label').textContent='Назад';animateDockLiquid('drawer');const drawer=document.querySelector('#profileDrawer');drawer.scrollTop=0;document.querySelector('#profileDrawerBackdrop').classList.add('open')}
 function closeProfileDrawer(){const wasOpen=document.body.classList.contains('drawer-open');document.body.classList.remove('drawer-open');document.querySelector('#profileDrawerBackdrop')?.classList.remove('open');const button=document.querySelector('#moreBtn');button?.classList.remove('active');button?.setAttribute('aria-label','Додатково');if(button)button.querySelector('.dock-label').textContent='Додатково';if(wasOpen){dockCompact=false;animateDockLiquid(false);unlockDrawerPage()}}
 function toggleProfileDrawer(){document.body.classList.contains('drawer-open')?closeProfileDrawer():openProfileDrawer()}
 const liquidMix=(a,b,t)=>a+(b-a)*t;
@@ -1590,7 +1591,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:' && !['localhost','127.0.0.1'].includes(location.hostname)){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-navigator.serviceWorker.register('./sw.js?v=97',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+navigator.serviceWorker.register('./sw.js?v=98',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1612,7 +1613,8 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="mirror-runtime.js?v=97"></script>
-<script src="motion-runtime.js?v=97"></script>
+<script src="mirror-runtime.js?v=98"></script>
+<script src="motion-preset.js?v=98"></script>
+<script src="motion-runtime.js?v=98"></script>
 </body>
 </html>

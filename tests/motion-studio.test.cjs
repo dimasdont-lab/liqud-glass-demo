@@ -7,6 +7,13 @@ vm.createContext(context);
 vm.runInContext(html.slice(html.indexOf('const liquidMix='),html.indexOf('function animateDockLiquid(mode)')),context);
 vm.runInContext(fs.readFileSync('motion-runtime.js','utf8'),context);
 const api=context.window.VFMotion,p=api.defaults();api.validate(p);
+const bundledContext={window:{}};vm.createContext(bundledContext);vm.runInContext(fs.readFileSync('motion-preset.js','utf8'),bundledContext);
+const bundled=bundledContext.window.VF_BUNDLED_MOTION_PROFILE;
+assert.ok(bundled,'the published demo ships the editor-approved profile');
+assert.doesNotThrow(()=>api.validate(bundled),'the bundled profile must remain importable');
+assert.equal(bundled.transitions.expand.duration,820,'the exported editor timing is preserved');
+assert.equal(bundled.material.opacity,.07,'the exported glass material is preserved');
+assert.match(html,/window\.VFMotion\?\.preparePopup\('drawer'\)/,'drawer is positioned at its first animation key before opening');
 for(const name of Object.keys(p.transitions)){
  for(let i=0;i<=100;i++){const s=api.sample(name,i/100);for(const a of Object.values(s).filter(Array.isArray)){const nums=a.flat();assert.ok(nums.every(Number.isFinite),name+' finite')}}
  for(const f of p.transitions[name].frames){const s=api.sample(name,f.t);assert.ok(Math.abs(s.entry[3]-f.state.entry[3])<.0001,'key time matches exact geometry')}
