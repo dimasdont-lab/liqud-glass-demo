@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8');
 const buttons=['goals','insights','debts','home','more'].map(screen=>({style:{},dataset:{screen},classList:{contains:()=>screen==='home'}}));
-const node={clientWidth:420,attributes:{},setAttribute(k,v){this.attributes[k]=v},style:{setProperty(k,v){this[k]=v}},classList:{remove(){},toggle(){}}};
+const node={clientWidth:420,attributes:{},setAttribute(k,v){this.attributes[k]=v},style:{setProperty(k,v){this[k]=v}},classList:{add(){},remove(){},toggle(){}}};
 const context={console,URLSearchParams,location:{search:'?studio=1',origin:'http://localhost'},localStorage:{getItem(){return null}},window:{},parent:{postMessage(){}},document:{body:{classList:{add(){}}},querySelector:()=>node,querySelectorAll:s=>s.includes('button')?buttons:[],documentElement:node},setTimeout(){},addEventListener(){},animateDockLiquid(){},openSheet(){},closeSheet(){}};
 vm.createContext(context);
 vm.runInContext(html.slice(html.indexOf('const liquidMix='),html.indexOf('function animateDockLiquid(mode)')),context);
@@ -18,6 +18,8 @@ const directionalBorder=JSON.parse(JSON.stringify(p));directionalBorder.material
 const oldBlur=JSON.parse(JSON.stringify(p));delete oldBlur.radialBlur;oldBlur.material.blur=10;const blurMigrated=api.validate(oldBlur);assert.deepEqual(JSON.parse(JSON.stringify(blurMigrated.radialBlur)),{center:10,middle:16,edge:26,innerStop:50,outerStop:90,feather:6});
 const oldEnvironment=JSON.parse(JSON.stringify(p));delete oldEnvironment.environment;assert.deepEqual(JSON.parse(JSON.stringify(api.validate(oldEnvironment).environment)),{topHeight:10,topBlur:16,topShade:.2,dockShade:.22,drawerShade:.38,sheetShade:.38});
 const invalidEnvironment=JSON.parse(JSON.stringify(p));invalidEnvironment.environment.topShade=1.1;assert.throws(()=>api.validate(invalidEnvironment));
+const oldBackdropMotion=JSON.parse(JSON.stringify(p));delete oldBackdropMotion.backdropMotion;assert.equal(api.validate(oldBackdropMotion).backdropMotion.drawer.pageX,-86,'old presets keep their drawer shift');
+const invalidBackdropMotion=JSON.parse(JSON.stringify(p));invalidBackdropMotion.backdropMotion.sheet.pageScale=.2;assert.throws(()=>api.validate(invalidBackdropMotion));
 assert.match(html,/\.bottom-zone\{[^}]*background:transparent/,'dock container has no bottom vignette');
 const staleMaterial=api.upgradeTracks(JSON.parse(JSON.stringify(p)));staleMaterial.transitions.expand.frames[0].state.material={opacity:.1};staleMaterial.transitions.expand.tracks.entry.frames[0].state.material={blur:99};const normalized=api.validate(staleMaterial);assert.equal(Object.hasOwn(normalized.transitions.expand.frames[0].state,'material'),false,'global material cannot remain in transition keyframes');assert.equal(Object.hasOwn(normalized.transitions.expand.tracks.entry.frames[0].state,'material'),false,'global material cannot remain in element keyframes');
 const bad=JSON.parse(JSON.stringify(p));bad.transitions.expand.frames[1].t=0;assert.throws(()=>api.validate(bad));
