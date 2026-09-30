@@ -123,6 +123,9 @@
     .dock-group button:nth-of-type(5){left:calc(80% - 3.6px)}
     .dock-group .compact-active-btn{display:none!important}
     .bottom-zone.compact .dock-group button{left:0;transform:translateZ(0) scale(.72)}
+    /* One editable, directional rim for the entry field; mask fades only the rim. */
+    .quick-entry-shell::after{content:"";position:absolute;inset:0;box-sizing:border-box;border-style:solid;border-width:var(--dock-glass-border,1px) var(--dock-glass-border-x,1px);border-color:rgba(255,255,255,var(--dock-glass-border-opacity,.3));border-radius:inherit;pointer-events:none;mask-image:var(--dock-outline-mask);-webkit-mask-image:var(--dock-outline-mask)}
+    .quick-entry-shell.listening::after{border-color:rgba(255,64,96,.6)}
     /* HTML glass plates follow the two SVG liquid masses independently. */
     #dockMaterialSurfaces{position:absolute;z-index:2;inset:0;pointer-events:none;overflow:visible}
     #dockMaterialSurfaces .dock-material-surface{position:absolute;left:0;top:0;opacity:0;overflow:hidden;pointer-events:none;background:transparent;border:0;box-shadow:none;backdrop-filter:blur(var(--dock-glass-blur,15px)) saturate(var(--dock-glass-lens,1.2));-webkit-backdrop-filter:blur(var(--dock-glass-blur,15px)) saturate(var(--dock-glass-lens,1.2));will-change:left,top,width,height,border-radius,opacity}
@@ -1560,7 +1563,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:'){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=80',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=81',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1582,6 +1585,6 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="motion-runtime.js?v=80"></script>
+<script src="motion-runtime.js?v=81"></script>
 </body>
 </html>
