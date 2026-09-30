@@ -47,6 +47,10 @@ function render(){if(!profile)return;selected=Math.min(selected,track().frames.l
  const radialTitle=document.createElement('h3');radialTitle.textContent='Градієнт розмиття · усі скляні елементи';
  const radialNote=document.createElement('p');radialNote.className='hint';radialNote.textContent='Один профіль для дока, індикатора, панелі «Додатково» та випливаючих вікон. Три зони плавно перетікають одна в одну, без ключів анімації.';
  const radialControls=document.createElement('div');fields(radialControls,profile.radialBlur,[['center','Центр, px',0,60,1],['middle','Середня зона, px',0,60,1],['edge','Край, px',0,60,1],['innerStop','Межа центру, %',20,70,1],['outerStop','Межа краю, %',75,95,1],['feather','Плавність переходу, %',1,8,1]]);materialRoot.prepend(radialTitle,radialNote,radialControls);
+ const environmentRoot=$('#environment');environmentRoot.replaceChildren();
+ const environmentNote=document.createElement('p');environmentNote.className='hint';environmentNote.textContent='Незалежні статичні шари навколо інтерфейсу. Нижню градієнтну підложку прибрано; ці параметри не прив’язані до ключів.';
+ fields(environmentRoot,profile.environment,[['topHeight','Висота верхньої зони, % екрана',0,30,1],['topBlur','Розмиття зверху, px',0,60,1],['topShade','Затемнення зверху',0,1,.01],['dockShade','Тінь під доком',0,1,.01],['drawerShade','Поза панеллю «Додатково»',0,1,.01],['sheetShade','Поза випливаючими вікнами',0,1,.01]]);
+ environmentRoot.prepend(environmentNote);
  if(tab==='popup'){const q=profile.popups[popup];control($('#material'),'Ширина вікна, px',q.width|| (popup==='drawer'?360:480),200,900,1,v=>q.width=v);control($('#material'),'Макс. висота, % екрана',q.height||90,20,100,1,v=>q.height=v)}
  const l=$('#liquid');fields(l,profile.liquid,[['strength','Деформація',0,3,.05],['reach','Відстань злиття, px',0,250,1],['neck','Товщина перешийка',0,3,.05],['tension','Натяг краю',.05,.9,.01],['blur','М’якість злиття',0,8,.1]]);const label=document.createElement('label'),toggle=document.createElement('input');toggle.type='checkbox';toggle.checked=profile.liquid.enabled;toggle.onchange=()=>change(()=>profile.liquid.enabled=toggle.checked);label.append(toggle,' Зливання крапель');l.prepend(label);$('#undo').disabled=!history.length;$('#redo').disabled=!future.length;
 }
@@ -58,7 +62,7 @@ function setTab(value){stop();tab=value;t=0;selected=0;$('#dockTab').classList.t
 $('#dockTab').onclick=()=>setTab('dock');$('#popupTab').onclick=()=>setTab('popup');
 $('#add').onclick=()=>{if(!profile)return;const local=(t*scene().duration-(track().delay||0))/track().duration;if(local<=0||local>=1){status('Обери час усередині доріжки елемента');return}if(track().frames.some(f=>Math.abs(f.t-local)<.005)){status('У цього елемента тут уже є ключ');return}change(()=>{let f;if(tab==='dock'){const api=iframe.contentWindow.VFMotion;api.set(profile);const s=api.sample(transition,t),r=profile.referenceWidth/s.w;for(const k of ['entry','entryRim','entryBulge','nav','active','navRim','activeRim','neck','drop','drop2','drop3','shine','entryHtml','indicator']){s[k][0]*=r;s[k][2]*=r}for(const b of s.buttons){b[0]*=r;b[2]*=r}s.w=profile.referenceWidth;f={t:local,state:s}}else{const fs=track().frames;let i=0;while(i<fs.length-2&&fs[i+1].t<local)i++;const a=fs[i],b=fs[i+1],u=iframe.contentWindow.VFMotion.ease((local-a.t)/(b.t-a.t),track().curve);f={t:local,v:a.v.map((v,j)=>v+(b.v[j]-v)*u)}}track().frames.push(f);track().frames.sort((a,b)=>a.t-b.t);selected=track().frames.indexOf(f)},true)};
 $('#remove').onclick=()=>{if(selected===0||selected===track().frames.length-1)return;change(()=>{track().frames.splice(selected,1);selected--;t=keyMs(track().frames[selected])/scene().duration},true)};
-const panelNames={geometry:'Форма та позиція',timing:'Тривалість і ключі',curvePanel:'Крива цього елемента',material:'Скло',liquid:'Рідина',project:'Проєкт'};
+const panelNames={geometry:'Форма та позиція',timing:'Тривалість і ключі',curvePanel:'Крива цього елемента',material:'Скло',environment:'Оточення',liquid:'Рідина',project:'Проєкт'};
 const settingsPanel=$('#settingsPanel'),toolstrip=document.querySelector('.toolstrip');
 function showSettings(button){
  if(!profile)return;
@@ -67,7 +71,7 @@ function showSettings(button){
  settingsPanel.scrollTop=0;
  document.querySelectorAll('[data-panel]').forEach(b=>{const active=b===button;b.classList.toggle('active-category',active);b.setAttribute('aria-pressed',String(active))});
  $('#panelTitle').textContent=panelNames[button.dataset.panel];
- $('#panelContext').textContent=button.dataset.panel==='material'?'Спільне налаштування — поза таймлайном і ключами.':$('#selection').textContent;
+ $('#panelContext').textContent=['material','environment'].includes(button.dataset.panel)?'Спільне налаштування — поза таймлайном і ключами.':$('#selection').textContent;
  const mobile=matchMedia('(max-width:849px)').matches;
  document.body.classList.toggle('inspector-open',mobile);
  if(mobile){document.body.style.setProperty('--toolstrip-height',`${toolstrip.getBoundingClientRect().height}px`);if(!settingsPanel.open)settingsPanel.show()}
