@@ -1,13 +1,13 @@
 {
-  "name": "Voice Finance Free",
-  "short_name": "Voice Finance",
-  "start_url": "./?v=25",
-  "id": "./",
+  "name": "Liquid Studio",
+  "short_name": "Liquid Studio",
+  "start_url": "./motion-editor.html",
+  "id": "./motion-editor.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#050505",
   "theme_color": "#050505",
-  "description": "Безкоштовний локальний голосовий трекер фінансів",
+  "description": "Редактор анімацій і скла для Liquid Glass Demo",
   "icons": [
     {"src":"./icons/liquid-studio-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
     {"src":"./icons/liquid-studio-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}

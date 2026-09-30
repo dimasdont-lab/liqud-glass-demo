@@ -24,7 +24,10 @@ test('blur is clipped to the same liquid silhouette and rounded rim', () => {
   assert.match(motion, /renderDockLiquid\(visible\).*updateDockZoom\(visible\)/);
   assert.match(motion, /<feComposite in="feather" in2="mass" operator="in"\/>/);
   assert.match(motion, /clip-path="url\(#contour\)"/);
-  assert.match(motion, /inner=\[innerInset,innerInset\],outer=\[outerInset,outerInset\]/);
+  assert.match(motion, /inset=depth\*\(1-blur\.edgeStart\/100\),inner=\[inset,inset\],outer=inner/);
+  assert.match(motion, /const visible=liquid\(s\);renderDockLiquid\(visible\)/);
+  assert.match(motion, /scale=Math\.max\(\.5,Math\.min\(1\.5,1\+z\.value\/39\)\)/);
+  assert.match(html, /#bottomZone \.dock-indicator::before\{[^}]*backdrop-filter:none/);
   assert.match(html, /\.dock-zoom-surfaces\{position:absolute;z-index:0/);
   assert.match(html, /\.quick-entry-shell::before\{[^}]*--dock-entry-tint/);
 });
