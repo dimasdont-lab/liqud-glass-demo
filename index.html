@@ -144,6 +144,7 @@
     /* HTML glass plates follow the two SVG liquid masses independently. */
     #dockMaterialSurfaces{position:absolute;z-index:2;inset:0;pointer-events:none;overflow:visible}
     #dockMaterialSurfaces .vf-dock-contour-layer{position:absolute;left:-14px;top:-14px;width:calc(100% + 28px);height:156px;pointer-events:none;background:rgba(255,255,255,.001);mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat}
+    html.vf-motion-active #dockMaterialSurfaces .vf-dock-contour-layer{display:none}
     #vfDockBlurCenter{mask-image:url(#vfDockMaskCenter);-webkit-mask-image:url(#vfDockMaskCenter)}
     #vfDockBlurMiddle{mask-image:url(#vfDockMaskMiddle);-webkit-mask-image:url(#vfDockMaskMiddle)}
     #vfDockBlurEdge{mask-image:url(#vfDockMaskEdge);-webkit-mask-image:url(#vfDockMaskEdge)}
@@ -1593,7 +1594,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:' && !['localhost','127.0.0.1'].includes(location.hostname)){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-  navigator.serviceWorker.register('./sw.js?v=87',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+navigator.serviceWorker.register('./sw.js?v=88',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1615,6 +1616,6 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="motion-runtime.js?v=87"></script>
+<script src="motion-runtime.js?v=88"></script>
 </body>
 </html>

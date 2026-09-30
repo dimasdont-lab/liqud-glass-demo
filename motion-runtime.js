@@ -17,8 +17,8 @@ function defaults(){
  return {format:'voice-finance-motion',version:1,referenceWidth:expanded.w,
  material:{color:'#242428',opacity:.9,blur:15,lens:1.2,border:1,borderHorizontal:1,borderVertical:1,borderFade:0,borderFadeSpan:18,borderOpacity:.3,accent:'#ff375f'},
  indicatorMaterial:{color:'#09090a',opacity:.8,blur:8,lens:1,border:1,borderOpacity:.28},
- radialBlur:{center:8,middle:15,edge:28,innerStop:50,outerStop:90,feather:6},
- popupBlur:{drawer:{center:8,middle:15,edge:28,innerStop:50,outerStop:90,feather:6},sheet:{center:8,middle:15,edge:28,innerStop:50,outerStop:90,feather:6}},
+ radialBlur:{center:12.5,middle:23.5,edge:43.75,innerStop:50,outerStop:90,feather:6,units:'percent'},
+ popupBlur:{drawer:{center:2.5,middle:4.7,edge:8.75,innerStop:50,outerStop:90,feather:6,units:'percent'},sheet:{center:2.5,middle:4.7,edge:8.75,innerStop:50,outerStop:90,feather:6,units:'percent'}},
  innerPanels:{drawer:{size:1,opacity:.045,blur:8,radius:24},sheet:{size:1,opacity:.06,blur:8,radius:18}},
  environment:{topHeight:10,topBlur:16,topShade:.2,dockShade:.22,drawerShade:.38,sheetShade:.38},
  backdropMotion:{drawer:{pageX:-86,pageY:0,pageScale:1,dockX:0,dockY:0,dockScale:1},sheet:{pageX:0,pageY:0,pageScale:1,dockX:0,dockY:0,dockScale:1}},
@@ -32,7 +32,11 @@ function validate(p){
  // Migrate the former indicator color into its own non-animated material group.
  p.indicatorMaterial??={color:p.material?.indicator||'#09090a',opacity:.8,blur:8,lens:1,border:1,borderOpacity:.28};
  p.radialBlur??={center:p.material?.blur??8,middle:Math.min(60,(p.material?.blur??8)*1.6),edge:Math.min(60,(p.material?.blur??8)*2.6),innerStop:50,outerStop:90,feather:6};
- p.popupBlur??={drawer:clone(p.radialBlur),sheet:clone(p.radialBlur)};
+ p.popupBlur??={drawer:clone(p.radialBlur.units==='percent'?{center:2.5,middle:4.7,edge:8.75,innerStop:50,outerStop:90,feather:6,units:'percent'}:p.radialBlur),sheet:clone(p.radialBlur.units==='percent'?{center:2.5,middle:4.7,edge:8.75,innerStop:50,outerStop:90,feather:6,units:'percent'}:p.radialBlur)};
+ // Old presets stored blur strength in px. Convert once, preserving the old
+ // appearance around its original 64px dock / 320px popup reference size.
+ const percentBlur=(blur,reference)=>{if(!blur||blur.units==='percent')return;for(const key of ['center','middle','edge'])blur[key]=Math.min(100,Math.round(blur[key]/reference*10000)/100);blur.units='percent'};
+ percentBlur(p.radialBlur,64);percentBlur(p.popupBlur.drawer,320);percentBlur(p.popupBlur.sheet,320);
  p.innerPanels??={drawer:{size:1,opacity:.045,blur:8,radius:24},sheet:{size:1,opacity:.06,blur:8,radius:18}};
  p.environment??={topHeight:10,topBlur:16,topShade:.2,dockShade:.22,drawerShade:.38,sheetShade:.38};
  p.backdropMotion??={drawer:{pageX:-86,pageY:0,pageScale:1,dockX:0,dockY:0,dockScale:1},sheet:{pageX:0,pageY:0,pageScale:1,dockX:0,dockY:0,dockScale:1}};
@@ -49,7 +53,7 @@ function validate(p){
  for(const k of ['color'])if(!/^#[a-f0-9]{6}$/i.test(p.indicatorMaterial?.[k]))throw Error('Некоректний колір індикатора');
  for(const name of ['drawer','sheet']){const q=p.popups?.[name];if(!q||!/^#[a-f0-9]{6}$/i.test(q.color)||!numeric(q.curve)||q.frames.length<2||q.duration<80||q.duration>10000)throw Error('Некоректне вікно');let last=-1;for(const f of q.frames){if(!numeric(f.v)||f.v.length!==4||f.t<=last||f.t<0||f.t>1)throw Error('Некоректні ключі вікна');last=f.t}if(q.frames[0].t!==0||last!==1)throw Error('Некоректні межі вікна')}
  for(const group of [p.material,p.indicatorMaterial,p.liquid])for(const v of Object.values(group))if(typeof v==='number'&&(!Number.isFinite(v)||Math.abs(v)>10000))throw Error('Некоректне значення');
- const validBlur=radial=>radial&&['center','middle','edge'].every(k=>Number.isFinite(radial[k])&&radial[k]>=0&&radial[k]<=60)&&Number.isFinite(radial.innerStop)&&radial.innerStop>=20&&radial.innerStop<=70&&Number.isFinite(radial.outerStop)&&radial.outerStop>=75&&radial.outerStop<=95&&Number.isFinite(radial.feather)&&radial.feather>=1&&radial.feather<=8;
+ const validBlur=radial=>radial?.units==='percent'&&['center','middle','edge'].every(k=>Number.isFinite(radial[k])&&radial[k]>=0&&radial[k]<=100)&&Number.isFinite(radial.innerStop)&&radial.innerStop>=20&&radial.innerStop<=70&&Number.isFinite(radial.outerStop)&&radial.outerStop>=75&&radial.outerStop<=95&&Number.isFinite(radial.feather)&&radial.feather>=1&&radial.feather<=30;
  if(!validBlur(p.radialBlur)||!validBlur(p.popupBlur?.drawer)||!validBlur(p.popupBlur?.sheet))throw Error('Некоректний градієнт розмиття');
  for(const kind of ['drawer','sheet']){const panel=p.innerPanels?.[kind];if(!panel||!Number.isFinite(panel.size)||panel.size<.7||panel.size>1.5||!Number.isFinite(panel.opacity)||panel.opacity<0||panel.opacity>1||!Number.isFinite(panel.blur)||panel.blur<0||panel.blur>60||!Number.isFinite(panel.radius)||panel.radius<0||panel.radius>60)throw Error('Некоректний матеріал внутрішніх карток')}
  const env=p.environment;if(!env||!Number.isFinite(env.topHeight)||env.topHeight<0||env.topHeight>30||!Number.isFinite(env.topBlur)||env.topBlur<0||env.topBlur>60||!['topShade','dockShade','drawerShade','sheetShade'].every(k=>Number.isFinite(env[k])&&env[k]>=0&&env[k]<=1))throw Error('Некоректне затемнення оточення');
@@ -82,13 +86,13 @@ function rgba(hex,alpha){const n=parseInt(hex.slice(1),16);return`rgba(${n>>16},
 const contourHosts=new WeakMap();let contourSerial=0,contourDefs=null,contourObserver=null;
 function svgNode(name){return document.createElementNS('http://www.w3.org/2000/svg',name)}
 function contourRect(mask,fill,soft){const shape=svgNode('path');shape.setAttribute('fill',fill);if(soft)shape.setAttribute('filter',soft);mask.append(shape);return shape}
-function roundedPath(w,h,inset,corners){const x=inset,y=inset,a=Math.max(.1,w-2*inset),b=Math.max(.1,h-2*inset),r=corners.map(v=>Math.max(0,Math.min(v-inset,a/2,b/2))),[tl,tr,br,bl]=r;return`M ${x+tl} ${y} H ${x+a-tr} Q ${x+a} ${y} ${x+a} ${y+tr} V ${y+b-br} Q ${x+a} ${y+b} ${x+a-br} ${y+b} H ${x+bl} Q ${x} ${y+b} ${x} ${y+b-bl} V ${y+tl} Q ${x} ${y} ${x+tl} ${y} Z`}
+function roundedPath(w,h,insetX,insetY,corners){const x=insetX,y=insetY,a=Math.max(.1,w-2*x),b=Math.max(.1,h-2*y),factor=Math.min(a/w,b/h),r=corners.map(v=>Math.max(0,Math.min(v*factor,a/2,b/2))),[tl,tr,br,bl]=r;return`M ${x+tl} ${y} H ${x+a-tr} Q ${x+a} ${y} ${x+a} ${y+tr} V ${y+b-br} Q ${x+a} ${y+b} ${x+a-br} ${y+b} H ${x+bl} Q ${x} ${y+b} ${x} ${y+b-bl} V ${y+tl} Q ${x} ${y} ${x+tl} ${y} Z`}
 function contourProfile(host){return host.classList.contains('profile-drawer')?profile.popupBlur.drawer:host.classList.contains('sheet')||host.classList.contains('voice-popover')?profile.popupBlur.sheet:profile.radialBlur}
 function ensureRadialBlurHosts(){
  if(!document.createElementNS)return;
  if(!contourDefs){const svg=svgNode('svg');svg.id='vfContourMasks';svg.setAttribute('width','0');svg.setAttribute('height','0');svg.setAttribute('aria-hidden','true');svg.style.cssText='position:absolute;width:0;height:0;overflow:hidden;pointer-events:none';contourDefs=svgNode('defs');svg.append(contourDefs);document.body.append(svg)}
  if(!contourObserver&&typeof ResizeObserver!=='undefined')contourObserver=new ResizeObserver(entries=>{for(const item of entries)updateContourBlurHost(item.target,contourProfile(item.target))});
- document.querySelectorAll('.quick-entry-shell,.dock-indicator,.profile-drawer,.sheet,.voice-popover').forEach(host=>{
+ document.querySelectorAll('.quick-entry-shell,.dock-indicator,.dock-material-surface,.profile-drawer,.sheet,.voice-popover').forEach(host=>{
   if(contourHosts.has(host))return;
   const id=++contourSerial,stack=document.createElement('div'),parts={};stack.className='vf-radial-blur-stack';stack.setAttribute('aria-hidden','true');
   const filter=svgNode('filter'),gaussian=svgNode('feGaussianBlur');filter.id=`vf-contour-soft-${id}`;filter.setAttribute('x','-50%');filter.setAttribute('y','-50%');filter.setAttribute('width','200%');filter.setAttribute('height','200%');filter.append(gaussian);contourDefs.append(filter);
@@ -98,11 +102,11 @@ function ensureRadialBlurHosts(){
 }
 function updateContourBlurHost(host,blur,size){
  const ref=contourHosts.get(host);if(!ref||!blur)return;
- const w=size?.[0]??host.clientWidth,h=size?.[1]??host.clientHeight;if(w<1||h<1)return;const css=getComputedStyle(host),corners=typeof size?.[2]==='number'?Array(4).fill(size[2]):[css.borderTopLeftRadius,css.borderTopRightRadius,css.borderBottomRightRadius,css.borderBottomLeftRadius].map(v=>parseFloat(v)||0),r=Math.max(0,Math.min(...corners.filter(v=>v>0),w/2,h/2));const key=[w,h,...corners,blur.center,blur.middle,blur.edge,blur.innerStop,blur.outerStop,blur.feather].map(v=>Number(v).toFixed(2)).join(':');if(ref.key===key)return;ref.key=key;
- const inner=r*(1-blur.innerStop/100),outer=r*(1-blur.outerStop/100),soft=Math.max(.35,Math.min(5,r*blur.feather/30));ref.gaussian.setAttribute('stdDeviation',soft.toFixed(2));
- const rect=(el,inset)=>{if(el)el.setAttribute('d',roundedPath(w,h,inset,corners))};
- for(const [zone,part]of Object.entries(ref.parts)){part.mask.setAttribute('x','0');part.mask.setAttribute('y','0');part.mask.setAttribute('width',w);part.mask.setAttribute('height',h);rect(part.outer,zone==='edge'?0:zone==='middle'?outer:inner);rect(part.inner,zone==='edge'?outer:inner)}
- for(const [index,zone]of ['edge','middle','center'].entries()){const layer=ref.layers[index];layer.style.backdropFilter=layer.style.webkitBackdropFilter=`blur(${blur[zone]}px)`}
+ const w=size?.[0]??host.clientWidth,h=size?.[1]??host.clientHeight;if(w<1||h<1)return;const css=getComputedStyle(host),corners=typeof size?.[2]==='number'?Array(4).fill(size[2]):[css.borderTopLeftRadius,css.borderTopRightRadius,css.borderBottomRightRadius,css.borderBottomLeftRadius].map(v=>parseFloat(v)||0);const key=[w,h,...corners,blur.center,blur.middle,blur.edge,blur.innerStop,blur.outerStop,blur.feather].map(v=>Number(v).toFixed(2)).join(':');if(ref.key===key)return;ref.key=key;
+ const inner=[w*(1-blur.innerStop/100)/2,h*(1-blur.innerStop/100)/2],outer=[w*(1-blur.outerStop/100)/2,h*(1-blur.outerStop/100)/2],soft=Math.max(.1,Math.min(w,h)*blur.feather/100);ref.gaussian.setAttribute('stdDeviation',soft.toFixed(2));
+ const rect=(el,inset)=>{if(el)el.setAttribute('d',roundedPath(w,h,inset[0],inset[1],corners))};
+ for(const [zone,part]of Object.entries(ref.parts)){part.mask.setAttribute('x','0');part.mask.setAttribute('y','0');part.mask.setAttribute('width',w);part.mask.setAttribute('height',h);rect(part.outer,zone==='edge'?[0,0]:zone==='middle'?outer:inner);rect(part.inner,zone==='edge'?outer:inner)}
+ for(const [index,zone]of ['edge','middle','center'].entries()){const layer=ref.layers[index],radius=Math.min(w,h)*blur[zone]/100;layer.style.backdropFilter=layer.style.webkitBackdropFilter=`blur(${radius.toFixed(2)}px)`}
 }
 function applyRadialBlur(){document.querySelectorAll('.vf-radial-blur-host').forEach(host=>updateContourBlurHost(host,contourProfile(host)))}
 function material(){const m=profile.material,i=profile.indicatorMaterial,root=document.documentElement,group=document.querySelector('.dock-group'),entry=document.querySelector('.quick-entry-shell'),indicator=document.querySelector('.dock-indicator');
@@ -123,7 +127,7 @@ function material(){const m=profile.material,i=profile.indicatorMaterial,root=do
  const entryGlass=document.querySelector('.dock-entry-glass'),dockGlass=document.querySelector('.dock-liquid-mass');if(entryGlass)entryGlass.style.opacity=Math.min(.22,m.opacity*.22);if(dockGlass)dockGlass.style.opacity=m.opacity*.5;
  const outline=document.querySelector('#dockLiquidOutlineGroup');if(outline)outline.style.opacity=1;const outlineLayer=document.querySelector('#dockLiquidOutlineLayer');if(outlineLayer)outlineLayer.style.maskImage=outlineLayer.style.webkitMaskImage=fadeMask;document.querySelector('#dockLiquidOutlineFilter feGaussianBlur')?.setAttribute('stdDeviation',profile.liquid.enabled?profile.liquid.blur:0);document.querySelector('#dockLiquidOutlineFilter feMorphology')?.setAttribute('radius',`${m.borderVertical} ${m.borderHorizontal}`);document.querySelector('#dockLiquidOutlineFilter feFlood')?.setAttribute('flood-opacity',m.borderOpacity);document.querySelector('#liquidShine').style.filter=`brightness(${m.lens})`;if(entry){entry.style.backgroundColor=rgba(m.color,m.opacity*.5);entry.style.border='0';entry.style.backdropFilter=entry.style.webkitBackdropFilter='none'}if(indicator){indicator.style.backdropFilter=indicator.style.webkitBackdropFilter='none';indicator.style.border=`${i.border}px solid rgba(255,255,255,${i.borderOpacity})`}if(group)group.style.setProperty('--dock-indicator-fill',rgba(i.color,i.opacity))}
 function updateDockContour(s){const r=Math.max(1,Math.min(s.nav[4]||32,s.active[4]||32)),blur=profile.radialBlur,inner=r*(1-blur.innerStop/100),outer=r*(1-blur.outerStop/100),soft=Math.max(.35,Math.min(5,r*blur.feather/30));for(const [id,value]of [['vfDockErodeCenter',inner],['vfDockErodeInner',inner],['vfDockErodeOuter',outer],['vfDockErodeEdge',outer]])document.getElementById(id)?.setAttribute('radius',value.toFixed(2));for(const id of ['vfDockFeatherCenter','vfDockFeatherMiddle','vfDockFeatherEdge'])document.getElementById(id)?.setAttribute('stdDeviation',soft.toFixed(2))}
-function draw(s){live=s;dockLiquidCurrent=s;renderDockLiquid(liquid(s));renderDockChrome(s);for(const [selector,shape] of [['.quick-entry-shell',s.entryHtml],['.dock-indicator',s.indicator]]){const host=document.querySelector(selector);if(host)updateContourBlurHost(host,profile.radialBlur,[shape[2],shape[3],shape[4]])}updateDockContour(s)}
+function draw(s){live=s;dockLiquidCurrent=s;renderDockLiquid(liquid(s));renderDockChrome(s);for(const [selector,shape,blur] of [['.quick-entry-shell',s.entryHtml,profile.radialBlur],['.dock-indicator',s.indicator,profile.radialBlur],['#dockMaterialNav',s.nav,profile.radialBlur],['#dockMaterialActive',s.active,profile.radialBlur]]){const host=document.querySelector(selector);if(host)updateContourBlurHost(host,blur,[shape[2],shape[3],shape[4]])}updateDockContour(s)}
 // Selection is an interaction, not an editable transition: keep the editor's
 // indicator width, height and radius while moving its centre between tabs.
 let selectionFrame=null,selectionCommit=false;
