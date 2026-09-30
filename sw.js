@@ -1,5 +1,5 @@
-const CACHE='liquid-glass-demo-v90';
-const CORE=['./','./index.html','./whisper-worker.js','./manifest.webmanifest','./motion-runtime.js','./motion-editor.html','./motion-editor.js','./motion-editor.css','./motion-editor-mobile.css'];
+const CACHE='liquid-glass-demo-v91';
+const CORE=['./','./index.html','./whisper-worker.js','./manifest.webmanifest','./mirror-runtime.js','./motion-runtime.js','./motion-editor.html','./motion-editor.js','./motion-editor.css','./motion-editor-mobile.css'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
