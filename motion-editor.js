@@ -44,9 +44,10 @@ function render(){if(!profile)return;selected=Math.min(selected,track().frames.l
   const indicatorNote=document.createElement('p');indicatorNote.className='hint';indicatorNote.textContent='Окремий матеріал для рухомої підсвітки під вибраною кнопкою; також глобальний для всіх переходів, без ключів.';materialRoot.append(indicatorNote);
   const indicatorControls=document.createElement('div');materialRoot.append(indicatorControls);fields(indicatorControls,profile.indicatorMaterial,[['color','Колір індикатора',0,0,0,'color'],['opacity','Прозорість індикатора',0,1,.01],['lens','Лінза індикатора',0,3,.05],['border','Обводка індикатора, px',0,8,.1],['borderOpacity','Прозорість обводки індикатора',0,1,.01]]);
  }else fields(materialRoot,profile.popups[popup],[['color','Колір',0,0,0,'color'],['opacity','Прозорість скла',0,1,.01],['radius','Кути, px',0,80,1],['border','Обводка, px',0,8,.1]]);
- const radialTitle=document.createElement('h3');radialTitle.textContent='Градієнт розмиття · усі скляні елементи';
- const radialNote=document.createElement('p');radialNote.className='hint';radialNote.textContent='Один профіль для дока, індикатора, панелі «Додатково» та випливаючих вікон. Три зони плавно перетікають одна в одну, без ключів анімації.';
- const radialControls=document.createElement('div');fields(radialControls,profile.radialBlur,[['center','Центр, px',0,60,1],['middle','Середня зона, px',0,60,1],['edge','Край, px',0,60,1],['innerStop','Межа центру, %',20,70,1],['outerStop','Межа краю, %',75,95,1],['feather','Плавність переходу, %',1,8,1]]);materialRoot.prepend(radialTitle,radialNote,radialControls);
+ const radialTitle=document.createElement('h3');radialTitle.textContent=tab==='dock'?'Градієнт розмиття · увесь док':popup==='drawer'?'Контурне розмиття · Додатково':'Контурне розмиття · картки';
+ const radialNote=document.createElement('p');radialNote.className='hint';radialNote.textContent='Зони розмиття повторюють заокруглений контур кожного елемента й змінюються разом із його формою. Налаштування постійні, без ключів.';
+ const radialControls=document.createElement('div');fields(radialControls,tab==='dock'?profile.radialBlur:profile.popupBlur[popup],[['center','Центр, px',0,60,1],['middle','Середня зона, px',0,60,1],['edge','Край, px',0,60,1],['innerStop','Межа центру, %',20,70,1],['outerStop','Межа краю, %',75,95,1],['feather','Плавність переходу, %',1,8,1]]);materialRoot.prepend(radialTitle,radialNote,radialControls);
+ if(tab==='popup'){const cardTitle=document.createElement('h3');cardTitle.textContent=popup==='drawer'?'Внутрішні списки: категорії, клієнти, борги':'Внутрішні поля та кнопки карток';materialRoot.append(cardTitle);const cardNote=document.createElement('p');cardNote.className='hint';cardNote.textContent='Розмір змінює висоту елементів без зсуву всієї панелі. Матеріал цих елементів окремий від зовнішнього скла.';materialRoot.append(cardNote);const cardControls=document.createElement('div');materialRoot.append(cardControls);fields(cardControls,profile.innerPanels[popup],[['size','Розмір елементів',.7,1.5,.01],['opacity','Прозорість фону',0,1,.01],['blur','Розмиття фону, px',0,60,1],['radius','Заокруглення, px',0,60,1]])}
  const environmentRoot=$('#environment');environmentRoot.replaceChildren();
  const environmentNote=document.createElement('p');environmentNote.className='hint';environmentNote.textContent='Незалежні статичні шари навколо інтерфейсу. Нижню градієнтну підложку прибрано; ці параметри не прив’язані до ключів.';
  fields(environmentRoot,profile.environment,[['topHeight','Висота верхньої зони, % екрана',0,30,1],['topBlur','Розмиття зверху, px',0,60,1],['topShade','Затемнення зверху',0,1,.01],['dockShade','Тінь під доком',0,1,.01],['drawerShade','Поза панеллю «Додатково»',0,1,.01],['sheetShade','Поза випливаючими вікнами',0,1,.01]]);
@@ -69,6 +70,7 @@ const settingsPanel=$('#settingsPanel'),toolstrip=document.querySelector('.tools
 function showSettings(button){
  if(!profile)return;
  if(button.dataset.panel==='backdropMotion'){if(tab!=='popup')setTab('popup');t=1;selected=scene().frames.length-1}
+ if(button.dataset.panel==='material'&&tab==='popup'){t=1;selected=scene().frames.length-1}
  stop();render();
  document.querySelectorAll('[data-section]').forEach(s=>s.hidden=s.id!==button.dataset.panel);
  settingsPanel.scrollTop=0;
