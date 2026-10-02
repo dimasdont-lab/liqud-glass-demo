@@ -11,8 +11,18 @@ const bundledContext={window:{}};vm.createContext(bundledContext);vm.runInContex
 const bundled=bundledContext.window.VF_BUNDLED_MOTION_PROFILE;
 assert.ok(bundled,'the published demo ships the editor-approved profile');
 assert.doesNotThrow(()=>api.validate(bundled),'the bundled profile must remain importable');
-assert.equal(bundled.transitions.expand.duration,820,'the exported editor timing is preserved');
-assert.equal(bundled.material.opacity,.07,'the exported glass material is preserved');
+assert.equal(bundled.transitions.expand.duration,800,'expand preserves the user collapse duration');
+assert.equal(bundled.material.opacity,1,'the exported glass material is preserved');
+api.set(bundled);
+for(let i=0;i<=200;i++){
+ const forward=api.sample('expand',i/200),reverse=api.sample('collapse',1-i/200);
+ for(const key of ['entry','entryRim','entryBulge','nav','active','navRim','activeRim','neck','drop','drop2','drop3','shine','entryHtml','indicator','buttons']){
+  const a=forward[key].flat(),b=reverse[key].flat();
+  // The Bezier solver uses a finite bisection tolerance; allow < 0.01 CSS px.
+  a.forEach((v,j)=>assert.ok(Math.abs(v-b[j])<.01,`${key}: reverse playback at ${i/200}`));
+ }
+}
+api.set(p);
 assert.match(html,/window\.VFMotion\?\.preparePopup\('drawer'\)/,'drawer is positioned at its first animation key before opening');
 for(const name of Object.keys(p.transitions)){
  for(let i=0;i<=100;i++){const s=api.sample(name,i/100);for(const a of Object.values(s).filter(Array.isArray)){const nums=a.flat();assert.ok(nums.every(Number.isFinite),name+' finite')}}
