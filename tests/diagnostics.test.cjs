@@ -16,5 +16,19 @@ test('early device error recorder is bounded and inactive outside diagnostics',(
 test('diagnostic iframe bypasses draft migration and provides a visible entry point',()=>{
  assert.match(fs.readFileSync('motion-runtime.js','utf8'),/if\(studio&&!new URLSearchParams\(location.search\).has\('diagnostic'\)/);
  assert.match(fs.readFileSync('motion-editor.html','utf8'),/diagnostics.html\?v=107/);
+ assert.match(fs.readFileSync('index.html','utf8'),/diagnostic-trace.js\?v=108/);
  assert.match(fs.readFileSync('diagnostics.html','utf8'),/studio=1&amp;diagnostic=1/);
+});
+test('transition trace captures intermediate rendered states, blur children, and bounds memory',()=>{
+ const source=fs.readFileSync('diagnostic-trace.js','utf8');let time=0;
+ const scope={URLSearchParams,location:{search:'?diagnostic=1'},window:{},performance:{now:()=>++time},setTimeout:fn=>fn(),document:{body:{className:'test'},querySelectorAll:()=>[]}};
+ vm.runInNewContext(source,scope);const trace=scope.window.VFDiagnosticTrace;
+ trace.start({mode:'playback',transition:'collapse'});
+ for(let i=0;i<=150;i++)scope.window.VFDiagnosticCapture({progress:i/150});
+ const session=trace.snapshot().sessions[0];assert.equal(session.frames.length,120);assert.equal(session.frames[0].progress,0);assert.equal(session.frames.at(-1).progress,1);assert.equal(session.droppedFrames,31);assert.ok(session.frames.some(f=>f.progress>0&&f.progress<1));
+ for(let i=0;i<10;i++)trace.start({mode:'live'});assert.equal(trace.snapshot().sessions.length,6);
+ assert.match(source,/\.vf-mirror-content/);assert.match(source,/\.vf-mirror-copy/);
+ assert.doesNotMatch(source,/localStorage|sessionStorage|textContent|innerHTML/);
+ const inactive={...scope,location:{search:''},window:{}};vm.runInNewContext(source,inactive);assert.equal(inactive.window.VFDiagnosticCapture,undefined);
+ const runtime=fs.readFileSync('motion-runtime.js','utf8');assert.match(runtime,/transition:popup\|\|name,progress:t/);assert.match(runtime,/transition:kind,progress:p,closing/);assert.match(runtime,/transition:name,progress:t,mode:'live'/);
 });
