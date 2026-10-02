@@ -4,7 +4,13 @@
 html{height:100%;overflow:hidden;overscroll-behavior:none}
 body{position:fixed;left:0;right:0;top:var(--editor-viewport-top,0px);height:var(--editor-viewport-height,100dvh);padding-top:env(safe-area-inset-top);overscroll-behavior:none}
 header{flex-shrink:0}
-.toolstrip{margin-top:auto;min-height:0}
+.toolstrip{margin-top:auto;min-height:0;padding-bottom:5px!important;scrollbar-width:none}
+.toolstrip::-webkit-scrollbar{display:none}
+html.editor-standalone body{top:0;height:100lvh}
+html.editor-standalone body.preview-focus .stage{top:0;height:100lvh}
+body.preview-focus .gesturePreview{top:calc(env(safe-area-inset-top) + 10px)}
+.previewDockMode{position:absolute;z-index:4;left:14px;top:60px;border-radius:999px;background:#24242bdc}
+body.preview-focus .previewDockMode{top:calc(env(safe-area-inset-top) + 60px)}
 .build-version{font-size:10px;font-weight:500;color:#ff8da5;vertical-align:middle}
 .stage{position:relative}
 .previewExpand{position:absolute;z-index:4;right:14px;top:14px;display:flex;align-items:center;gap:6px;padding:8px 11px;border-radius:999px;background:#24242bdc;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 3px 18px #0008;font-size:12px}

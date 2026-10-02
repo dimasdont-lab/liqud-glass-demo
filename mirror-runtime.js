@@ -91,5 +91,5 @@ function observe(){
  window.visualViewport?.addEventListener('resize',align,{passive:true});
 }
 if(document.readyState==='loading')addEventListener('DOMContentLoaded',observe,{once:true});else observe();
-window.VFMirror={update,remove,refresh:scheduleRefresh};
+window.VFMirror={update,remove,refresh:scheduleRefresh,flush:align};
 })();

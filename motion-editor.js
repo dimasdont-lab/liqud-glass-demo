@@ -2,6 +2,8 @@
 const $=s=>document.querySelector(s),copy=x=>JSON.parse(JSON.stringify(x)),iframe=$('#preview');
 function syncEditorViewport(){
  const viewport=window.visualViewport,root=document.documentElement;
+ const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+ root.classList.toggle('editor-standalone',standalone);
  root.style.setProperty('--editor-viewport-height',`${viewport?.height||window.innerHeight}px`);
  root.style.setProperty('--editor-viewport-top',`${viewport?.offsetTop||0}px`);
  const rail=document.querySelector('.toolstrip');
@@ -12,14 +14,14 @@ addEventListener('resize',syncEditorViewport,{passive:true});
 window.visualViewport?.addEventListener('resize',syncEditorViewport,{passive:true});
 window.visualViewport?.addEventListener('scroll',syncEditorViewport,{passive:true});
 new ResizeObserver(syncEditorViewport).observe(document.querySelector('.toolstrip'));
-let profile,tab='dock',transition='expand',popup='drawer',selected=0,t=0,playing=false,raf,history=[],future=[];
+let profile,tab='dock',transition='expand',popup='drawer',selected=0,t=0,playing=false,raf,history=[],future=[],livePreview=false;
 const key='vf-liquid-motion-v1',status=s=>$('#status').textContent=s;
 $('#element').value='entry';
 const scene=()=>tab==='dock'?profile.transitions[transition]:profile.popups[popup];
 const track=()=>tab==='dock'?scene().tracks[$('#element').value]:scene();
 const keyMs=(f,tr=track())=>(tr.delay||0)+f.t*tr.duration;
 const names={entry:'Поле введення',active:'Ліва крапля',nav:'Капсула',indicator:'Індикатор',button0:'Цілі',button1:'Аналітика',button2:'Борги',button3:'Дім',button4:'Додатково'};
-const send=(type,extra={})=>iframe.contentWindow.postMessage({source:'vf-editor',type,transition,t,popup:tab==='popup'?popup:null,...extra},location.origin);
+const send=(type,extra={})=>iframe.contentWindow.postMessage({source:'vf-editor',type,transition,t,live:livePreview,popup:tab==='popup'?popup:null,...extra},location.origin);
 function remember(){history.push(JSON.stringify(profile));if(history.length>60)history.shift();future=[]}
  let previewFrame=0,draftTimer=0;
  function saveDraft(){clearTimeout(draftTimer);draftTimer=0;try{localStorage.setItem(key+'-draft',JSON.stringify(profile));status('Чернетку збережено на цьому пристрої')}catch{status('Не вдалося зберегти. Експортуй файл.')}}
@@ -33,7 +35,7 @@ function control(root,label,value,min,max,step,set,type='number'){
 function fields(root,obj,specs){root.replaceChildren();for(const [k,label,min,max,step,type]of specs)control(root,label,obj[k],min,max,step,v=>obj[k]=v,type)}
 function updateCurve(){if(!profile)return;const c=track().curve;$('#curvePath').setAttribute('d',`M 10 100 C ${10+c[0]*180} ${100-c[1]*90}, ${10+c[2]*180} ${100-c[3]*90},190 10`)}
 function selectKey(i){stop();selected=i;t=keyMs(track().frames[i])/scene().duration;seek();render()}
-function seek(){ $('#scrub').value=t*1000;$('#time').textContent=Math.round(t*scene().duration)+' / '+Math.round(scene().duration)+' ms';document.querySelectorAll('.playhead').forEach(n=>n.style.left=t*100+'%');send('seek'); }
+function seek(){ $('#scrub').value=t*1000;$('#time').textContent=Math.round(t*scene().duration)+' / '+Math.round(scene().duration)+' ms';document.querySelectorAll('.playhead').forEach(n=>n.style.left=t*100+'%');if(!livePreview)send('seek'); }
 function renderKeys(){
  const root=$('#keys');root.replaceChildren();$('#ruler').replaceChildren();for(let i=0;i<5;i++){const n=document.createElement('span');n.textContent=(scene().duration*i/4000).toFixed(2)+'s';$('#ruler').append(n)}
  for(const [k,label]of (tab==='dock'?Object.entries(names):[[popup,popup==='drawer'?'Додатково':'Картка']])){const tr=tab==='dock'?scene().tracks[k]:scene(),row=document.createElement('div');row.className='track'+(tab==='popup'||k===$('#element').value?' active':'');const name=document.createElement('button');name.className='trackName';name.textContent=label;name.onclick=()=>{if(tab==='dock')$('#element').value=k;selectKey(0)};row.append(name);const lane=document.createElement('div');lane.className='lane';const clip=document.createElement('div');clip.className='clip';clip.style.left=(tr.delay||0)/scene().duration*100+'%';clip.style.width=tr.duration/scene().duration*100+'%';lane.append(clip);
@@ -113,8 +115,10 @@ settingsPanel.onclick=e=>{if(e.target!==settingsPanel||!settingsPanel.matches(':
 document.querySelectorAll('[data-curve]').forEach(b=>b.onclick=()=>change(()=>track().curve=b.dataset.curve.split(',').map(Number),true));
 $('#undo').onclick=()=>{if(!history.length)return;future.push(JSON.stringify(profile));profile=JSON.parse(history.pop());selected=0;persist();render()};$('#redo').onclick=()=>{if(!future.length)return;history.push(JSON.stringify(profile));profile=JSON.parse(future.pop());selected=0;persist();render()};
 $('#width').onchange=e=>{iframe.style.width=e.target.value+'px';setTimeout(()=>send('preset',{profile}),100)};
-const previewExpand=$('#previewExpand');function setPreviewFocus(open){document.body.classList.toggle('preview-focus',open);previewExpand.setAttribute('aria-pressed',String(open));previewExpand.querySelector('span').textContent=open?'Повернутися':'На весь екран'}previewExpand.onclick=()=>setPreviewFocus(!document.body.classList.contains('preview-focus'));addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('preview-focus'))setPreviewFocus(false)});
-$('#gesturePreview').onclick=()=>{stop();send('gesture-preview');status('Проведи пальцем по нижніх кнопках у перегляді')};
+const previewExpand=$('#previewExpand');function setPreviewFocus(open){if(!open&&livePreview){livePreview=false;$('#gesturePreview').textContent='◉ Живий перегляд';$('#previewDockMode').hidden=true;send('live-preview',{enabled:false});seek()}document.body.classList.toggle('preview-focus',open);previewExpand.setAttribute('aria-pressed',String(open));previewExpand.querySelector('span').textContent=open?'Повернутися':'На весь екран'}previewExpand.onclick=()=>setPreviewFocus(!document.body.classList.contains('preview-focus'));addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('preview-focus'))setPreviewFocus(false)});
+const liveButton=$('#gesturePreview'),dockModeButton=document.createElement('button');dockModeButton.id='previewDockMode';dockModeButton.className='previewDockMode';dockModeButton.textContent='Згорнути / розгорнути док';dockModeButton.hidden=true;$('#previewStage').append(dockModeButton);dockModeButton.onclick=()=>send('toggle-dock');
+liveButton.textContent='◉ Живий перегляд';
+liveButton.onclick=()=>{stop();livePreview=!livePreview;liveButton.textContent=livePreview?'◉ До таймлайна':'◉ Живий перегляд';dockModeButton.hidden=!livePreview;if(settingsPanel.open)settingsPanel.close();send('live-preview',{enabled:livePreview,profile});setPreviewFocus(livePreview);if(!livePreview)seek();status(livePreview?'Натискай кнопки, відкривай панелі та прокручуй сторінку.':'Редагування таймлайна')};
 $('#apply').onclick=()=>send('save',{profile});$('#disable').onclick=()=>{localStorage.removeItem(key);localStorage.removeItem(key+'-bundle-revision');localStorage.setItem(key+'-disabled','1');status('Пресет вимкнено. Перезавантаж застосунок.')};$('#reset').onclick=()=>{if(confirm('Скинути всі форми та налаштування чернетки?')){remember();send('reset')}};
 $('#export').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(profile,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='voice-finance-motion.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
 $('#import').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>12000000)throw Error('Файл завеликий');const api=iframe.contentWindow.VFMotion,p=api.upgradeTracks(api.validate(JSON.parse(await file.text())));remember();profile=p;selected=0;t=0;persist();render()}catch(err){status('Імпорт: '+err.message)}e.target.value=''};
