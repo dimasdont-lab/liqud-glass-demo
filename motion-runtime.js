@@ -1,6 +1,6 @@
 /* Voice Finance Motion format 1. Shared by the app and the visual editor. */
 (()=>{'use strict';
-const KEY='vf-liquid-motion-v1',draftKey=KEY+'-draft',bundleKey=KEY+'-bundle-revision',disabledKey=KEY+'-disabled',bundleRevision='104',clone=x=>JSON.parse(JSON.stringify(x));
+const KEY='vf-liquid-motion-v1',draftKey=KEY+'-draft',bundleKey=KEY+'-bundle-revision',disabledKey=KEY+'-disabled',bundleRevision='105',clone=x=>JSON.parse(JSON.stringify(x));
 const studio=new URLSearchParams(location.search).has('studio');
 if(studio)document.body.classList.add('studio-preview');
 let profile=null,frame=null,live=null,studioLive=false;
@@ -177,9 +177,13 @@ function dockMirrorMask(s,r,zone){
 function updateDockZoom(s){
  const z=profile.zoom.dock,blur=profile.radialBlur,container=document.querySelector('#dockZoomSurfaces');if(!container)return;
  const size=Math.min(s.nav[3],s.active[3]),scale=Math.max(.5,Math.min(1.5,1+z.value/39));
- const a=s.active,n=s.nav,center=v=>({x:v[0]+v[2]/2,y:v[1]+v[3]/2}),split=n[0]>a[0]+a[2]+1;
+ const a=s.active,n=s.nav,center=v=>({x:v[0]+v[2]/2,y:v[1]+v[3]/2,width:v[2],height:v[3]});
  const ca=center(a),cn=center(n),wa=a[2]*a[3]*a[5],wn=n[2]*n[3]*n[5],total=Math.max(1,wa+wn);
- const centers=split?[ca,cn]:[{x:(ca.x*wa+cn.x*wn)/total,y:(ca.y*wa+cn.y*wn)/total}];
+ const combined={x:(ca.x*wa+cn.x*wn)/total,y:(ca.y*wa+cn.y*wn)/total,width:Math.max(a[0]+a[2],n[0]+n[2])-Math.min(a[0],n[0]),height:Math.max(a[3],n[3])};
+ const separate=dockSmoothStep(Math.max(0,n[0]-a[0]-a[2])/12);
+ // Two persistent regions: joined masses share one centre, separated masses
+ // smoothly acquire their own centres. No DOM replacement at the split frame.
+ const centers=[ca,cn].map(point=>Object.fromEntries(Object.keys(combined).map(key=>[key,combined[key]+(point[key]-combined[key])*separate])));
  for(const zone of ['center','edge']){
   const layer=container.querySelector(`[data-zone="${zone}"]`);if(!layer)continue;
   const radius=size*blur[zone]/100,chromatic=zone==='edge'?{...profile.chromatic.dock,centers}:null;
@@ -228,10 +232,13 @@ function setupSelectionGesture(){
  document.addEventListener('pointermove',move,{passive:false});document.addEventListener('pointerup',end);document.addEventListener('pointercancel',end)
 }
 function run(name,from){cancelAnimationFrame(selectionFrame);cancelAnimationFrame(frame);cancelAnimationFrame(dockLiquidFrame);const tr=profile.transitions[name],origin=sample(name,0),began=performance.now();const tick=now=>{const t=Math.min(1,(now-began)/tr.duration);let s=sample(name,t);if(from)s=rejoinDockMorph(s,from,origin,1-dockSmoothStep(Math.min(1,t/.45)));draw(s);if(t<1)frame=requestAnimationFrame(tick);else{frame=null;dockLiquidFrame=null}};frame=requestAnimationFrame(tick)}
-animateDockLiquid=function(mode){if(!profile)return baseAnimate(mode);const next=mode==='drawer'?'drawer':mode?'compact':'expanded',prior=dockLiquidMode;dockLiquidMode=next;if(next!=='drawer')document.querySelector('#bottomZone')?.classList.toggle('compact',next==='compact');const name=next==='drawer'?'more':prior==='drawer'?'back':next===prior?'press':next==='compact'?'collapse':'expand';if(selectionCommit)return;if(name==='press'&&next==='expanded'){let current=selectionBase();if(Math.abs(current.w-document.querySelector('.dock-layout').clientWidth)>1){cancelAnimationFrame(frame);cancelAnimationFrame(selectionFrame);draw(sample('press',1));current=selectionBase()}if(studio)send('interaction');settleSelection(selectedIndex(),current);return}if(!studio||studioLive)run(name,live||dockLiquidCurrent)};
+animateDockLiquid=function(mode){if(studio&&!studioLive)return;if(!profile)return baseAnimate(mode);const next=mode==='drawer'?'drawer':mode?'compact':'expanded',prior=dockLiquidMode;dockLiquidMode=next;if(next!=='drawer')document.querySelector('#bottomZone')?.classList.toggle('compact',next==='compact');const name=next==='drawer'?'more':prior==='drawer'?'back':next===prior?'press':next==='compact'?'collapse':'expand';if(selectionCommit)return;if(name==='press'&&next==='expanded'){let current=selectionBase();if(Math.abs(current.w-document.querySelector('.dock-layout').clientWidth)>1){cancelAnimationFrame(frame);cancelAnimationFrame(selectionFrame);draw(sample('press',1));current=selectionBase()}if(studio)send('interaction');settleSelection(selectedIndex(),current);return}if(!studio||studioLive)run(name,live||dockLiquidCurrent)};
 function popupSample(kind,t){const q=profile.popups[kind],p=warped(q.frames,t,q.curve);let i=0;while(i<q.frames.length-2&&p>q.frames[i+1].t)i++;const a=q.frames[i],b=q.frames[i+1],u=Math.max(0,Math.min(1,(p-a.t)/(b.t-a.t)));return a.v.map((v,j)=>v+(b.v[j]-v)*u)}
 function popupStyle(el,kind,t){const q=profile.popups[kind],v=popupSample(kind,t);Object.assign(el.style,{transform:`translate(${v[0]}%,${v[1]}%) scale(${v[2]})`,opacity:v[3],background:q.color+Math.round(q.opacity*255).toString(16).padStart(2,'0'),backdropFilter:'none',webkitBackdropFilter:'none',borderRadius:kind==='drawer'?`${q.radius}px 0 0 ${q.radius}px`:`${q.radius}px ${q.radius}px 0 0`,borderWidth:q.border+'px',transition:'none',width:`min(${q.width|| (kind==='drawer'?360:480)}px,100%)`,maxHeight:(q.height||90)+'dvh'});updateContourBlurHost(el,profile.popupBlur[kind])}
 function backdropStyle(kind,t){
+ // A sheet owns the surrounding page while it is above the drawer. The
+ // drawer may still finish moving, but must not overwrite that page transform.
+ if(kind==='drawer'&&document.querySelector('.sheet-backdrop.open'))return;
  const target=kind?profile.backdropMotion[kind]:null,p=!target||t<=0?0:t>=1?1:ease(t,profile.popups[kind].curve);
  const behindDrawer=kind==='sheet'&&document.body.classList.contains('drawer-open'),base=behindDrawer?profile.backdropMotion.drawer:null;
  const blend=(key,rest=0)=>((base?.[key]??rest)*(1-p)+(target?.[key]??rest)*p);
@@ -242,15 +249,31 @@ function backdropStyle(kind,t){
  const drawer=document.querySelector('.profile-drawer');if(drawer){drawer.style.translate=kind==='sheet'?`${(target.drawerX||0)*p}px ${(target.drawerY||0)*p}px`:'';drawer.style.scale=kind==='sheet'?String(1+((target.drawerScale??1)-1)*p):''}
  window.VFMirror?.flush?.();
 }
-const popupFrames=new WeakMap(),popupProgress=new WeakMap();
-function popupRun(el,kind,closing,done){if(!profile||!el)return;cancelAnimationFrame(popupFrames.get(el));document.documentElement.classList.add('vf-popup-motion');const start=popupProgress.get(el)??(closing?1:0),end=closing?0:1,duration=profile.popups[kind].duration*Math.abs(end-start),began=performance.now(),finish=()=>{document.documentElement.classList.remove('vf-popup-motion');done?.()};if(duration<1){popupStyle(el,kind,end);backdropStyle(kind,end);popupProgress.set(el,end);finish();return}const tick=now=>{const ratio=Math.min(1,(now-began)/duration),p=start+(end-start)*ratio;popupStyle(el,kind,p);backdropStyle(kind,p);popupProgress.set(el,p);if(ratio<1)popupFrames.set(el,requestAnimationFrame(tick));else finish()};popupFrames.set(el,requestAnimationFrame(tick))}
+const popupFrames=new WeakMap(),popupProgress=new WeakMap(),activePopups=new Set();
+function cancelPopupPlayback(el){cancelAnimationFrame(popupFrames.get(el));activePopups.delete(el)}
+function popupRun(el,kind,closing,done){
+ if(!profile||!el)return;
+ cancelPopupPlayback(el);activePopups.add(el);document.documentElement.classList.add('vf-popup-motion');
+ const start=popupProgress.get(el)??(closing?1:0),end=closing?0:1,duration=profile.popups[kind].duration*Math.abs(end-start),began=performance.now();
+ const finish=()=>{activePopups.delete(el);if(!activePopups.size)document.documentElement.classList.remove('vf-popup-motion');done?.()};
+ if(duration<1){popupStyle(el,kind,end);backdropStyle(kind,end);popupProgress.set(el,end);finish();return}
+ const tick=now=>{const ratio=Math.min(1,(now-began)/duration),p=start+(end-start)*ratio;popupStyle(el,kind,p);backdropStyle(kind,p);popupProgress.set(el,p);if(ratio<1)popupFrames.set(el,requestAnimationFrame(tick));else finish()};
+ popupFrames.set(el,requestAnimationFrame(tick));
+}
 openSheet=function(id){const el=document.querySelector(id+' .sheet');if(profile&&el){popupStyle(el,'sheet',0);popupProgress.set(el,0)}baseOpen(id);if(profile)popupRun(el,'sheet',false)};
 closeSheet=function(id){if(profile&&document.querySelector(id)?.classList.contains('open'))popupRun(document.querySelector(id+' .sheet'),'sheet',true,()=>baseClose(id));else baseClose(id)};
 function send(type,extra={}){if(studio)parent.postMessage({source:'vf-motion',type,...extra},location.origin)}
-let studioSeeking=false;
+let studioSeeking=false,lastSeek=null;
+function cancelDockPlayback(){cancelAnimationFrame(frame);cancelAnimationFrame(dockLiquidFrame);cancelAnimationFrame(selectionFrame);frame=null;dockLiquidFrame=null;selectionFrame=null}
 function previewBackButton(on){const button=document.querySelector('#moreBtn');if(!button)return;button.classList.toggle('active',on);button.setAttribute('aria-label',on?'Назад':'Додатково');const label=button.querySelector('.dock-label');if(label)label.textContent=on?'Назад':'Додатково'}
 function seek(name,t,popup){
- studioSeeking=true;setTimeout(()=>{studioSeeking=false},0);document.querySelectorAll('.profile-drawer,.sheet').forEach(el=>cancelAnimationFrame(popupFrames.get(el)));cancelAnimationFrame(frame);cancelAnimationFrame(dockLiquidFrame);cancelAnimationFrame(selectionFrame);
+ lastSeek=[name,t,popup];
+ studioSeeking=true;setTimeout(()=>{studioSeeking=false},0);document.querySelectorAll('.profile-drawer,.sheet').forEach(cancelPopupPlayback);cancelAnimationFrame(frame);cancelAnimationFrame(dockLiquidFrame);cancelAnimationFrame(selectionFrame);
+ frame=null;dockLiquidFrame=null;selectionFrame=null;
+ // Timeline geometry owns every position; stale compact CSS/live mode must
+ // never participate in a seek or restart a base animation after it.
+ dockCompact=false;dockLiquidMode=popup?'drawer':'expanded';
+ document.querySelector('#bottomZone')?.classList.remove('compact');
  document.documentElement.classList.toggle('vf-popup-motion',!!popup);document.body.classList.toggle('sheet-open',popup==='sheet');
  previewBackButton(!!popup);
  if(popup){
@@ -267,11 +290,16 @@ try{const bundled=window.VF_BUNDLED_MOTION_PROFILE?validate(window.VF_BUNDLED_MO
 // One-time repair of the known exported draft. Never replace a newer collapse
 // edited on the phone, nor keep overwriting subsequent edits to other tracks.
 try{const marker=KEY+'-thin-endpoints-104';if(studio&&profile&&!localStorage.getItem(marker)&&window.VF_BUNDLED_MOTION_PROFILE){const bundled=validate(window.VF_BUNDLED_MOTION_PROFILE);if(JSON.stringify(profile.transitions.collapse)===JSON.stringify(bundled.transitions.collapse)){for(const name of ['expand','press','more','back'])profile.transitions[name]=clone(bundled.transitions[name]);localStorage.setItem(draftKey,JSON.stringify(profile));localStorage.setItem(marker,'1')}}}catch(error){console.warn('Draft endpoint migration skipped:',error.message)}
-if(studio){profile=profile||defaults();material();addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent||e.data?.source!=='vf-editor')return;try{const d=e.data;if(d.type==='preset'){profile=validate(d.profile);material();if(!studioLive)seek(d.transition,d.t,d.popup);else if(live)draw(live)}if(d.type==='seek'){studioLive=false;seek(d.transition,d.t,d.popup)}if(d.type==='live-preview'){studioLive=!!d.enabled;if(d.profile){profile=validate(d.profile);material()}if(studioLive){studioSeeking=true;setTimeout(()=>{studioSeeking=false},0);document.querySelectorAll('.profile-drawer,.sheet').forEach(el=>cancelAnimationFrame(popupFrames.get(el)));document.body.classList.remove('sheet-open','drawer-open');unlockDrawerPage();unlockPageScroll();document.documentElement.classList.remove('vf-popup-motion');document.querySelectorAll('.profile-drawer-backdrop,.sheet-backdrop').forEach(n=>n.classList.remove('open'));dockCompact=false;dockLiquidMode='expanded';previewBackButton(false);document.querySelector('#bottomZone')?.classList.remove('compact');backdropStyle(null,0);draw(sample('expand',1))}}if(d.type==='toggle-dock'&&studioLive)setDockCompact(!dockCompact);if(d.type==='gesture-preview'){cancelAnimationFrame(frame);cancelAnimationFrame(dockLiquidFrame);cancelAnimationFrame(selectionFrame);document.querySelectorAll('.profile-drawer-backdrop,.sheet-backdrop').forEach(n=>n.classList.remove('open'));document.body.classList.remove('drawer-open');dockCompact=false;dockLiquidMode='expanded';document.querySelector('#bottomZone')?.classList.remove('compact');backdropStyle(null,0);const state=sample('press',1),index=selectedIndex(),button=state.buttons[index];state.indicator[0]=button[0]+button[2]/2-state.indicator[2]/2;draw(state);send('gesture-ready')}if(d.type==='save'){localStorage.setItem(KEY,JSON.stringify(validate(d.profile)));localStorage.setItem(bundleKey,bundleRevision);localStorage.removeItem(disabledKey);send('saved')}if(d.type==='reset')send('ready',{profile:defaults()});}catch(err){send('error',{message:err.message})}});setTimeout(()=>{cancelAnimationFrame(dockLiquidFrame);send('ready',{profile});seek('expand',0)},1100)}else if(profile){material();draw(sample('expand',1))}
+if(studio){profile=profile||defaults();material();addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent||e.data?.source!=='vf-editor')return;try{const d=e.data;if(d.type==='preset'){profile=validate(d.profile);material();if(!studioLive)seek(d.transition,d.t,d.popup);else if(live)draw(live)}if(d.type==='seek'){studioLive=false;seek(d.transition,d.t,d.popup)}if(d.type==='live-preview'){cancelDockPlayback();studioLive=!!d.enabled;if(d.profile){profile=validate(d.profile);material()}if(studioLive){studioSeeking=true;setTimeout(()=>{studioSeeking=false},0);document.querySelectorAll('.profile-drawer,.sheet').forEach(cancelPopupPlayback);document.body.classList.remove('sheet-open','drawer-open');unlockDrawerPage();unlockPageScroll();document.documentElement.classList.remove('vf-popup-motion');document.querySelectorAll('.profile-drawer-backdrop,.sheet-backdrop').forEach(n=>n.classList.remove('open'));dockCompact=false;dockLiquidMode='expanded';previewBackButton(false);document.querySelector('#bottomZone')?.classList.remove('compact');backdropStyle(null,0);draw(sample('expand',1))}}if(d.type==='toggle-dock'&&studioLive)setDockCompact(!dockCompact);if(d.type==='gesture-preview'){cancelAnimationFrame(frame);cancelAnimationFrame(dockLiquidFrame);cancelAnimationFrame(selectionFrame);document.querySelectorAll('.profile-drawer-backdrop,.sheet-backdrop').forEach(n=>n.classList.remove('open'));document.body.classList.remove('drawer-open');dockCompact=false;dockLiquidMode='expanded';document.querySelector('#bottomZone')?.classList.remove('compact');backdropStyle(null,0);const state=sample('press',1),index=selectedIndex(),button=state.buttons[index];state.indicator[0]=button[0]+button[2]/2-state.indicator[2]/2;draw(state);send('gesture-ready')}if(d.type==='save'){localStorage.setItem(KEY,JSON.stringify(validate(d.profile)));localStorage.setItem(bundleKey,bundleRevision);localStorage.removeItem(disabledKey);send('saved')}if(d.type==='reset')send('ready',{profile:defaults()});}catch(err){send('error',{message:err.message})}});setTimeout(()=>{cancelAnimationFrame(dockLiquidFrame);send('ready',{profile});seek('expand',0)},1100)}else if(profile){material();draw(sample('expand',1))}
 if(profile){const backdrop=document.querySelector('.profile-drawer-backdrop');if(backdrop?.nodeType===1&&typeof MutationObserver!=='undefined'){
  let wasOpen=backdrop.classList.contains('open');
  const observer=new MutationObserver(()=>{const open=backdrop.classList.contains('open');if(open===wasOpen)return;wasOpen=open;if(studioSeeking||document.querySelector('.sheet-backdrop.open'))return;popupRun(backdrop.querySelector('.profile-drawer'),'drawer',!open)});
  try{observer.observe(backdrop,{attributes:true,attributeFilter:['class']})}catch(error){console.warn('Drawer observer unavailable:',error)}
 }}
 setupSelectionGesture();
+addEventListener('resize',()=>requestAnimationFrame(()=>{
+ if(!profile)return;
+ if(studio&&!studioLive&&lastSeek)seek(...lastSeek);
+ else if(!frame&&!selectionFrame)draw(sample(dockLiquidMode==='compact'?'collapse':dockLiquidMode==='drawer'?'more':'expand',1));
+}));
 })();

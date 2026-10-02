@@ -1,4 +1,4 @@
-const CACHE='liquid-glass-demo-v104';
+const CACHE='liquid-glass-demo-v105';
 const CACHE_PREFIX='liquid-glass-demo-v';
 const CORE=['./','./index.html','./whisper-worker.js','./manifest.webmanifest','./motion-editor.webmanifest','./icons/liquid-studio-180.png','./icons/liquid-studio-192.png','./icons/liquid-studio-512.png','./mirror-runtime.js','./motion-preset.js','./motion-runtime.js','./motion-editor.html','./motion-editor.js','./motion-editor.css','./motion-editor-mobile.css'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));

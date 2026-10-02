@@ -22,16 +22,24 @@ test('service worker only removes its own older cache versions', () => {
 test('glass blurs the zoomed source before optional edge-only RGB dispersion', () => {
   assert.match(source, /copy\.style\.transform=transform/);
   assert.match(source, /filter=`\$\{blur>0\?`blur/);
-  assert.match(source, /record\.content\.style\.filter=filter/);
+  assert.match(source, /record\.content\.style\.filter=count\?'none':filter/);
   assert.match(source, /saturate\(\$\{Math\.max\(0,lens\)/);
   assert.match(source, /const localX=contentRect\.width\/Math\.max\(1,record\.content\.offsetWidth\)/);
   assert.match(source, /const x=\(box\.left-contentRect\.left\)\/localX/);
   assert.doesNotMatch(source, /setDirection\(/,'the obsolete reflection pipeline stays removed');
-  assert.match(source,/\$\{channelFilter\(record,chromatic\)\}/);
+  assert.match(source,/item.channel.style.filter=`\$\{filter\} url\(#vf-channel-/);
   assert.match(motion,/chromatic=zone==='edge'\?\{\.\.\.rgb,centers:/,'RGB uses the exact existing edge mask and shape centroid');
-  assert.match(source,/if\(!config\?\.enabled\|\|!config.strength\)return ''/,'disabled RGB does not run a filter');
-  assert.match(source,/record.rgb\?\.root.remove\(\)/,'closed surfaces release their RGB filters');
+  assert.match(source,/config\?\.enabled&&config.strength>0/,'disabled RGB does not run channel copies');
+  assert.doesNotMatch(source,/new Image\(|feDisplacementMap|toDataURL\(/,'RGB has no per-frame texture decoding');
+  assert.match(source,/record.layer.replaceChildren\(\);mirrors.delete\(layer\)/,'closed surfaces release their channel copies');
   assert.match(source, /addEventListener\('scroll',align/);
+});
+
+test('timeline and live preview keep a single geometry owner across resize', () => {
+  assert.match(html,/viewBox=`0 0 \$\{s.w\+28\} 156`/);
+  assert.match(motion,/animateDockLiquid=function\(mode\)\{if\(studio&&!studioLive\)return/);
+  assert.match(motion,/if\(d.type==='live-preview'\)\{cancelDockPlayback\(\)/);
+  assert.match(motion,/if\(studio&&!studioLive&&lastSeek\)seek\(\.\.\.lastSeek\)/);
 });
 
 test('blur is clipped to the same liquid silhouette and rounded rim', () => {

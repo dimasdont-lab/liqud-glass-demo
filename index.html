@@ -101,6 +101,9 @@
     .dock-zoom-surfaces{position:absolute;z-index:0;left:-14px;top:-14px;width:calc(100% + 28px);height:156px;pointer-events:none}
     .dock-zoom-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat;contain:paint}
     .vf-mirror-content{position:absolute;inset:0;display:block;pointer-events:none;overflow:hidden;contain:paint}
+    .vf-rgb-content{isolation:isolate;background:#000}
+    .vf-rgb-region{position:absolute;inset:0;isolation:isolate;background:#000;pointer-events:none}
+    .vf-rgb-channel{position:absolute;inset:0;mix-blend-mode:screen;pointer-events:none;transform-origin:center}
     .vf-mirror-copy{position:absolute!important;max-width:none!important;margin:0!important;pointer-events:none!important;transition:none!important;animation:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transform-style:flat!important}
     .vf-mirror-copy.account-ticker{right:auto!important;bottom:auto!important}
     .dock-liquid-mass{fill:url(#dockGlassFill);filter:url(#dockLiquidGlass)}
@@ -1024,6 +1027,12 @@ function dockSelectionTailPath(tail,indicator){
   return`${pill} M ${x1} ${y-sourceShoulder} C ${x1+q} ${y-sourceShoulder} ${m-q*.5} ${y-waist} ${m} ${y-waist} C ${m+q*.5} ${y-waist} ${x2-q} ${y-targetShoulder} ${x2} ${y-targetShoulder} L ${x2} ${y+targetShoulder} C ${x2-q} ${y+targetShoulder} ${m+q*.5} ${y+waist} ${m} ${y+waist} C ${m-q*.5} ${y+waist} ${x1+q} ${y+sourceShoulder} ${x1} ${y+sourceShoulder} Z`;
 }
 function renderDockLiquid(s){
+  // The editor resizes its iframe without calling dockLiquidTargets. Keep the
+  // glass and its outline in the same CSS-pixel coordinate space as the UI.
+  for(const id of ['#dockLiquidLayer','#dockLiquidOutlineLayer']){
+    const layer=document.querySelector(id),viewBox=`0 0 ${s.w+28} 156`;
+    if(layer&&layer.getAttribute('viewBox')!==viewBox)layer.setAttribute('viewBox',viewBox);
+  }
   const{entry,nav,active,neck,drop,drop2,drop3,entryBulge,outlineNav,outlineActive,outlineNeck,outlineDrop,outlineDrop2,outlineDrop3}=getDockLiquidNodes();setLiquidRect(entry,s.entry);setLiquidRect(nav,s.nav);setLiquidRect(active,s.active);setLiquidRect(outlineNav,s.nav);setLiquidRect(outlineActive,s.active);
   [[dockLiquidNodes.materialNav,s.nav],[dockLiquidNodes.materialActive,s.active]].forEach(([el,v])=>{if(!el||!v)return;el.style.left=`${v[0]-14}px`;el.style.top=`${v[1]-14}px`;el.style.width=`${Math.max(.1,v[2])}px`;el.style.height=`${Math.max(.1,v[3])}px`;el.style.borderRadius=`${Math.max(0,Math.min(v[4],v[2]/2,v[3]/2))}px`;el.style.opacity=String(Math.max(0,Math.min(1,v[5])))});
   if(neck){neck.setAttribute('d',dockNeckPath(s));neck.style.opacity=s.neck?.[4]||0}
@@ -1595,7 +1604,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:' && !['localhost','127.0.0.1'].includes(location.hostname)){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-navigator.serviceWorker.register('./sw.js?v=104',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+navigator.serviceWorker.register('./sw.js?v=105',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1617,8 +1626,8 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="mirror-runtime.js?v=104"></script>
-<script src="motion-preset.js?v=104"></script>
-<script src="motion-runtime.js?v=104"></script>
+<script src="mirror-runtime.js?v=105"></script>
+<script src="motion-preset.js?v=105"></script>
+<script src="motion-runtime.js?v=105"></script>
 </body>
 </html>
