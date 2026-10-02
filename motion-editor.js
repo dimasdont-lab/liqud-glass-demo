@@ -1,5 +1,17 @@
 (()=>{'use strict';
 const $=s=>document.querySelector(s),copy=x=>JSON.parse(JSON.stringify(x)),iframe=$('#preview');
+function syncEditorViewport(){
+ const viewport=window.visualViewport,root=document.documentElement;
+ root.style.setProperty('--editor-viewport-height',`${viewport?.height||window.innerHeight}px`);
+ root.style.setProperty('--editor-viewport-top',`${viewport?.offsetTop||0}px`);
+ const rail=document.querySelector('.toolstrip');
+ if(rail)document.body.style.setProperty('--toolstrip-height',`${rail.getBoundingClientRect().height}px`);
+}
+syncEditorViewport();
+addEventListener('resize',syncEditorViewport,{passive:true});
+window.visualViewport?.addEventListener('resize',syncEditorViewport,{passive:true});
+window.visualViewport?.addEventListener('scroll',syncEditorViewport,{passive:true});
+new ResizeObserver(syncEditorViewport).observe(document.querySelector('.toolstrip'));
 let profile,tab='dock',transition='expand',popup='drawer',selected=0,t=0,playing=false,raf,history=[],future=[];
 const key='vf-liquid-motion-v1',status=s=>$('#status').textContent=s;
 $('#element').value='entry';
@@ -92,6 +104,7 @@ function showSettings(button){
  document.body.classList.toggle('inspector-open',mobile);
  if(mobile){document.body.style.setProperty('--toolstrip-height',`${toolstrip.getBoundingClientRect().height}px`);if(!settingsPanel.open)settingsPanel.show()}
  else if(!settingsPanel.open)settingsPanel.showModal();
+ $('#closePanel').focus({preventScroll:true});
 }
 document.querySelectorAll('[data-panel]').forEach(b=>b.onclick=()=>showSettings(b));
 $('#closePanel').onclick=()=>settingsPanel.close();

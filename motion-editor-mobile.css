@@ -1,11 +1,17 @@
 /* Phone-first editor layout: keep a useful live preview above compact controls. */
+/* Keep the editor shell in the visible viewport, including Safari focus/keyboard
+   changes. Only the timeline, inspector and category rail may scroll. */
+html{height:100%;overflow:hidden;overscroll-behavior:none}
+body{position:fixed;left:0;right:0;top:var(--editor-viewport-top,0px);height:var(--editor-viewport-height,100dvh);padding-top:env(safe-area-inset-top);overscroll-behavior:none}
+header{flex-shrink:0}
+.toolstrip{margin-top:auto;min-height:0}
 .build-version{font-size:10px;font-weight:500;color:#ff8da5;vertical-align:middle}
 .stage{position:relative}
 .previewExpand{position:absolute;z-index:4;right:14px;top:14px;display:flex;align-items:center;gap:6px;padding:8px 11px;border-radius:999px;background:#24242bdc;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 3px 18px #0008;font-size:12px}
 .gesturePreview{position:absolute;z-index:4;left:14px;top:14px;padding:8px 11px;border-radius:999px;background:#24242bdc;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 3px 18px #0008;font-size:12px}
 body.preview-focus{overflow:hidden}
-body.preview-focus .stage{position:fixed;z-index:100;inset:0;width:100vw;height:100dvh;max-height:none;min-height:0;padding:0;background:#050505}
-body.preview-focus .stage iframe{width:min(100vw,480px)!important;max-width:100%;height:100dvh;border:0;border-radius:0}
+body.preview-focus .stage{position:fixed;z-index:100;left:0;right:0;top:var(--editor-viewport-top,0px);width:100vw;height:var(--editor-viewport-height,100dvh);max-height:none;min-height:0;padding:0;background:#050505}
+body.preview-focus .stage iframe{width:min(100vw,480px)!important;max-width:100%;height:100%;border:0;border-radius:0}
 body.preview-focus .previewExpand{right:12px;top:calc(env(safe-area-inset-top) + 10px)}
 
 @media(max-width:849px){
@@ -73,4 +79,10 @@ body.preview-focus .previewExpand{right:12px;top:calc(env(safe-area-inset-top) +
   body.inspector-open{--inspector-height:clamp(185px,43dvh,255px)}
   body.inspector-open .stage{min-height:92px}
   body.inspector-open dialog#settingsPanel{padding-top:5px}
+}
+@media(max-width:849px){
+  /* Safari zooms and pans the whole page when a smaller editable control gets
+     focus. Keep its text at the native no-auto-zoom size. */
+  .scene select,#settingsPanel input,#settingsPanel select{font-size:16px}
+  body.inspector-open{--inspector-height:min(clamp(205px,40dvh,340px),max(100px,calc(var(--editor-viewport-height,100dvh) - 300px)))}
 }

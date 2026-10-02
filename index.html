@@ -1045,9 +1045,12 @@ function renderDockChrome(s){
   const selectionFluid=document.querySelector('#dockSelectionFluid'),selectionTail=document.querySelector('#dockSelectionTail');
   selectionFluid?.setAttribute('viewBox',`0 0 ${s.w} 78`);
   selectionTail?.setAttribute('d',(s.selectionTails||[]).map(tail=>dockSelectionTailPath(tail,s.indicator)).join(' '));
-  if(entry&&e){setDockStyle(entry,'left',e[0]);setDockStyle(entry,'top',e[1]);setDockStyle(entry,'width',e[2]);setDockStyle(entry,'height',e[3]);setDockStyle(entry,'border-radius',e[4]);setDockStyle(entry,'opacity',e[5],'');entry.style.setProperty('transform',`translateZ(0) scale(${e[6]})`,'important');entry.style.setProperty('padding',`0 ${e[8]}px 0 ${e[7]}px`,'important')}
-  if(entryIcon&&e){setDockStyle(entryIcon,'opacity',e[9],'');setDockStyle(entryIcon,'width',e[10]);setDockStyle(entryIcon,'height',e[10])}
-  if(send&&e){setDockStyle(send,'width',e[11]);setDockStyle(send,'height',e[11])}if(sendIcon&&e){setDockStyle(sendIcon,'width',e[12]);setDockStyle(sendIcon,'height',e[12])}
+  // The content track fades icons/text, not the glass plate and its backdrop.
+  // Keep zoom, blur and the rim visible throughout the field's morph.
+  const sharedGlass=document.documentElement.classList.contains?.('vf-motion-active'),contentOpacity=sharedGlass?(e?.[5]??1):1;
+  if(entry&&e){setDockStyle(entry,'left',e[0]);setDockStyle(entry,'top',e[1]);setDockStyle(entry,'width',e[2]);setDockStyle(entry,'height',e[3]);setDockStyle(entry,'border-radius',e[4]);setDockStyle(entry,'opacity',sharedGlass?(s.entry?.[5]??e[5]):e[5],'');entry.style.setProperty('transform',`translateZ(0) scale(${e[6]})`,'important');entry.style.setProperty('padding',`0 ${e[8]}px 0 ${e[7]}px`,'important');if(sharedGlass){const input=entry.querySelector('input');if(input)setDockStyle(input,'opacity',contentOpacity,'')}}
+  if(entryIcon&&e){setDockStyle(entryIcon,'opacity',e[9]*contentOpacity,'');setDockStyle(entryIcon,'width',e[10]);setDockStyle(entryIcon,'height',e[10])}
+  if(send&&e){setDockStyle(send,'opacity',contentOpacity,'');setDockStyle(send,'width',e[11]);setDockStyle(send,'height',e[11])}if(sendIcon&&e){setDockStyle(sendIcon,'width',e[12]);setDockStyle(sendIcon,'height',e[12])}
   buttons.forEach((button,index)=>{const v=s.buttons?.[index];if(!v)return;setDockStyle(button,'left',v[0]);setDockStyle(button,'top',v[1]);setDockStyle(button,'width',v[2]);setDockStyle(button,'height',v[3]);setDockStyle(button,'border-radius',v[4]);setDockStyle(button,'opacity',v[5],'');button.style.setProperty('transform',`translateZ(0) scale(${v[6]})`,'important');if(labels[index])setDockStyle(labels[index],'opacity',v[7]*(1-.48*(s.buttonPress?.[index]||0)),'')});
   if(indicator&&s.indicator){const v=s.indicator;setDockStyle(indicator,'left',v[0]);setDockStyle(indicator,'top',v[1]);setDockStyle(indicator,'width',v[2]);setDockStyle(indicator,'height',v[3]);setDockStyle(indicator,'border-radius',v[4]);setDockStyle(indicator,'opacity',v[5],'');indicator.style.setProperty('transform','translateZ(0)','important')}
 }
@@ -1592,7 +1595,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:' && !['localhost','127.0.0.1'].includes(location.hostname)){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-navigator.serviceWorker.register('./sw.js?v=100',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+navigator.serviceWorker.register('./sw.js?v=101',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1614,8 +1617,8 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="mirror-runtime.js?v=100"></script>
-<script src="motion-preset.js?v=100"></script>
-<script src="motion-runtime.js?v=100"></script>
+<script src="mirror-runtime.js?v=101"></script>
+<script src="motion-preset.js?v=101"></script>
+<script src="motion-runtime.js?v=101"></script>
 </body>
 </html>
