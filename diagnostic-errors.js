@@ -1,0 +1,2 @@
+// Read-only error collector. Active exclusively in an explicitly opened test frame.
+(()=>{if(!new URLSearchParams(location.search).has('diagnostic'))return;const errors=[];window.VFDiagnosticErrors=errors;const add=(type,message)=>{if(errors.length<80)errors.push({type,message:String(message).slice(0,800),time:new Date().toISOString()})};addEventListener('error',e=>add('error',e.message));addEventListener('unhandledrejection',e=>add('unhandledrejection',e.reason?.message||e.reason))})();
