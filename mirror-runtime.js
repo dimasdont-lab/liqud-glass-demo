@@ -1,7 +1,35 @@
 /* Live page copy for glass zoom. Blur is applied to this copy after scaling,
    so it samples the zoomed image rather than the unmodified backdrop. */
 (()=>{'use strict';
-const mirrors=new Map();let refreshTimer=0,frame=0;
+const mirrors=new Map();let refreshTimer=0,frame=0,filterId=0;
+const SVG='http://www.w3.org/2000/svg';
+function channelFilter(record,config){
+ if(!config?.enabled||!config.strength)return '';
+ const w=record.host.clientWidth,h=record.host.clientHeight,pad=record.overscan,cw=w+2*pad,ch=h+2*pad;
+ if(!w||!h)return '';
+ if(!record.rgb){
+  const root=document.createElementNS(SVG,'svg');root.setAttribute('aria-hidden','true');root.style.cssText='position:absolute;width:0;height:0;pointer-events:none;overflow:hidden';
+  const id=`vf-rgb-${++filterId}`;root.innerHTML=`<defs><filter id="${id}" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feImage result="field" preserveAspectRatio="none"/><feDisplacementMap in="SourceGraphic" in2="field" xChannelSelector="R" yChannelSelector="G" result="redShift"/><feDisplacementMap in="SourceGraphic" in2="field" xChannelSelector="R" yChannelSelector="G" result="blueShift"/><feColorMatrix in="redShift" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green"/><feColorMatrix in="blueShift" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue"/><feComposite in="red" in2="green" operator="arithmetic" k2="1" k3="1" result="rg"/><feComposite in="rg" in2="blue" operator="arithmetic" k2="1" k3="1"/></filter></defs>`;
+  document.body.append(root);record.rgb={root,id,filter:root.querySelector('filter'),image:root.querySelector('feImage'),maps:[...root.querySelectorAll('feDisplacementMap')]};
+ }
+ const rgb=record.rgb,points=config.centers||[{x:w/2,y:h/2}],key=JSON.stringify([w,h,pad,points]);
+ if(rgb.key!==key){
+  rgb.key=key;const canvas=document.createElement('canvas');canvas.width=canvas.height=48;const ctx=canvas.getContext('2d'),data=ctx.createImageData(48,48);
+  for(let y=0;y<48;y++)for(let x=0;x<48;x++){
+   const px=(x+.5)/48*cw-pad,py=(y+.5)/48*ch-pad;
+   const center=points.reduce((best,p)=>Math.hypot(px-p.x,py-p.y)<Math.hypot(px-best.x,py-best.y)?p:best,points[0]);
+   const dx=px-center.x,dy=py-center.y,length=Math.max(1,Math.hypot(dx,dy)),i=(y*48+x)*4;
+   data.data[i]=Math.round(127.5+127.5*dx/length);data.data[i+1]=Math.round(127.5+127.5*dy/length);data.data[i+2]=128;data.data[i+3]=255;
+  }
+  ctx.putImageData(data,0,0);const href=canvas.toDataURL(),decoder=new Image();
+  // Keep the previous valid field until the replacement is decoded. An empty
+  // feImage during a morph would shift the entire edge and visibly blink.
+  decoder.onload=()=>{if(rgb.key!==key||!record.layer.isConnected||mirrors.get(record.layer)!==record)return;rgb.image.setAttribute('href',href);rgb.image.setAttributeNS('http://www.w3.org/1999/xlink','href',href);for(const el of [rgb.filter,rgb.image]){el.setAttribute('x','0');el.setAttribute('y','0');el.setAttribute('width',cw);el.setAttribute('height',ch)}rgb.ready=true;if(record.options)update(record.layer,record.host,...record.options)};
+  decoder.src=href;
+ }
+ rgb.maps[0].setAttribute('scale',config.strength*2*config.direction);rgb.maps[1].setAttribute('scale',-config.strength*2*config.direction);
+ return rgb.ready?`url(#${rgb.id}) `:'';
+}
 // Never use a mirror copy as a source: copies carry the same .app/.ticker
 // classes and can precede the real page in document order.
 const sourceNodes=()=>[document.querySelector('body > .app'),document.querySelector('#accountTicker')].filter(node=>node&&getComputedStyle(node).display!=='none');
@@ -64,8 +92,8 @@ function align(){
 }
 function positionAll(){frame=0;align();if(mirrors.size)frame=requestAnimationFrame(positionAll)}
 function scheduleFrame(){if(!frame&&mirrors.size)frame=requestAnimationFrame(positionAll)}
- function update(layer,host,scale=1,blur=0,lens=1){const record=mount(layer,host);record.host=host;record.scale=scale;record.blur=blur;const overscan=Math.min(96,Math.max(24,Math.ceil(blur*2))),inset=`-${overscan}px`;if(record.content.style.inset!==inset)record.content.style.inset=inset;const optical=`saturate(${Math.max(0,lens).toFixed(2)}) contrast(${Math.max(.75,1+(lens-1)*.16).toFixed(2)}) brightness(${Math.max(.8,1+(lens-1)*.07).toFixed(2)})`,filter=`${blur>0?`blur(${blur.toFixed(2)}px) `:''}${optical}`;if(record.content.style.filter!==filter)record.content.style.filter=filter;scheduleFrame()}
-function remove(layer){const record=mirrors.get(layer);if(!record)return;record.layer.replaceChildren();mirrors.delete(layer);if(!mirrors.size&&frame){cancelAnimationFrame(frame);frame=0}}
+ function update(layer,host,scale=1,blur=0,lens=1,chromatic=null){const record=mount(layer,host);record.host=host;record.scale=scale;record.blur=blur;record.options=[scale,blur,lens,chromatic];const overscan=Math.min(96,Math.max(24,Math.ceil(blur*2)+(chromatic?.strength||0)*2)),inset=`-${overscan}px`;record.overscan=overscan;if(record.content.style.inset!==inset)record.content.style.inset=inset;const optical=`saturate(${Math.max(0,lens).toFixed(2)}) contrast(${Math.max(.75,1+(lens-1)*.16).toFixed(2)}) brightness(${Math.max(.8,1+(lens-1)*.07).toFixed(2)})`,filter=`${blur>0?`blur(${blur.toFixed(2)}px) `:''}${optical} ${channelFilter(record,chromatic)}`;if(record.content.style.filter!==filter)record.content.style.filter=filter;scheduleFrame()}
+function remove(layer){const record=mirrors.get(layer);if(!record)return;record.rgb?.root.remove();record.layer.replaceChildren();mirrors.delete(layer);if(!mirrors.size&&frame){cancelAnimationFrame(frame);frame=0}}
 function releaseClosed(){
  for(const record of mirrors.values()){
   const sheet=record.host.closest('.sheet-backdrop'),drawer=record.host.closest('.profile-drawer-backdrop');

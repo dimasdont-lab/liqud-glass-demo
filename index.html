@@ -1595,7 +1595,7 @@ addEventListener('wheel',handleBoundaryWheel,{passive:true});
 if('serviceWorker' in navigator && location.protocol!=='file:' && !['localhost','127.0.0.1'].includes(location.hostname)){
   let reloadingForUpdate=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
-navigator.serviceWorker.register('./sw.js?v=103',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+navigator.serviceWorker.register('./sw.js?v=104',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 try{
   if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -1617,8 +1617,8 @@ try{
   if(t){t.textContent='Помилка запуску: '+err.message;t.classList.add('show')}
 }
 </script>
-<script src="mirror-runtime.js?v=103"></script>
-<script src="motion-preset.js?v=103"></script>
-<script src="motion-runtime.js?v=103"></script>
+<script src="mirror-runtime.js?v=104"></script>
+<script src="motion-preset.js?v=104"></script>
+<script src="motion-runtime.js?v=104"></script>
 </body>
 </html>

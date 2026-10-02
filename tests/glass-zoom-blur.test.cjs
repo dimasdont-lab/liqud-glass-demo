@@ -19,14 +19,18 @@ test('service worker only removes its own older cache versions', () => {
   assert.match(worker, /url\.pathname\.startsWith\(new URL\(self\.registration\.scope\)\.pathname\)/);
 });
 
-test('glass blurs the zoomed source without refraction', () => {
+test('glass blurs the zoomed source before optional edge-only RGB dispersion', () => {
   assert.match(source, /copy\.style\.transform=transform/);
   assert.match(source, /filter=`\$\{blur>0\?`blur/);
   assert.match(source, /record\.content\.style\.filter=filter/);
   assert.match(source, /saturate\(\$\{Math\.max\(0,lens\)/);
   assert.match(source, /const localX=contentRect\.width\/Math\.max\(1,record\.content\.offsetWidth\)/);
   assert.match(source, /const x=\(box\.left-contentRect\.left\)\/localX/);
-  assert.doesNotMatch(source, /feDisplacementMap|setDirection\(/);
+  assert.doesNotMatch(source, /setDirection\(/,'the obsolete reflection pipeline stays removed');
+  assert.match(source,/\$\{channelFilter\(record,chromatic\)\}/);
+  assert.match(motion,/chromatic=zone==='edge'\?\{\.\.\.rgb,centers:/,'RGB uses the exact existing edge mask and shape centroid');
+  assert.match(source,/if\(!config\?\.enabled\|\|!config.strength\)return ''/,'disabled RGB does not run a filter');
+  assert.match(source,/record.rgb\?\.root.remove\(\)/,'closed surfaces release their RGB filters');
   assert.match(source, /addEventListener\('scroll',align/);
 });
 

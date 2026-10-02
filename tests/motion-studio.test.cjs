@@ -23,6 +23,14 @@ for(let i=0;i<=200;i++){
  }
 }
 api.set(p);
+const thin=api.validate(bundled);api.set(thin);
+for(const name of ['press','more','back']){
+ const reference=api.sample('collapse',0),actual=api.sample(name,name==='back'?1:0);
+ for(const field of ['nav','active','entryHtml','indicator','buttons'])actual[field].flat().forEach((v,i)=>assert.ok(Math.abs(v-reference[field].flat()[i])<.01,`${name} preserves the user thin ${field}`));
+}
+const invalidRgb=JSON.parse(JSON.stringify(thin));invalidRgb.chromatic.dock.strength=17;assert.throws(()=>api.validate(invalidRgb));
+assert.equal(api.validate(thin).chromatic.dock.strength,2);
+api.set(p);
 assert.match(html,/window\.VFMotion\?\.preparePopup\('drawer'\)/,'drawer is positioned at its first animation key before opening');
 for(const name of Object.keys(p.transitions)){
  for(let i=0;i<=100;i++){const s=api.sample(name,i/100);for(const a of Object.values(s).filter(Array.isArray)){const nums=a.flat();assert.ok(nums.every(Number.isFinite),name+' finite')}}

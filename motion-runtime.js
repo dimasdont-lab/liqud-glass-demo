@@ -1,6 +1,6 @@
 /* Voice Finance Motion format 1. Shared by the app and the visual editor. */
 (()=>{'use strict';
-const KEY='vf-liquid-motion-v1',draftKey=KEY+'-draft',bundleKey=KEY+'-bundle-revision',disabledKey=KEY+'-disabled',bundleRevision='103',clone=x=>JSON.parse(JSON.stringify(x));
+const KEY='vf-liquid-motion-v1',draftKey=KEY+'-draft',bundleKey=KEY+'-bundle-revision',disabledKey=KEY+'-disabled',bundleRevision='104',clone=x=>JSON.parse(JSON.stringify(x));
 const studio=new URLSearchParams(location.search).has('studio');
 if(studio)document.body.classList.add('studio-preview');
 let profile=null,frame=null,live=null,studioLive=false;
@@ -17,6 +17,7 @@ function defaults(){
  return {format:'voice-finance-motion',version:1,referenceWidth:expanded.w,
  material:{color:'#242428',opacity:.9,blur:15,lens:1.2,border:1,borderHorizontal:1,borderVertical:1,borderFade:0,borderFadeSpan:18,borderOpacity:.3,accent:'#ff375f'},
  indicatorMaterial:{color:'#09090a',opacity:.8,blur:8,lens:1,border:1,borderOpacity:.28},
+ chromatic:{dock:{enabled:true,strength:2,direction:1},indicator:{enabled:true,strength:2,direction:1},drawer:{enabled:true,strength:2,direction:1},sheet:{enabled:true,strength:2,direction:1}},
  radialBlur:{center:12.5,edge:43.75,edgeStart:70,feather:6,units:'percent'},
  popupBlur:{drawer:{center:2.5,edge:8.75,edgeStart:70,feather:6,units:'percent'},sheet:{center:2.5,edge:8.75,edgeStart:70,feather:6,units:'percent'}},
  zoom:{dock:{value:0,units:'px'},drawer:{value:0,units:'px'},sheet:{value:0,units:'px'}},
@@ -32,6 +33,8 @@ function validate(p){
  p=clone(p);
  // Migrate the former indicator color into its own non-animated material group.
  p.indicatorMaterial??={color:p.material?.indicator||'#09090a',opacity:.8,blur:8,lens:1,border:1,borderOpacity:.28};
+ p.chromatic??={dock:{enabled:true,strength:2,direction:1},indicator:{enabled:true,strength:2,direction:1},drawer:{enabled:true,strength:2,direction:1},sheet:{enabled:true,strength:2,direction:1}};
+ for(const kind of ['dock','indicator','drawer','sheet']){p.chromatic[kind]??={enabled:true,strength:2,direction:1};const c=p.chromatic[kind];if(typeof c.enabled!=='boolean'||!Number.isFinite(c.strength)||c.strength<0||c.strength>16||![-1,1].includes(c.direction))throw Error('Некоректне RGB-розділення '+kind)}
  p.radialBlur??={center:p.material?.blur??8,middle:Math.min(60,(p.material?.blur??8)*1.6),edge:Math.min(60,(p.material?.blur??8)*2.6),innerStop:50,outerStop:90,feather:6};
  p.popupBlur??={drawer:clone(p.radialBlur.units==='percent'?{center:2.5,middle:4.7,edge:8.75,innerStop:50,outerStop:90,feather:6,units:'percent'}:p.radialBlur),sheet:clone(p.radialBlur.units==='percent'?{center:2.5,middle:4.7,edge:8.75,innerStop:50,outerStop:90,feather:6,units:'percent'}:p.radialBlur)};
  // Legacy refraction settings are intentionally dropped: the effect is gone.
@@ -90,7 +93,15 @@ function warped(frames,t,curve){let i=0;while(i<frames.length-2&&t>frames[i+1].t
 function samplePart(part,t){return sampleDockExpansion(part.frames.map(f=>f.state),warped(part.frames,t,part.curve),part.frames.map(f=>f.t))}
 function sample(name,t){const tr=profile.transitions[name],raw=clone(samplePart(tr,t));
  for(const [key,part]of Object.entries(tr.tracks||{})){const local=Math.max(0,Math.min(1,(t*tr.duration-part.delay)/part.duration)),s=samplePart(part,local);for(const k of trackParts[key])raw[k]=s[k];if(key.startsWith('button'))raw.buttons[+key.slice(6)]=s.buttons[+key.slice(6)]}
- const s=scale(raw);if(!studio||studioLive){const buttons=[...document.querySelectorAll('.dock-group>button:not(.compact-active-btn)')],i=Math.max(0,buttons.findIndex(b=>b.dataset.screen&&b.classList.contains('active')));if(name==='press'){s.indicator[0]=tabCenter(i)-s.indicator[2]/2;return s}const c=name==='collapse'?t:name==='expand'?1-t:0;if(i<3){s.indicator[0]+=(i-3)*(s.w-12)/5*(1-c)-(s.w-124)*c;if(i!==2){const a=s.buttons[i].slice(),b=s.buttons[2].slice();s.buttons[i]=a.map((v,j)=>v+(b[j]-v)*c);s.buttons[2]=b.map((v,j)=>v+(a[j]-v)*c)}}}return s}
+ const s=scale(raw);if(!studio||studioLive){
+  const buttons=[...document.querySelectorAll('.dock-group>button:not(.compact-active-btn)')],i=Math.max(0,buttons.findIndex(b=>b.dataset.screen&&b.classList.contains('active')));
+  if(name==='press'){s.indicator[0]=tabCenter(i)-s.indicator[2]/2;return s}
+  const c=name==='collapse'?t:name==='expand'?1-t:0;
+  if(i<3){const compactDelta=s.active[0]+s.active[2]/2-14-s.indicator[0]-s.indicator[2]/2;s.indicator[0]+=(i-3)*(s.w-12)/5*(1-c)+compactDelta*c;if(i!==2){const a=s.buttons[i].slice(),b=s.buttons[2].slice();s.buttons[i]=a.map((v,j)=>v+(b[j]-v)*c);s.buttons[2]=b.map((v,j)=>v+(a[j]-v)*c)}}
+  // Transparent hit areas may be larger than the thin glass. Their icons must
+  // still share the capsule centre, not the legacy 64px row's centre.
+  s.buttons.forEach((button,j)=>{const shape=j<3?s.active:s.nav;const y=shape[1]+shape[3]/2-64-button[3]/2;button[1]+=(y-button[1])*c});
+ }return s}
 function liquid(s){s=clone(s);const l=profile.liquid;if(!l.enabled){for(const k of ['neck','drop','drop2','drop3','entryBulge'])s[k][4]=0;return s}const gap=Math.max(0,s.nav[0]-s.active[0]-s.active[2]);s.neck[3]*=l.neck*l.strength;s.neck[4]*=gap>l.reach?Math.max(0,1-(gap-l.reach)/Math.max(1,l.reach)):1;for(const k of ['drop','drop2','drop3','entryBulge']){s[k][2]*=l.strength;s[k][3]*=l.strength}return s}
 function rgba(hex,alpha){const n=parseInt(hex.slice(1),16);return`rgba(${n>>16},${n>>8&255},${n&255},${Math.max(0,Math.min(1,alpha))})`}
 const contourHosts=new WeakMap();let contourObserver=null;
@@ -106,7 +117,26 @@ function contourMaskUrl(w,h,corners,zone,inner,outer,soft){
 }
 function contourProfile(host){return host.classList.contains('profile-drawer')?profile.popupBlur.drawer:host.classList.contains('sheet')||host.classList.contains('voice-popover')?profile.popupBlur.sheet:profile.radialBlur}
 function zoomProfile(host){return host.classList.contains('profile-drawer')?profile.zoom.drawer:host.classList.contains('sheet')||host.classList.contains('voice-popover')?profile.zoom.sheet:profile.zoom.dock}
-function updateContourZoomHost(host,w,h,corners,blur){if(host.classList.contains('dock-material-surface'))return;const ref=contourHosts.get(host),z=zoomProfile(host);if(!ref?.zoomLayers||!z)return;const backdrop=host.closest('.sheet-backdrop,.profile-drawer-backdrop');if(backdrop&&!backdrop.classList.contains('open')&&!studioSeeking){for(const layer of Object.values(ref.zoomLayers)){layer.style.display='none';window.VFMirror?.remove(layer)}return}const depth=Math.min(w,h)/2,inset=depth*(1-blur.edgeStart/100),band=[inset,inset],scale=Math.max(.5,Math.min(1.5,1+z.value/Math.max(20,depth))),lens=host.classList.contains('dock-indicator')?profile.indicatorMaterial.lens:backdrop?1:profile.material.lens;for(const zone of ['center','edge']){const layer=ref.zoomLayers[zone],radius=Math.min(w,h)*blur[zone]/100;if(!z.value&&!radius){layer.style.display='none';window.VFMirror?.remove(layer);continue}layer.style.display='block';const key=[w,h,...corners,blur.edgeStart,blur.feather,zone].join(':');if(layer.dataset.maskKey!==key){layer.dataset.maskKey=key;layer.style.maskImage=layer.style.webkitMaskImage=contourMaskUrl(w,h,corners,zone,band,band,Math.max(.1,Math.min(w,h)*blur.feather/100))}window.VFMirror?.update(layer,host,scale,radius,lens)}}
+function chromaticProfile(host){return profile.chromatic[host.classList.contains('dock-indicator')?'indicator':host.classList.contains('profile-drawer')?'drawer':host.classList.contains('sheet')||host.classList.contains('voice-popover')?'sheet':'dock']}
+function roundedMassCenter(w,h,corners){
+ let area=w*h,mx=area*w/2,my=area*h/2;
+ corners.forEach((radius,i)=>{const r=Math.min(radius,w/2,h/2),cut=(1-Math.PI/4)*r*r,offset=r*(5/6-Math.PI/4)/(1-Math.PI/4);area-=cut;mx-=cut*([0,3].includes(i)?offset:w-offset);my-=cut*(i<2?offset:h-offset)});
+ return {x:mx/Math.max(1,area),y:my/Math.max(1,area)};
+}
+function updateContourZoomHost(host,w,h,corners,blur){
+ if(host.classList.contains('dock-material-surface'))return;
+ const ref=contourHosts.get(host),z=zoomProfile(host),rgb=chromaticProfile(host);if(!ref?.zoomLayers||!z)return;
+ const backdrop=host.closest('.sheet-backdrop,.profile-drawer-backdrop');
+ if(backdrop&&!backdrop.classList.contains('open')&&!studioSeeking){for(const layer of Object.values(ref.zoomLayers)){layer.style.display='none';window.VFMirror?.remove(layer)}return}
+ const depth=Math.min(w,h)/2,inset=depth*(1-blur.edgeStart/100),band=[inset,inset],scale=Math.max(.5,Math.min(1.5,1+z.value/Math.max(20,depth))),lens=host.classList.contains('dock-indicator')?profile.indicatorMaterial.lens:backdrop?1:profile.material.lens;
+ for(const zone of ['center','edge']){
+  const layer=ref.zoomLayers[zone],radius=Math.min(w,h)*blur[zone]/100,chromatic=zone==='edge'?{...rgb,centers:[roundedMassCenter(w,h,corners)]}:null;
+  if(!z.value&&!radius&&!(chromatic?.enabled&&chromatic.strength)){layer.style.display='none';window.VFMirror?.remove(layer);continue}
+  layer.style.display='block';const key=[w,h,...corners,blur.edgeStart,blur.feather,zone].join(':');
+  if(layer.dataset.maskKey!==key){layer.dataset.maskKey=key;layer.style.maskImage=layer.style.webkitMaskImage=contourMaskUrl(w,h,corners,zone,band,band,Math.max(.1,Math.min(w,h)*blur.feather/100))}
+  window.VFMirror?.update(layer,host,scale,radius,lens,chromatic);
+ }
+}
 function ensureRadialBlurHosts(){
   if(!contourObserver&&typeof ResizeObserver!=='undefined')contourObserver=new ResizeObserver(entries=>{for(const item of entries)updateContourBlurHost(item.target,contourProfile(item.target))});
   document.querySelectorAll('.quick-entry-shell,.dock-indicator,.dock-material-surface,.profile-drawer,.sheet,.voice-popover').forEach(host=>{
@@ -144,7 +174,20 @@ function dockMirrorMask(s,r,zone){
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><filter id="rim" x="-22%" y="-36%" width="144%" height="172%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="${profile.liquid.enabled?profile.liquid.blur:0}" result="blur"/><feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8.2" result="mass"/>${output}</filter></defs><g fill="white" filter="url(#rim)">${shapes}</g></svg>`;
  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
-function updateDockZoom(s){const z=profile.zoom.dock,blur=profile.radialBlur,container=document.querySelector('#dockZoomSurfaces');if(!container)return;const size=Math.min(s.nav[3],s.active[3]),scale=Math.max(.5,Math.min(1.5,1+z.value/39));for(const zone of ['center','edge']){const layer=container.querySelector(`[data-zone="${zone}"]`);if(!layer)continue;const radius=size*blur[zone]/100;if(!z.value&&!radius){layer.style.display='none';window.VFMirror?.remove(layer);continue}layer.style.display='block';const mask=dockMirrorMask(s,blur,zone);layer.style.maskImage=layer.style.webkitMaskImage=mask;window.VFMirror?.update(layer,container,scale,radius,profile.material.lens)}}
+function updateDockZoom(s){
+ const z=profile.zoom.dock,blur=profile.radialBlur,container=document.querySelector('#dockZoomSurfaces');if(!container)return;
+ const size=Math.min(s.nav[3],s.active[3]),scale=Math.max(.5,Math.min(1.5,1+z.value/39));
+ const a=s.active,n=s.nav,center=v=>({x:v[0]+v[2]/2,y:v[1]+v[3]/2}),split=n[0]>a[0]+a[2]+1;
+ const ca=center(a),cn=center(n),wa=a[2]*a[3]*a[5],wn=n[2]*n[3]*n[5],total=Math.max(1,wa+wn);
+ const centers=split?[ca,cn]:[{x:(ca.x*wa+cn.x*wn)/total,y:(ca.y*wa+cn.y*wn)/total}];
+ for(const zone of ['center','edge']){
+  const layer=container.querySelector(`[data-zone="${zone}"]`);if(!layer)continue;
+  const radius=size*blur[zone]/100,chromatic=zone==='edge'?{...profile.chromatic.dock,centers}:null;
+  if(!z.value&&!radius&&!(chromatic?.enabled&&chromatic.strength)){layer.style.display='none';window.VFMirror?.remove(layer);continue}
+  layer.style.display='block';const mask=dockMirrorMask(s,blur,zone);layer.style.maskImage=layer.style.webkitMaskImage=mask;
+  window.VFMirror?.update(layer,container,scale,radius,profile.material.lens,chromatic);
+ }
+}
 function draw(s){live=s;dockLiquidCurrent=s;const visible=liquid(s);renderDockLiquid(visible);renderDockChrome(s);for(const [selector,shape,blur] of [['.quick-entry-shell',s.entryHtml,profile.radialBlur],['.dock-indicator',s.indicator,profile.radialBlur]]){const host=document.querySelector(selector);if(host)updateContourBlurHost(host,blur,[shape[2],shape[3],shape[4]])}updateDockZoom(visible);window.VFMirror?.flush?.()}
 // Selection is an interaction, not an editable transition: keep the editor's
 // indicator width, height and radius while moving its centre between tabs.
@@ -221,7 +264,14 @@ function seek(name,t,popup){
 }
 window.VFMotion={validate,ease,defaults,sample,seek,upgradeTracks,published:()=>validate(clone(window.VF_BUNDLED_MOTION_PROFILE)),get tension(){return profile?.liquid.tension??.28},get profile(){return clone(profile)},set(p){profile=validate(p);material()},clear(){localStorage.removeItem(KEY);localStorage.removeItem(bundleKey);localStorage.setItem(disabledKey,'1');location.reload()},preparePopup(kind){if(!profile||kind!=='drawer')return;const el=document.querySelector('.profile-drawer');if(!el)return;popupStyle(el,kind,0);popupProgress.set(el,0)}};
 try{const bundled=window.VF_BUNDLED_MOTION_PROFILE?validate(window.VF_BUNDLED_MOTION_PROFILE):null,saved=localStorage.getItem(studio?draftKey:KEY),preferSaved=studio||!bundled||localStorage.getItem(bundleKey)===bundleRevision;profile=!studio&&localStorage.getItem(disabledKey)==='1'?null:preferSaved&&saved?validate(JSON.parse(saved)):bundled||null}catch(e){console.warn('Motion preset ignored:',e.message);try{profile=window.VF_BUNDLED_MOTION_PROFILE?validate(window.VF_BUNDLED_MOTION_PROFILE):null}catch{profile=null}}
+// One-time repair of the known exported draft. Never replace a newer collapse
+// edited on the phone, nor keep overwriting subsequent edits to other tracks.
+try{const marker=KEY+'-thin-endpoints-104';if(studio&&profile&&!localStorage.getItem(marker)&&window.VF_BUNDLED_MOTION_PROFILE){const bundled=validate(window.VF_BUNDLED_MOTION_PROFILE);if(JSON.stringify(profile.transitions.collapse)===JSON.stringify(bundled.transitions.collapse)){for(const name of ['expand','press','more','back'])profile.transitions[name]=clone(bundled.transitions[name]);localStorage.setItem(draftKey,JSON.stringify(profile));localStorage.setItem(marker,'1')}}}catch(error){console.warn('Draft endpoint migration skipped:',error.message)}
 if(studio){profile=profile||defaults();material();addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent||e.data?.source!=='vf-editor')return;try{const d=e.data;if(d.type==='preset'){profile=validate(d.profile);material();if(!studioLive)seek(d.transition,d.t,d.popup);else if(live)draw(live)}if(d.type==='seek'){studioLive=false;seek(d.transition,d.t,d.popup)}if(d.type==='live-preview'){studioLive=!!d.enabled;if(d.profile){profile=validate(d.profile);material()}if(studioLive){studioSeeking=true;setTimeout(()=>{studioSeeking=false},0);document.querySelectorAll('.profile-drawer,.sheet').forEach(el=>cancelAnimationFrame(popupFrames.get(el)));document.body.classList.remove('sheet-open','drawer-open');unlockDrawerPage();unlockPageScroll();document.documentElement.classList.remove('vf-popup-motion');document.querySelectorAll('.profile-drawer-backdrop,.sheet-backdrop').forEach(n=>n.classList.remove('open'));dockCompact=false;dockLiquidMode='expanded';previewBackButton(false);document.querySelector('#bottomZone')?.classList.remove('compact');backdropStyle(null,0);draw(sample('expand',1))}}if(d.type==='toggle-dock'&&studioLive)setDockCompact(!dockCompact);if(d.type==='gesture-preview'){cancelAnimationFrame(frame);cancelAnimationFrame(dockLiquidFrame);cancelAnimationFrame(selectionFrame);document.querySelectorAll('.profile-drawer-backdrop,.sheet-backdrop').forEach(n=>n.classList.remove('open'));document.body.classList.remove('drawer-open');dockCompact=false;dockLiquidMode='expanded';document.querySelector('#bottomZone')?.classList.remove('compact');backdropStyle(null,0);const state=sample('press',1),index=selectedIndex(),button=state.buttons[index];state.indicator[0]=button[0]+button[2]/2-state.indicator[2]/2;draw(state);send('gesture-ready')}if(d.type==='save'){localStorage.setItem(KEY,JSON.stringify(validate(d.profile)));localStorage.setItem(bundleKey,bundleRevision);localStorage.removeItem(disabledKey);send('saved')}if(d.type==='reset')send('ready',{profile:defaults()});}catch(err){send('error',{message:err.message})}});setTimeout(()=>{cancelAnimationFrame(dockLiquidFrame);send('ready',{profile});seek('expand',0)},1100)}else if(profile){material();draw(sample('expand',1))}
-if(profile){const backdrop=document.querySelector('.profile-drawer-backdrop');if(backdrop?.nodeType===1&&typeof MutationObserver!=='undefined'){const observer=new MutationObserver(()=>{if(studioSeeking||document.querySelector('.sheet-backdrop.open'))return;popupRun(backdrop.querySelector('.profile-drawer'),'drawer',!backdrop.classList.contains('open'))});try{observer.observe(backdrop,{attributes:true,attributeFilter:['class']})}catch(error){console.warn('Drawer observer unavailable:',error)}}}
+if(profile){const backdrop=document.querySelector('.profile-drawer-backdrop');if(backdrop?.nodeType===1&&typeof MutationObserver!=='undefined'){
+ let wasOpen=backdrop.classList.contains('open');
+ const observer=new MutationObserver(()=>{const open=backdrop.classList.contains('open');if(open===wasOpen)return;wasOpen=open;if(studioSeeking||document.querySelector('.sheet-backdrop.open'))return;popupRun(backdrop.querySelector('.profile-drawer'),'drawer',!open)});
+ try{observer.observe(backdrop,{attributes:true,attributeFilter:['class']})}catch(error){console.warn('Drawer observer unavailable:',error)}
+}}
 setupSelectionGesture();
 })();
