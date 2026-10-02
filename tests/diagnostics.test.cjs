@@ -15,7 +15,7 @@ test('early device error recorder is bounded and inactive outside diagnostics',(
 });
 test('diagnostic iframe bypasses draft migration and provides a visible entry point',()=>{
  assert.match(fs.readFileSync('motion-runtime.js','utf8'),/if\(studio&&!new URLSearchParams\(location.search\).has\('diagnostic'\)/);
- assert.match(fs.readFileSync('motion-editor.html','utf8'),/diagnostics.html\?v=107/);
+ assert.match(fs.readFileSync('motion-editor.html','utf8'),/diagnostics.html\?v=109/);
  assert.match(fs.readFileSync('index.html','utf8'),/diagnostic-trace.js\?v=108/);
  assert.match(fs.readFileSync('diagnostics.html','utf8'),/studio=1&amp;diagnostic=1/);
 });

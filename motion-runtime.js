@@ -131,10 +131,10 @@ function updateContourZoomHost(host,w,h,corners,blur){
  const depth=Math.min(w,h)/2,inset=depth*(1-blur.edgeStart/100),band=[inset,inset],scale=Math.max(.5,Math.min(1.5,1+z.value/Math.max(20,depth))),lens=host.classList.contains('dock-indicator')?profile.indicatorMaterial.lens:backdrop?1:profile.material.lens;
  for(const zone of ['center','edge']){
   const layer=ref.zoomLayers[zone],radius=Math.min(w,h)*blur[zone]/100,chromatic=zone==='edge'?{...rgb,centers:[roundedMassCenter(w,h,corners)]}:null;
-  if(!z.value&&!radius&&!(chromatic?.enabled&&chromatic.strength)){layer.style.display='none';window.VFMirror?.remove(layer);continue}
+  if(window.VFMirror?.backend!=='webgl'&&!z.value&&!radius&&!(chromatic?.enabled&&chromatic.strength)){layer.style.display='none';window.VFMirror?.remove(layer);continue}
   layer.style.display='block';const key=[w,h,...corners,blur.edgeStart,blur.feather,zone].join(':');
   if(layer.dataset.maskKey!==key){layer.dataset.maskKey=key;layer.style.maskImage=layer.style.webkitMaskImage=contourMaskUrl(w,h,corners,zone,band,band,Math.max(.1,Math.min(w,h)*blur.feather/100))}
-  window.VFMirror?.update(layer,host,scale,radius,lens,chromatic);
+  window.VFMirror?.update(layer,host,scale,radius,lens,chromatic,{shapes:[[0,0,w,h,Math.max(...corners),1]],zone});
  }
 }
 function ensureRadialBlurHosts(){
@@ -163,7 +163,7 @@ function material(){const m=profile.material,i=profile.indicatorMaterial,root=do
  // SVG paints the shared glass silhouette; contour-clipped page copies supply
  // zoom and blur underneath without covering the liquid neck and drops.
  const entryGlass=document.querySelector('.dock-entry-glass'),dockGlass=document.querySelector('.dock-liquid-mass');if(entryGlass)entryGlass.style.opacity=Math.min(.22,m.opacity*.22);if(dockGlass)dockGlass.style.opacity=m.opacity*.5;
- const outline=document.querySelector('#dockLiquidOutlineGroup');if(outline)outline.style.opacity=1;const outlineLayer=document.querySelector('#dockLiquidOutlineLayer');if(outlineLayer)outlineLayer.style.maskImage=outlineLayer.style.webkitMaskImage=fadeMask;document.querySelector('#dockLiquidOutlineFilter feGaussianBlur')?.setAttribute('stdDeviation',profile.liquid.enabled?profile.liquid.blur:0);document.querySelector('#dockLiquidOutlineFilter feMorphology')?.setAttribute('radius',`${m.borderVertical} ${m.borderHorizontal}`);document.querySelector('#dockLiquidOutlineFilter feFlood')?.setAttribute('flood-opacity',m.borderOpacity);if(entry){entry.style.backgroundColor='transparent';entry.style.border='0';entry.style.backdropFilter=entry.style.webkitBackdropFilter='none'}if(indicator){indicator.style.backdropFilter=indicator.style.webkitBackdropFilter='none';indicator.style.border=`${i.border}px solid rgba(255,255,255,${i.borderOpacity})`}if(group)group.style.setProperty('--dock-indicator-fill',rgba(i.color,i.opacity))}
+ const outline=document.querySelector('#dockLiquidOutlineGroup');if(outline)outline.style.opacity=1;const outlineLayer=document.querySelector('#dockLiquidOutlineLayer');if(outlineLayer)outlineLayer.style.maskImage=outlineLayer.style.webkitMaskImage=fadeMask;document.querySelector('#dockLiquidOutlineFilter feGaussianBlur')?.setAttribute('stdDeviation',profile.liquid.enabled?profile.liquid.blur:0);document.querySelector('#dockLiquidOutlineFilter feMorphology')?.setAttribute('radius',`${m.borderVertical} ${m.borderHorizontal}`);document.querySelector('#dockLiquidOutlineFilter feFlood')?.setAttribute('flood-opacity',m.borderOpacity);if(entry){entry.style.backgroundColor='transparent';entry.style.border='0';entry.style.backdropFilter=entry.style.webkitBackdropFilter='none'}if(indicator){indicator.style.backdropFilter=indicator.style.webkitBackdropFilter='none';indicator.style.border=`${i.border}px solid rgba(255,255,255,${i.borderOpacity})`}if(group)group.style.setProperty('--dock-indicator-fill',rgba(i.color,i.opacity));if(window.VFMirror?.backend==='webgl')window.VFMirror.refresh()}
 function dockMirrorMask(s,r,zone){
  const w=s.w+28,h=156;
  const pill=v=>`<rect x="${v[0]}" y="${v[1]}" width="${Math.max(.1,v[2])}" height="${Math.max(.1,v[3])}" rx="${Math.max(0,v[4])}" opacity="${v[5]}"/>`;
@@ -187,9 +187,9 @@ function updateDockZoom(s){
  for(const zone of ['center','edge']){
   const layer=container.querySelector(`[data-zone="${zone}"]`);if(!layer)continue;
   const radius=size*blur[zone]/100,chromatic=zone==='edge'?{...profile.chromatic.dock,centers}:null;
-  if(!z.value&&!radius&&!(chromatic?.enabled&&chromatic.strength)){layer.style.display='none';window.VFMirror?.remove(layer);continue}
+  if(window.VFMirror?.backend!=='webgl'&&!z.value&&!radius&&!(chromatic?.enabled&&chromatic.strength)){layer.style.display='none';window.VFMirror?.remove(layer);continue}
   layer.style.display='block';const mask=dockMirrorMask(s,blur,zone);layer.style.maskImage=layer.style.webkitMaskImage=mask;
-  window.VFMirror?.update(layer,container,scale,radius,profile.material.lens,chromatic);
+  window.VFMirror?.update(layer,container,scale,radius,profile.material.lens,chromatic,{shapes:[s.active,s.nav],zone});
  }
 }
 function draw(s,diagnostic={transition:'selection',mode:'live'}){live=s;dockLiquidCurrent=s;const visible=liquid(s);renderDockLiquid(visible);renderDockChrome(s);for(const [selector,shape,blur] of [['.quick-entry-shell',s.entryHtml,profile.radialBlur],['.dock-indicator',s.indicator,profile.radialBlur]]){const host=document.querySelector(selector);if(host)updateContourBlurHost(host,blur,[shape[2],shape[3],shape[4]])}updateDockZoom(visible);window.VFMirror?.flush?.();if(!studioSeeking)window.VFDiagnosticCapture?.({...diagnostic,geometry:{entry:s.entryHtml,indicator:s.indicator,nav:s.nav,active:s.active}})}

@@ -1,7 +1,7 @@
 /* Live page copy for glass zoom. Blur is applied to this copy after scaling,
    so it samples the zoomed image rather than the unmodified backdrop. */
 (()=>{'use strict';
-const mirrors=new Map();let refreshTimer=0,frame=0;
+const mirrors=new Map();let refreshTimer=0,frame=0,suspended=false;
 const SVG='http://www.w3.org/2000/svg';
 let channelDefinitions,radialTexture,channelSerial=0;
 function radialMap(){
@@ -74,6 +74,7 @@ function rebuild(){
  scheduleFrame();
 }
 function scheduleRefresh(records){
+ if(suspended)return;
  const navigation=Array.isArray(records)&&records.some(record=>record.attributeName==='class'&&record.target.classList.contains('screen'));
  if(refreshTimer){if(!navigation)return;clearTimeout(refreshTimer)}
  // Changing pages must not leave the previous page under the dock for 180ms.
@@ -176,5 +177,5 @@ function observe(){
  window.visualViewport?.addEventListener('resize',align,{passive:true});
 }
 if(document.readyState==='loading')addEventListener('DOMContentLoaded',observe,{once:true});else observe();
-window.VFMirror={update,remove,refresh:scheduleRefresh,flush:align};
+window.VFMirror={update,remove,refresh:scheduleRefresh,flush:align,suspend(){suspended=true;clearTimeout(refreshTimer);cancelAnimationFrame(frame);for(const layer of mirrors.keys())remove(layer)}};
 })();
