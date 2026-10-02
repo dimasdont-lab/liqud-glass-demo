@@ -1,0 +1,9 @@
+<!doctype html><meta charset="utf-8"><title>RGB pixel displacement check</title>
+<style>
+body{margin:0;background:#111;color:white;font:24px system-ui}.app{width:800px;height:800px;background:repeating-linear-gradient(0deg,#111 0 25px,#fff 25px 30px,#111 30px 65px);padding:20px;box-sizing:border-box}.app p{background:#111;margin:28px 0;font-size:40px;font-weight:bold}
+#glass{position:fixed;top:150px;left:80px;width:580px;height:180px;border:2px solid #aaa;border-radius:90px;overflow:hidden}#layer{position:absolute;inset:0;mask-image:linear-gradient(#000,#000)}
+.vf-mirror-content{position:absolute;display:block;pointer-events:none;overflow:hidden;contain:paint}.vf-rgb-content,.vf-rgb-region{isolation:isolate;background:#000}.vf-rgb-region,.vf-rgb-channel{position:absolute;inset:0;pointer-events:none}.vf-rgb-channel{mix-blend-mode:screen}.vf-mirror-copy{position:absolute!important;margin:0!important;max-width:none!important;pointer-events:none!important}label{position:fixed;top:10px;right:30px;background:#333;padding:10px;z-index:10}
+</style><div class="app"><p>WHITE TEXT 0123456789</p><p>WHITE TEXT 0123456789</p><p>WHITE TEXT 0123456789</p><p>WHITE TEXT 0123456789</p><p>WHITE TEXT 0123456789</p></div><div id="glass"><div id="layer"></div></div><label><input id="rgb" type="checkbox" checked> RGB split</label>
+<script src="../mirror-runtime.js"></script><script>
+const layer=document.querySelector('#layer'),host=document.querySelector('#glass'),toggle=document.querySelector('#rgb');function render(){VFMirror.update(layer,host,1,0,1,{enabled:toggle.checked,strength:8,direction:1})}toggle.onchange=render;render();
+</script>

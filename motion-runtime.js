@@ -1,6 +1,6 @@
 /* Voice Finance Motion format 1. Shared by the app and the visual editor. */
 (()=>{'use strict';
-const KEY='vf-liquid-motion-v1',draftKey=KEY+'-draft',bundleKey=KEY+'-bundle-revision',disabledKey=KEY+'-disabled',bundleRevision='105',clone=x=>JSON.parse(JSON.stringify(x));
+const KEY='vf-liquid-motion-v1',draftKey=KEY+'-draft',bundleKey=KEY+'-bundle-revision',disabledKey=KEY+'-disabled',bundleRevision='106',clone=x=>JSON.parse(JSON.stringify(x));
 const studio=new URLSearchParams(location.search).has('studio');
 if(studio)document.body.classList.add('studio-preview');
 let profile=null,frame=null,live=null,studioLive=false;

@@ -3,13 +3,31 @@
 (()=>{'use strict';
 const mirrors=new Map();let refreshTimer=0,frame=0;
 const SVG='http://www.w3.org/2000/svg';
-let channelDefinitions;
+let channelDefinitions,radialTexture,channelSerial=0;
+function radialMap(){
+ if(radialTexture)return radialTexture;
+ const canvas=document.createElement('canvas');canvas.width=canvas.height=256;
+ const context=canvas.getContext('2d'),pixels=context.createImageData(256,256);
+ for(let y=0;y<256;y++)for(let x=0;x<256;x++){
+  const dx=x-127.5,dy=y-127.5,length=Math.hypot(dx,dy)||1,i=(y*256+x)*4;
+  pixels.data[i]=Math.round(127.5+127.5*dx/length);pixels.data[i+1]=Math.round(127.5+127.5*dy/length);pixels.data[i+2]=128;pixels.data[i+3]=255;
+ }
+ context.putImageData(pixels,0,0);radialTexture=canvas.toDataURL();return radialTexture;
+}
+function displacementChannel(name){
+ const filter=document.createElementNS(SVG,'filter'),id=`vf-radial-${++channelSerial}`;
+ filter.id=id;filter.setAttribute('filterUnits','userSpaceOnUse');filter.setAttribute('color-interpolation-filters','sRGB');
+ const map=document.createElementNS(SVG,'feImage');map.setAttribute('href',radialMap());map.setAttribute('preserveAspectRatio','none');map.setAttribute('result','radial');
+ const displacement=document.createElementNS(SVG,'feDisplacementMap');displacement.setAttribute('in','SourceGraphic');displacement.setAttribute('in2','radial');displacement.setAttribute('xChannelSelector','R');displacement.setAttribute('yChannelSelector','G');
+ const matrix=document.createElementNS(SVG,'feColorMatrix'),values=Array(20).fill(0);values[['red','green','blue'].indexOf(name)*6]=1;values[18]=1;matrix.setAttribute('values',values.join(' '));
+ filter.append(map,displacement,matrix);channelDefinitions.append(filter);return {filter,map,displacement,id};
+}
 function ensureChannels(){
  if(channelDefinitions)return;
  const root=document.createElementNS(SVG,'svg');root.setAttribute('aria-hidden','true');
  root.style.cssText='position:fixed;left:-100px;top:-100px;width:1px;height:1px;pointer-events:none';
- // Simple channel isolation, no feImage/displacement texture to decode on
- // every animation frame. Geometry is synchronous CSS in local coordinates.
+ // Green stays at its original sample coordinates. Red/blue use persistent
+ // displacement filters and one shared static texture throughout the morph.
  root.innerHTML='<defs>'+['red','green','blue'].map((name,index)=>{
   const matrix=Array(20).fill(0);matrix[index*6]=1;matrix[18]=1;
   return `<filter id="vf-channel-${name}" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%"><feColorMatrix type="matrix" values="${matrix.join(' ')}"/></filter>`;
@@ -28,7 +46,8 @@ function copySource(source){
  copy.classList.add('vf-mirror-copy');return copy;
 }
 function populate(record,templates=sourceNodes().map(source=>({source,copy:copySource(source)}))){
- const scene=document.createDocumentFragment();record.copies=[];record.channels=[];
+ const scene=document.createDocumentFragment();record.copies=[];
+ record.channels?.forEach(item=>item.optics?.filter.remove());record.channels=[];
  const appendCopies=parent=>{for(const template of templates){const copy=template.copy.cloneNode(true);record.copies.push({source:template.source,copy});parent.append(copy)}};
  record.rgbCount=rgbEnabled(record.chromatic)?rgbPoints(record).length:0;
  if(record.rgbCount){
@@ -37,7 +56,7 @@ function populate(record,templates=sourceNodes().map(source=>({source,copy:copyS
    const region=document.createElement('span');region.className='vf-rgb-region';scene.append(region);
    for(const [name,sign]of [['red',1],['green',0],['blue',-1]]){
     const channel=document.createElement('span');channel.className='vf-rgb-channel';channel.dataset.channel=name;
-    region.append(channel);appendCopies(channel);record.channels.push({region,channel,name,sign,index:i});
+    region.append(channel);appendCopies(channel);record.channels.push({region,channel,name,sign,index:i,optics:sign?displacementChannel(name):null});
    }
   }
  }else appendCopies(scene);
@@ -108,22 +127,30 @@ function scheduleFrame(){if(!frame&&mirrors.size)frame=requestAnimationFrame(pos
   record.overscan=overscan;if(record.content.style.inset!==inset)record.content.style.inset=inset;
   const count=rgbEnabled(chromatic)?rgbPoints(record).length:0;if(count!==record.rgbCount)populate(record);
   const optical=`saturate(${Math.max(0,lens).toFixed(2)}) contrast(${Math.max(.75,1+(lens-1)*.16).toFixed(2)}) brightness(${Math.max(.8,1+(lens-1)*.07).toFixed(2)})`,filter=`${blur>0?`blur(${blur.toFixed(2)}px) `:''}${optical}`;
-  // Source zoom → blur/material → channel isolation → radial channel scale.
+  // Source zoom → blur/material → constant-pixel radial displacement → channel isolation.
   // The outer layer retains the exact shared contour/edge mask in all states.
   record.content.style.filter=count?'none':filter;
   for(const item of record.channels){
    const point=rgbPoints(record)[item.index],w=point.width||host.clientWidth,h=point.height||host.clientHeight;
    const amount=item.sign*chromatic.strength*chromatic.direction;
-   item.channel.style.filter=`${filter} url(#vf-channel-${item.name})`;
-   item.channel.style.transformOrigin=`${point.x+overscan}px ${point.y+overscan}px`;
-   item.channel.style.transform=`scale(${Math.max(.05,1+amount/Math.max(1,w/2))},${Math.max(.05,1+amount/Math.max(1,h/2))})`;
+   item.channel.style.filter=`${filter} url(#${item.optics?.id||'vf-channel-green'})`;
+   item.channel.style.transform='none';
+   if(item.optics){
+    const {filter:svgFilter,map,displacement}=item.optics;
+    const width=host.clientWidth+2*overscan,height=host.clientHeight+2*overscan;
+    for(const node of [svgFilter,map]){node.setAttribute('x','0');node.setAttribute('y','0');node.setAttribute('width',width);node.setAttribute('height',height)}
+    // A square map keeps the vector normalized in CSS pixels, even for long pills.
+    const size=Math.max(width,height)*2;
+    map.setAttribute('x',point.x+overscan-size/2);map.setAttribute('y',point.y+overscan-size/2);map.setAttribute('width',size);map.setAttribute('height',size);
+    displacement.setAttribute('scale',-2*amount);
+   }
    // Separate capsules use their own mass centre; never smear RGB across the gap.
    const points=rgbPoints(record),split=count===2?(points[0].x+points[1].x)/2+overscan:0;
    item.region.style.clipPath=count===2?(item.index===0?`inset(0 ${Math.max(0,host.clientWidth+2*overscan-split)}px 0 0)`:`inset(0 0 0 ${split}px)`):'none';
   }
   scheduleFrame();
  }
-function remove(layer){const record=mirrors.get(layer);if(!record)return;record.layer.replaceChildren();mirrors.delete(layer);if(!mirrors.size&&frame){cancelAnimationFrame(frame);frame=0}}
+function remove(layer){const record=mirrors.get(layer);if(!record)return;record.channels?.forEach(item=>item.optics?.filter.remove());record.layer.replaceChildren();mirrors.delete(layer);if(!mirrors.size&&frame){cancelAnimationFrame(frame);frame=0}}
 function releaseClosed(){
  for(const record of mirrors.values()){
   const sheet=record.host.closest('.sheet-backdrop'),drawer=record.host.closest('.profile-drawer-backdrop');

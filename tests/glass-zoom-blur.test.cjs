@@ -27,10 +27,11 @@ test('glass blurs the zoomed source before optional edge-only RGB dispersion', (
   assert.match(source, /const localX=contentRect\.width\/Math\.max\(1,record\.content\.offsetWidth\)/);
   assert.match(source, /const x=\(box\.left-contentRect\.left\)\/localX/);
   assert.doesNotMatch(source, /setDirection\(/,'the obsolete reflection pipeline stays removed');
-  assert.match(source,/item.channel.style.filter=`\$\{filter\} url\(#vf-channel-/);
+  assert.match(source,/item.channel.style.transform='none'/);
   assert.match(motion,/chromatic=zone==='edge'\?\{\.\.\.rgb,centers:/,'RGB uses the exact existing edge mask and shape centroid');
   assert.match(source,/config\?\.enabled&&config.strength>0/,'disabled RGB does not run channel copies');
-  assert.doesNotMatch(source,/new Image\(|feDisplacementMap|toDataURL\(/,'RGB has no per-frame texture decoding');
+  assert.match(source,/if\(radialTexture\)return radialTexture/,'one shared static radial texture, not a new image per morph frame');
+  assert.match(source,/displacement.setAttribute\('scale',-2\*amount\)/,'true pixel displacement rather than channel zoom');
   assert.match(source,/record.layer.replaceChildren\(\);mirrors.delete\(layer\)/,'closed surfaces release their channel copies');
   assert.match(source, /addEventListener\('scroll',align/);
 });
