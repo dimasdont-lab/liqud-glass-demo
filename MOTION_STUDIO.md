@@ -15,6 +15,12 @@ Format `voice-finance-motion`, version 1. JSON contains explicit numeric geometr
 
 This is not a universal drop-in file for arbitrary historic Voice Finance builds. Port the renderer functions (`dockLiquidTargets`, `dockExpansionFrames`, `dockCollapseFrames`, `sampleDockExpansion`, `rejoinDockMorph`, `renderDockLiquid`, `renderDockChrome`), SVG IDs/DOM contract and CSS with the runtime, or write an adapter. Load the runtime after the app's main script. Never import a preset as executable code.
 
-The current lens control is a brightness/saturation approximation, not optical background refraction. Glass color is dock-wide. Popup style is shared by all sheets; drawer has its own style. Original engine remains unchanged until a preset is applied. iPhone hardware frame rate is not guaranteed by a desktop preview.
+Studio preview (`index.html?studio=1`) uses the live-DOM WebGL optics from the supplied example: independent HTML blocks are rasterized once into GPU textures, changed blocks are refreshed with `texSubImage2D`, and native scrolling/animated transforms reposition those textures. The shader samples and refracts those pixels along the glass edge; the sliding indicator samples the parent bar's optical result. Existing keyframes, geometry, animated SVG masks, shared glass material, separate indicator material and popup controls remain the owners of their settings. The regular Demo and the primary Voice Finance are not switched to this renderer.
+
+DOM snapshots are not direct access to the browser's framebuffer. Unsupported html2canvas content and images without suitable CORS permission cannot be read into the texture. Changes to captured content refresh after 150 ms of motion idle; scroll and panel transforms themselves require no new snapshot. Diagnostics expose capture/upload/allocation counts, texture memory, GPU passes and errors. A device's actual frame rate and visual shader output must be checked in Safari; Node tests validate resource/order/state behavior, not pixels or 60 FPS.
+
+### v110 verification status
+
+The incremental cache and GPU integration have behavioral tests, including pending-capture races, scrolling without full-viewport texture uploads, mask/RGB invalidation, parent-indicator optics and panel order. The supplied reference's refraction/specular equations are retained. Browser/device visual verification is pending because no browser is currently connected to this Codex session. Do not treat these automated tests as an iPhone visual pass.
 
 Storage keys: `vf-liquid-motion-v1` (applied) and `vf-liquid-motion-v1-draft` (draft). Financial storage is never modified by these controls.
